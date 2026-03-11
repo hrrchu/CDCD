@@ -1,0 +1,2717 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스케줄 매니저</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getDatabase, ref, onValue, set, get } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+  window._fbMod = { initializeApp, getDatabase, ref, onValue, set, get };
+</script>
+<style>
+:root{
+  --bg:#f5f6f8;--sur:#fff;--sf2:#f0f1f4;
+  --bd:#e2e4ea;--bd2:#d0d3dd;
+  --acc:#4f8cff;--tx:#1a1d27;--tx2:#5a6072;--tx3:#9aa0b4;
+  --cell:40px;--nc:126px;--tc:158px;
+  --sh:0 1px 4px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+
+/* ── NAV TABS ── */
+.nav-tabs{display:flex;align-items:center;background:var(--sur);border-bottom:2px solid var(--bd);padding:0 22px;gap:2px;position:sticky;top:0;z-index:200;box-shadow:var(--sh)}
+.nav-tab{padding:12px 16px;font-size:13px;font-weight:600;color:var(--tx3);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap;user-select:none}
+.nav-tab:hover{color:var(--tx2)}
+.nav-tab.active{color:var(--acc);border-bottom-color:var(--acc)}
+.nav-title-input{background:none;border:none;outline:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;color:inherit;width:auto;cursor:pointer;padding:0}
+.nav-title-input:focus{cursor:text;background:#f0f7ff;border-radius:4px;padding:1px 5px}
+.nav-logo{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#333;margin-right:16px;flex-shrink:0}
+.nav-logo span{color:var(--tx3);font-weight:400}
+
+/* ── PAGE ── */
+.page{display:none}
+.page.active{display:block}
+
+/* ── SCHEDULE PAGE HEADER ── */
+.page-header{display:flex;align-items:center;justify-content:space-between;padding:10px 22px;border-bottom:1px solid var(--bd);background:var(--sur)}
+.hright{display:flex;align-items:center;gap:7px}
+.mnav{display:flex;align-items:center;gap:3px;background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:3px 8px}
+.mnav button{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:15px;padding:1px 5px;border-radius:4px;transition:.1s}
+.mnav button:hover{background:var(--bd);color:var(--tx)}
+#cur-month{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--tx);min-width:108px;text-align:center}
+.btn{padding:6px 11px;border-radius:7px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;transition:.13s;white-space:nowrap}
+.btn-p{background:var(--acc);color:#fff}.btn-p:hover{background:#3a7ae8}
+.btn-leave{background:#2563eb;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.3)}.btn-leave:hover{background:#1d4ed8;box-shadow:0 3px 12px rgba(37,99,235,.4)}
+.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}
+.btn-g{background:var(--sf2);color:var(--tx2);border:1px solid var(--bd)}.btn-g:hover{color:var(--tx);border-color:#aaa}
+.btn-danger{background:#fff5f5;color:#e74c3c;border:1px solid #fcc}.btn-danger:hover{background:#fee2e2}
+
+/* ── LEGEND ── */
+.legend{display:flex;gap:5px;padding:7px 22px;background:var(--sur);border-bottom:1px solid var(--bd);overflow-x:auto;flex-wrap:wrap;align-items:center}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2);font-weight:500;padding:3px 9px;border-radius:20px;border:1px solid var(--bd);background:var(--sur);white-space:nowrap;cursor:pointer;transition:.12s}
+.legend-item:hover{border-color:#aaa}
+.ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.legend-add{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--acc);font-weight:600;padding:3px 9px;border-radius:20px;border:1.5px dashed var(--acc);cursor:pointer;white-space:nowrap;background:rgba(79,140,255,.04);transition:.12s}
+.legend-add:hover{background:rgba(79,140,255,.1)}
+
+/* ── HINT ── */
+.hint{font-size:11px;color:var(--tx3);padding:4px 22px;display:flex;gap:10px;flex-wrap:wrap;background:var(--sf2);border-bottom:1px solid var(--bd)}
+.hint b{color:var(--tx2)}.hint .sep{color:var(--bd2)}
+
+/* ── STATS ── */
+.stats{display:flex;gap:8px;padding:11px 22px 0;flex-wrap:wrap}
+.sc{background:var(--sur);border:1px solid var(--bd);border-radius:9px;padding:8px 13px;box-shadow:var(--sh)}
+.sl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px}
+.sv{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--tx)}
+
+/* ── GANTT SUBTABS ── */
+.sub-tabs{display:flex;gap:2px;padding:10px 22px 0}
+.sub-tab{padding:6px 14px;font-size:12px;font-weight:600;border-radius:8px 8px 0 0;border:1px solid var(--bd);border-bottom:none;cursor:pointer;background:var(--sf2);color:var(--tx3);transition:.13s}
+.sub-tab.active{background:var(--sur);color:var(--acc);border-color:var(--bd)}
+.sub-content{display:none;background:var(--sur);border:1px solid var(--bd);border-radius:0 11px 11px 11px;margin:0 22px;box-shadow:var(--sh)}
+.sub-content.active{display:block}
+
+/* ── GANTT TABLE ── */
+.gs{overflow-x:auto}
+table{border-collapse:collapse;min-width:100%;user-select:none}
+thead th{background:#fafbfc;padding:0;border-bottom:2px solid var(--bd2);border-right:1px solid var(--bd);position:sticky;top:0;z-index:10}
+th.cn{width:var(--nc);min-width:var(--nc);font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;padding:9px 10px;text-align:left;position:sticky;left:0;z-index:20;background:#fafbfc}
+th.ct{width:var(--tc);min-width:var(--tc);font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;padding:9px 10px;text-align:left;position:sticky;left:var(--nc);z-index:20;background:#fafbfc}
+th.cd{width:var(--cell);min-width:var(--cell);text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:var(--tx3);padding:4px 0 2px;vertical-align:bottom}
+th.cd .dn{display:block;font-size:12px;color:var(--tx2);padding-bottom:2px;font-weight:600}
+th.cd .dl{display:block;font-size:9px;color:var(--tx3)}
+th.cd.today .dn{color:var(--acc);background:rgba(79,140,255,.12);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 2px}
+tbody tr{border-bottom:1px solid var(--bd)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#f8f9fb}
+tr.gr td{background:#f3f4f7;padding:5px 12px;font-size:11px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd2)}
+.gdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+td.cn{position:sticky;left:0;z-index:5;background:var(--sur);width:var(--nc);min-width:var(--nc);padding:6px 10px;border-right:1px solid var(--bd);cursor:grab}
+td.cn:active{cursor:grabbing}
+td.cn:hover{background:#f0f5ff!important}
+tr.row-dragging td{opacity:.4}
+tr.row-drag-over-top td.cn{border-top:2.5px solid var(--acc)!important}
+tr.row-drag-over-bottom td.cn{border-bottom:2.5px solid var(--acc)!important}
+td.ct{position:sticky;left:var(--nc);z-index:5;background:var(--sur);width:var(--tc);min-width:var(--tc);padding:6px 10px;border-right:2px solid var(--bd2)}
+tbody tr:hover td.cn,tbody tr:hover td.ct{background:#f8f9fb}
+.pi{display:flex;align-items:center;gap:7px}
+.av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.pn{font-size:12px;font-weight:600;color:var(--tx);white-space:nowrap}
+.pr{font-size:10px;color:var(--tx3)}
+.tn{font-size:12px;color:var(--tx);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:142px}
+
+/* ── DAY CELLS ── */
+td.cell{width:var(--cell);min-width:var(--cell);height:44px;border-right:1px solid rgba(210,213,220,.4);cursor:crosshair;position:relative;vertical-align:middle}
+td.cell.today{background:rgba(79,140,255,.035)}
+td.cell.empty:hover{background:rgba(79,140,255,.07)!important}
+td.cell.creating{background:rgba(79,140,255,.13)!important}
+td.cell.creating-anchor{background:rgba(79,140,255,.22)!important}
+tbody tr.drop-target td.cn,tbody tr.drop-target td.ct{background:#e8f0ff!important}
+tbody tr.drop-target{background:#f0f5ff!important;outline:2px solid var(--acc)}
+
+/* ── BAR ── */
+td.cell.bar{cursor:crosshair;padding:0}
+td.cell.bar:active{cursor:crosshair}
+.bt{width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative;cursor:crosshair}
+.bf{height:22px;width:100%;position:relative;display:flex;align-items:center;transition:filter .1s;cursor:grab;flex-shrink:0}
+.bf:active{cursor:grabbing}
+td.cell.bs .bf{border-radius:11px 0 0 11px;margin-left:3px}
+td.cell.be .bf{border-radius:0 11px 11px 0;margin-right:3px}
+td.cell.bs.be .bf{border-radius:11px;margin:0 3px}
+.bl{font-size:9px;font-weight:700;white-space:nowrap;overflow:hidden;padding:0 6px;position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;pointer-events:none;opacity:.9}
+.bf:hover{filter:brightness(1.08)}
+td.cell.status-wip .bf{box-shadow:inset 0 0 0 2px rgba(255,255,255,.8)}
+td.cell.bar-ghost .bf{opacity:.35}
+td.cell.bar-drop-preview{background:rgba(79,140,255,.1)!important}
+td.cell.bar-drop-preview .bf{opacity:.65;filter:brightness(1.1)}
+td.cell.move-ghost .bf{opacity:.38}
+td.cell.move-preview{background:rgba(79,140,255,.08)!important}
+td.cell.move-preview .bf{opacity:.68;filter:brightness(1.08)}
+
+/* ── BAR ── */
+td.cell.bar{cursor:crosshair;padding:0}
+td.cell.bar:active{cursor:crosshair}
+.bt{width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative;cursor:crosshair}
+.bf{height:28px;width:100%;position:relative;display:flex;align-items:center;transition:filter .1s;cursor:grab;flex-shrink:0}
+.bf:active{cursor:grabbing}
+td.cell.bs .bf{border-radius:11px 0 0 11px;margin-left:3px}
+td.cell.be .bf{border-radius:0 11px 11px 0;margin-right:3px}
+td.cell.bs.be .bf{border-radius:11px;margin:0 3px}
+.bl{font-size:9px;font-weight:700;white-space:nowrap;overflow:hidden;padding:0 6px;position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;pointer-events:none;opacity:.9}
+.bf:hover{filter:brightness(1.08)}
+td.cell.status-wip .bf{box-shadow:inset 0 0 0 2px rgba(255,255,255,.8)}
+td.cell.bar-ghost .bf{opacity:.35}
+td.cell.bar-drop-preview{background:rgba(79,140,255,.1)!important}
+td.cell.bar-drop-preview .bf{opacity:.65;filter:brightness(1.1)}
+td.cell.move-ghost .bf{opacity:.38}
+td.cell.move-preview{background:rgba(79,140,255,.08)!important}
+td.cell.move-preview .bf{opacity:.68;filter:brightness(1.08)}
+
+/* ── MILESTONE BARS ── */
+.ms-wrap{width:100%;display:flex;flex-direction:column;gap:2px;z-index:4;flex-shrink:0;padding:2px 3px 1px;min-height:0}
+.ms-bar{height:6px;width:100%;border-radius:3px;cursor:grab;pointer-events:all;transition:opacity .12s,height .12s;position:relative}
+.ms-bar:active{cursor:grabbing}
+.ms-bar:hover{opacity:.8;height:8px}
+.ms-bar:hover .ms-tip{display:block}
+.ms-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1d27;color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:4px 8px;border-radius:5px;pointer-events:none;z-index:200;font-family:'Noto Sans KR',sans-serif;box-shadow:0 3px 10px rgba(0,0,0,.2)}
+.ms-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#1a1d27}
+td.cell.has-ms{cursor:pointer}
+td.cell.empty:hover,td.cell.has-ms:hover{background:rgba(79,140,255,.07)!important}
+
+/* ── RESIZE HANDLES ── */
+.rh{position:absolute;top:0;bottom:0;width:7px;cursor:ew-resize;z-index:6;opacity:0;transition:opacity .15s;display:flex;align-items:center;justify-content:center}
+td.cell.bar:hover .rh{opacity:1}
+.rh-l{left:0}.rh-r{right:0}
+.rh::after{content:'';width:2px;height:11px;border-radius:2px;background:rgba(255,255,255,.65)}
+
+/* ── LEAVE CELLS ── */
+td.cell.leave{cursor:pointer;padding:0}
+.lv-fill{position:absolute;inset:3px 0;display:flex;align-items:center;transition:filter .1s}
+td.cell.leave.lv-s .lv-fill{border-radius:10px 0 0 10px;left:3px}
+td.cell.leave.lv-e .lv-fill{border-radius:0 10px 10px 0;right:3px}
+td.cell.leave.lv-s.lv-e .lv-fill{border-radius:10px;left:3px;right:3px}
+td.cell.leave:hover .lv-fill{filter:brightness(.93)}
+.lv-icon{font-size:11px;pointer-events:none;padding:0 4px}
+.lv-lbl{font-size:8px;font-weight:700;pointer-events:none;white-space:nowrap;overflow:hidden}
+
+/* ── TOOLTIP ── */
+.bub{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--bd2);border-radius:9px;padding:10px 12px;min-width:175px;max-width:240px;z-index:1000;box-shadow:0 6px 20px rgba(0,0,0,.12);display:none;pointer-events:none}
+.bub.vis{display:block;animation:pop .12s ease;pointer-events:auto}
+@keyframes pop{from{opacity:0;transform:translateX(-50%) translateY(-4px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.bub::before{content:'';position:absolute;top:-5px;left:50%;width:8px;height:8px;background:#fff;border-top:1px solid var(--bd2);border-left:1px solid var(--bd2);transform:translateX(-50%) rotate(45deg)}
+.bd2t{font-family:'Space Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:4px}
+.bpp{font-size:11px;font-weight:700;margin-bottom:3px}
+.bt2{font-size:12px;color:var(--tx);line-height:1.5;margin-bottom:6px}
+.blink{display:flex;align-items:center;gap:5px;font-size:11px;color:#4f8cff;text-decoration:none;background:rgba(79,140,255,.07);padding:4px 7px;border-radius:5px;word-break:break-all}
+.blink:hover{background:rgba(79,140,255,.14)}
+
+/* ── MODAL ── */
+.mb{position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.mb.open{display:flex}
+.modal{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:22px;width:440px;max-width:95vw;animation:mi .17s ease;box-shadow:0 14px 44px rgba(0,0,0,.13);max-height:90vh;overflow-y:auto}
+.modal.wide{width:580px}
+@keyframes mi{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.mt{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:3px}
+.mss{font-size:11px;color:var(--tx3);margin-bottom:10px}
+.rbadge{display:inline-flex;align-items:center;gap:5px;background:#f0f7ff;border:1px solid #c7deff;color:#4f8cff;border-radius:6px;padding:3px 10px;font-size:11px;font-family:'Space Mono',monospace;margin-bottom:12px}
+.fg{margin-bottom:11px}
+.fg label{display:block;font-size:11px;color:var(--tx2);margin-bottom:3px;font-weight:600}
+.fg input,.fg textarea,.fg select{width:100%;background:#fafbfc;border:1px solid var(--bd2);border-radius:7px;padding:7px 10px;color:var(--tx);font-family:'Noto Sans KR',sans-serif;font-size:12px;outline:none;resize:vertical;transition:border-color .1s}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--acc);background:#fff}
+.ma{display:flex;gap:7px;justify-content:flex-end;margin-top:14px}
+.psel{display:flex;flex-wrap:wrap;gap:5px}
+.ppill{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;border:2px solid transparent;font-size:11px;font-weight:600;cursor:pointer;transition:.12s}
+.ppdot{width:7px;height:7px;border-radius:50%}
+.lv-pill{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;transition:.12s;border:2px solid transparent}
+.lv-pill:hover{filter:brightness(.95)}
+
+/* ── MILESTONE MODAL checkboxes ── */
+.ms-grid{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.ms-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;cursor:pointer;transition:.12s}
+.ms-row:hover{background:#f8f9ff;border-color:var(--acc)}
+.ms-row.checked{background:#f0f7ff;border-color:var(--acc)}
+.ms-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--acc);cursor:pointer}
+.ms-icon{font-size:16px}
+.ms-label{font-size:13px;font-weight:600;color:var(--tx);flex:1}
+.ms-note{font-size:11px;color:var(--tx3)}
+
+/* ── PROJECT MANAGEMENT ── */
+.proj-list{width:100%;border-collapse:collapse;margin-top:8px}
+.proj-list td{padding:7px 8px;border-bottom:1px solid var(--bd);vertical-align:middle;font-size:12px}
+.proj-list tr:last-child td{border-bottom:none}
+.proj-list tr:hover td{background:#fafbfc}
+.color-swatch{width:22px;height:22px;border-radius:5px;border:1px solid rgba(0,0,0,.1);cursor:pointer;flex-shrink:0}
+.color-input-wrap{position:relative;display:inline-flex;align-items:center}
+.color-input-wrap input[type=color]{position:absolute;opacity:0;width:22px;height:22px;cursor:pointer;border:none;padding:0}
+.proj-name-input{border:1px solid var(--bd);border-radius:5px;padding:4px 7px;font-size:12px;font-family:'Noto Sans KR',sans-serif;width:130px;outline:none}
+.proj-name-input:focus{border-color:var(--acc)}
+
+.arb{width:100%;padding:8px;background:transparent;border-top:1px dashed var(--bd);color:var(--tx3);cursor:pointer;font-size:12px;font-family:'Noto Sans KR',sans-serif;transition:.13s;display:flex;align-items:center;justify-content:center;gap:6px;border-left:none;border-right:none;border-bottom:none}
+.arb:hover{color:var(--acc);background:rgba(79,140,255,.03)}
+
+/* ── TEAM MANAGER ── */
+.team-group{border:1px solid var(--bd);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.team-group-header{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--sf2);border-bottom:1px solid var(--bd)}
+.tg-color-wrap{position:relative;display:inline-flex;align-items:center;flex-shrink:0}
+.tg-color-swatch{width:18px;height:18px;border-radius:50%;border:2px solid rgba(0,0,0,.1);cursor:pointer;flex-shrink:0}
+.tg-color-wrap input[type=color]{position:absolute;opacity:0;width:18px;height:18px;cursor:pointer;border:none;padding:0}
+.tg-name-input{flex:1;border:1px solid transparent;border-radius:5px;padding:3px 7px;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;background:transparent;outline:none;color:var(--tx2)}
+.tg-name-input:hover{border-color:var(--bd);background:#fff}
+.tg-name-input:focus{border-color:var(--acc);background:#fff}
+.team-member-row{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--bd)}
+.team-member-row:last-child{border-bottom:none}
+.tm-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;overflow:hidden}
+.tm-av-wrap{position:relative;width:28px;height:28px;flex-shrink:0;cursor:pointer;border-radius:50%}
+.tm-av-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;pointer-events:none}
+.tm-av-wrap:hover .tm-av-overlay{opacity:1}
+.tm-name-input{flex:1;border:1px solid transparent;border-radius:5px;padding:3px 7px;font-size:12px;font-family:'Noto Sans KR',sans-serif;background:transparent;outline:none;color:var(--tx)}
+.tm-name-input:hover{border-color:var(--bd);background:#fafbfc}
+.tm-name-input:focus{border-color:var(--acc);background:#fff}
+.tm-role-input{width:80px;border:1px solid transparent;border-radius:5px;padding:3px 7px;font-size:11px;font-family:'Noto Sans KR',sans-serif;background:transparent;outline:none;color:var(--tx3)}
+.tm-role-input:hover{border-color:var(--bd);background:#fafbfc}
+.tm-role-input:focus{border-color:var(--acc);background:#fff}
+.tm-del-btn{width:22px;height:22px;border-radius:50%;border:none;background:#fee2e2;color:#e74c3c;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.12s;line-height:1}
+.tm-del-btn:hover{background:#fca5a5}
+.tg-add-btn{width:100%;padding:6px 12px;background:none;border:none;border-top:1px dashed var(--bd);color:var(--acc);cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif;font-weight:600;transition:.12s;text-align:left}
+.tg-add-btn:hover{background:rgba(79,140,255,.04)}
+.tg-del-btn{padding:3px 8px;border-radius:5px;border:1px solid #fcc;background:#fff5f5;color:#e74c3c;cursor:pointer;font-size:11px;font-family:'Noto Sans KR',sans-serif;transition:.12s;flex-shrink:0}
+.tg-del-btn:hover{background:#fee2e2}
+
+/* drag handles */
+.drag-handle{width:22px;height:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:grab;flex-shrink:0;opacity:.28;transition:opacity .12s,background .12s;border-radius:5px;padding:2px}
+.drag-handle:hover{opacity:.8;background:var(--sf2)}
+.drag-handle:active{cursor:grabbing;opacity:1}
+.drag-handle span{display:block;width:13px;height:2px;background:var(--tx2);border-radius:1px}
+/* dragging states */
+.tm-dragging{opacity:.35;background:#f0f5ff!important;box-shadow:0 2px 12px rgba(79,140,255,.18)!important}
+.tm-drag-over-top{border-top:2px solid var(--acc)!important}
+.tm-drag-over-bottom{border-bottom:2px solid var(--acc)!important}
+.tg-dragging{opacity:.38;box-shadow:0 4px 20px rgba(79,140,255,.15)!important}
+.tg-drag-over-top{border-top:2.5px solid var(--acc)!important;border-radius:10px 10px 0 0}
+.tg-drag-over-bottom{border-bottom:2.5px solid var(--acc)!important;border-radius:0 0 10px 10px}
+
+/* ── GRM SECTION ── */
+.grm-wrap{padding:20px 22px 28px}
+.grm-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.grm-sub{font-size:12px;color:var(--tx3);margin-bottom:18px}
+.grm-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:700px){.grm-grid{grid-template-columns:1fr}}
+.grm-card{background:var(--sur);border:1px solid var(--bd);border-radius:11px;padding:16px;box-shadow:var(--sh)}
+.grm-card-title{font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.grm-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.grm-name{font-size:12px;font-weight:600;color:var(--tx);min-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grm-bar-wrap{flex:1;background:#f0f1f4;border-radius:6px;height:12px;overflow:hidden;position:relative}
+.grm-bar-fill{height:100%;border-radius:6px;transition:width .4s ease}
+.grm-pct{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--tx2);min-width:38px;text-align:right}
+.grm-breakdown{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:4px}
+.grm-seg{height:100%;transition:width .4s}
+.grm-legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.grm-legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--tx2)}
+.grm-ldot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* ── FREE PAGES ── */
+.free-page{padding:32px 28px}
+.free-page-title{font-size:22px;font-weight:700;color:var(--tx);margin-bottom:6px;outline:none;width:100%;border:none;background:none;font-family:'Noto Sans KR',sans-serif}
+.free-page-title:focus{background:#f8f9ff;border-radius:6px;padding:2px 6px}
+.free-page-subtitle{font-size:13px;color:var(--tx3);margin-bottom:24px;outline:none;width:100%;border:none;background:none;font-family:'Noto Sans KR',sans-serif}
+.free-page-subtitle:focus{background:#f8f9ff;border-radius:6px;padding:2px 6px}
+.free-editor{width:100%;min-height:320px;background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:18px;font-family:'Noto Sans KR',sans-serif;font-size:14px;line-height:1.8;color:var(--tx);outline:none;box-shadow:var(--sh);resize:vertical}
+.free-editor:focus{border-color:var(--acc)}
+.free-tip{font-size:11px;color:var(--tx3);margin-top:8px}
+
+/* ── LEAVE LIST ── */
+.lv-section{margin-bottom:16px}
+.lv-section-hd{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 8px;font-size:12px;font-weight:700;color:var(--tx2);border-bottom:2px solid var(--bd)}
+.lv-section-cnt{font-size:11px;font-weight:500;color:var(--tx3);font-family:'Space Mono',monospace}
+.lv-table{display:flex;flex-direction:column;gap:1px;margin-top:4px}
+.lv-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .1s}
+.lv-row:hover{background:var(--sf2)}
+.lv-row-name{font-size:12px;font-weight:600;color:var(--tx);min-width:72px;white-space:nowrap}
+.lv-row-role{font-size:10px;color:var(--tx3);font-weight:400;margin-left:5px}
+.lv-type-badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.lv-row-date{font-family:'Space Mono',monospace;font-size:10px;color:var(--tx3);flex:1;white-space:nowrap}
+.lv-row-days{font-family:'Space Mono',monospace;font-size:11px;font-weight:600;color:var(--tx2);min-width:28px;text-align:right;white-space:nowrap}
+.lv-row-note{font-size:11px;color:var(--tx2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
+.lv-row-edit{font-size:10px;color:var(--acc);opacity:0;transition:opacity .1s;white-space:nowrap;flex-shrink:0}
+.lv-row:hover .lv-row-edit{opacity:1}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+
+/* ── TOOL INFO TABLE ── */
+.tool-page{padding:28px 32px;max-width:1000px}
+.tool-page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px}
+.tool-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--bd);box-shadow:var(--sh)}
+.tool-table{width:100%;border-collapse:collapse;background:var(--sur)}
+.tool-th{padding:10px 14px;font-size:11px;font-weight:700;color:var(--tx2);text-align:left;background:var(--sf2);border-bottom:2px solid var(--bd);white-space:nowrap}
+.tool-th-drag{width:32px;background:var(--sf2);border-bottom:2px solid var(--bd)}
+.tool-th-del{width:36px;background:var(--sf2);border-bottom:2px solid var(--bd)}
+.tool-row{transition:background .1s}
+.tool-row:hover{background:#f8faff}
+.tool-row.tool-row-dragging{opacity:.38;background:#eef4ff}
+.tool-row.tool-row-over-top{box-shadow:inset 0 2px 0 var(--acc)}
+.tool-row.tool-row-over-bottom{box-shadow:inset 0 -2px 0 var(--acc)}
+.tool-row td{border-bottom:1px solid var(--bd);padding:0}
+.tool-row:last-child td{border-bottom:none}
+.tool-drag-cell{width:32px;text-align:center;cursor:grab;color:var(--tx3);font-size:13px;opacity:.3;transition:opacity .1s;padding:0 6px;user-select:none}
+.tool-row:hover .tool-drag-cell{opacity:.7}
+.tool-drag-cell:active{cursor:grabbing}
+.tool-cell-input{width:100%;border:none;outline:none;background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;color:var(--tx);padding:10px 14px;transition:background .1s;box-sizing:border-box}
+.tool-cell-input:focus{background:#f0f7ff}
+.tool-cell-input::placeholder{color:var(--tx3);opacity:.6}
+.tool-pw-wrap{display:flex;align-items:center;position:relative}
+.tool-pw-wrap input{padding-right:32px}
+.tool-pw-eye{position:absolute;right:8px;background:none;border:none;cursor:pointer;color:var(--tx3);font-size:13px;padding:2px 4px;border-radius:4px;transition:color .1s}
+.tool-pw-eye:hover{color:var(--tx)}
+.tool-del-cell{width:36px;text-align:center;padding:0}
+.tool-del-btn{width:24px;height:24px;border-radius:50%;border:none;background:transparent;color:var(--tx3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;margin:0 auto}
+.tool-row:hover .tool-del-btn{opacity:.5}
+.tool-del-btn:hover{background:#fee2e2;color:#e74c3c;opacity:1!important}
+.idea-page{padding:20px 28px;max-width:1200px}
+.idea-header{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.idea-header-title{font-size:18px;font-weight:700;color:var(--tx);flex:1}
+.idea-search{flex:1;max-width:320px;border:1px solid var(--bd2);border-radius:24px;padding:7px 14px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;background:#fafbfc;color:var(--tx);transition:border-color .15s,box-shadow .15s}
+.idea-search:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(79,140,255,.12)}
+.idea-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;align-items:start}
+/* Keep-style card */
+.idea-card{border-radius:10px;padding:14px 14px 10px;position:relative;transition:box-shadow .15s,transform .12s;cursor:default;border:1px solid rgba(0,0,0,.09)}
+.idea-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.14);transform:translateY(-1px)}
+.idea-card.idea-dragging{opacity:.45;transform:scale(.96);pointer-events:none}
+.idea-card.idea-drag-over{outline:2px solid rgba(0,0,0,.35);outline-offset:1px;transform:none}
+/* card toolbar on hover */
+.idea-card-toolbar{display:flex;gap:4px;flex-wrap:wrap;opacity:0;transition:opacity .14s;margin-bottom:8px;align-items:center}
+.idea-card:hover .idea-card-toolbar{opacity:1}
+.idea-card-tool-btn{width:26px;height:26px;border-radius:50%;border:none;background:rgba(0,0,0,.08);color:rgba(0,0,0,.55);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:background .1s}
+.idea-card-tool-btn:hover{background:rgba(0,0,0,.16)}
+.idea-card-drag-handle{position:absolute;top:6px;right:34px;opacity:0;cursor:grab;color:rgba(0,0,0,.4);font-size:12px;transition:opacity .12s;user-select:none;padding:3px}
+.idea-card:hover .idea-card-drag-handle{opacity:.5}
+.idea-card-drag-handle:hover{opacity:1!important}
+.idea-card-pin{position:absolute;top:6px;right:6px;opacity:0;border:none;background:none;cursor:pointer;font-size:13px;color:rgba(0,0,0,.4);transition:opacity .1s;padding:2px}
+.idea-card:hover .idea-card-pin{opacity:.6}
+.idea-card-pin.pinned{opacity:1!important;color:#e67e22}
+.idea-card-title{font-size:13px;font-weight:700;color:rgba(0,0,0,.8);margin-bottom:6px;line-height:1.4;padding-right:28px;word-break:break-word}
+.idea-card-body{font-size:12px;color:rgba(0,0,0,.6);line-height:1.65;white-space:pre-wrap;word-break:break-word;margin-bottom:4px}
+.idea-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;flex-wrap:wrap;gap:4px}
+.idea-card-date{font-size:10px;color:rgba(0,0,0,.38);font-family:'Space Mono',monospace}
+.idea-tag-pill{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:12px;font-size:10px;font-weight:600;background:rgba(0,0,0,.1);color:rgba(0,0,0,.55)}
+/* reactions */
+.idea-reactions{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;position:relative}
+.idea-reaction{display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.1);border-radius:16px;padding:2px 7px;font-size:12px;cursor:pointer;transition:background .1s;user-select:none}
+.idea-reaction:hover{background:rgba(0,0,0,.12)}
+.idea-reaction.active{background:rgba(255,255,255,.5);border-color:rgba(0,0,0,.25)}
+.idea-reaction-cnt{font-size:10px;font-weight:700;color:rgba(0,0,0,.55);font-family:'Space Mono',monospace}
+.idea-reaction-add{background:rgba(0,0,0,.06);border:1px dashed rgba(0,0,0,.2);color:rgba(0,0,0,.45);font-size:13px;padding:2px 7px;cursor:pointer;border-radius:16px}
+.idea-reaction-add:hover{background:rgba(0,0,0,.12)}
+/* comments */
+.idea-comments{margin-top:10px;border-top:1px solid rgba(0,0,0,.1);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.idea-comment{display:flex;gap:6px;align-items:flex-start}
+.idea-comment-av{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;overflow:hidden}
+.idea-comment-bubble{background:rgba(0,0,0,.06);border-radius:0 8px 8px 8px;padding:5px 9px;flex:1}
+.idea-comment-author{font-size:9px;font-weight:700;color:rgba(0,0,0,.5);margin-bottom:1px}
+.idea-comment-text{font-size:11px;color:rgba(0,0,0,.75);line-height:1.5;word-break:break-word}
+.idea-comment-del{opacity:0;border:none;background:none;color:rgba(0,0,0,.3);cursor:pointer;font-size:11px;padding:2px 3px;flex-shrink:0;border-radius:4px;transition:opacity .1s}
+.idea-comment:hover .idea-comment-del{opacity:.5}
+.idea-comment-del:hover{color:#e74c3c;opacity:1!important}
+.idea-add-comment{display:flex;gap:5px;margin-top:7px;align-items:center}
+.idea-add-comment select{border:1px solid rgba(0,0,0,.15);border-radius:7px;padding:4px 6px;font-size:10px;font-family:'Noto Sans KR',sans-serif;background:rgba(255,255,255,.6);outline:none;max-width:80px}
+.idea-add-comment input{flex:1;border:1px solid rgba(0,0,0,.15);border-radius:7px;padding:4px 8px;font-size:11px;font-family:'Noto Sans KR',sans-serif;background:rgba(255,255,255,.6);color:rgba(0,0,0,.7);outline:none}
+.idea-add-comment input:focus{border-color:rgba(0,0,0,.35);background:rgba(255,255,255,.9)}
+.idea-add-comment button{border:none;background:rgba(0,0,0,.12);color:rgba(0,0,0,.6);border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer}
+.idea-add-comment button:hover{background:rgba(0,0,0,.2)}
+/* color picker row */
+.idea-color-row{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.idea-color-dot{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .12s,border-color .12s;flex-shrink:0}
+.idea-color-dot:hover{transform:scale(1.2)}
+.idea-color-dot.selected{border-color:rgba(0,0,0,.45);transform:scale(1.15)}
+/* new card input area */
+.idea-new-area{background:#fff;border:1px solid rgba(0,0,0,.15);border-radius:10px;padding:12px 16px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.07);cursor:text;transition:box-shadow .15s}
+.idea-new-area:hover,.idea-new-area.active{box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.idea-new-placeholder{font-size:13px;color:rgba(0,0,0,.45);pointer-events:none}
+.idea-new-form{display:none}
+.idea-new-form.show{display:block}
+.idea-new-title-input{width:100%;border:none;outline:none;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;color:var(--tx);background:transparent;margin-bottom:6px;padding:0}
+.idea-new-body-input{width:100%;border:none;outline:none;font-size:12px;font-family:'Noto Sans KR',sans-serif;color:var(--tx2);background:transparent;resize:none;min-height:60px;padding:0;line-height:1.6}
+.idea-new-footer{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.idea-new-tag-sel{border:1px solid var(--bd2);border-radius:20px;padding:3px 10px;font-size:11px;font-family:'Noto Sans KR',sans-serif;background:#fafbfc;outline:none;color:var(--tx2)}
+.idea-new-author-sel{border:1px solid var(--bd2);border-radius:20px;padding:3px 10px;font-size:11px;font-family:'Noto Sans KR',sans-serif;background:#fafbfc;outline:none;color:var(--tx2)}
+.idea-new-close{margin-left:auto;border:none;background:none;color:var(--tx3);cursor:pointer;font-size:12px;padding:4px 10px;border-radius:6px;font-family:'Noto Sans KR',sans-serif}
+.idea-new-close:hover{background:var(--sf2)}
+.idea-new-submit{border:none;background:var(--acc);color:#fff;cursor:pointer;font-size:12px;padding:6px 14px;border-radius:7px;font-family:'Noto Sans KR',sans-serif;font-weight:600}
+/* emoji picker */
+.emoji-picker-wrap{position:relative;display:inline-block}
+.emoji-picker{display:none;flex-wrap:wrap;gap:3px;background:#fff;border:1px solid var(--bd);border-radius:10px;padding:10px;position:absolute;top:calc(100% + 4px);left:0;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.12);width:230px}
+.emoji-picker.open{display:flex}
+.emoji-btn{font-size:18px;cursor:pointer;padding:3px 4px;border-radius:5px;transition:background .1s;line-height:1;border:none;background:none}
+.emoji-btn:hover{background:var(--sf2)}
+/* form overlay */
+.idea-form-overlay{position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.idea-form-overlay.open{display:flex}
+.idea-form{background:#fff;border-radius:14px;padding:24px;width:480px;max-width:95vw;box-shadow:0 14px 44px rgba(0,0,0,.14);animation:mi .17s ease}
+.idea-form-title{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:14px}
+</style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<div class="nav-tabs" id="nav-tabs">
+  <div class="nav-logo">CD<span>.schedule</span></div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding-right:12px">
+    <div id="fb-indicator" onclick="openFbSetup()" title="Firebase 연동 설정" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:11px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none">
+      <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
+      <span id="fb-label">🔥 Firebase 연결</span>
+    </div>
+  </div>
+  <div class="nav-tab active" onclick="switchPage(0)" id="tab-0"><input class="nav-title-input" value="📅 스케줄" id="tab-title-0" onchange="saveTabTitle(0,this.value)" onclick="e=>e.stopPropagation()"></div>
+  <div class="nav-tab" onclick="switchPage(1)" id="tab-1"><input class="nav-title-input" value="📋 제작 프로세스 백서" id="tab-title-1" onchange="saveTabTitle(1,this.value)" onclick="e=>e.stopPropagation()"></div>
+  <div class="nav-tab" onclick="switchPage(2)" id="tab-2"><input class="nav-title-input" value="🛠 툴 정보" id="tab-title-2" onchange="saveTabTitle(2,this.value)" onclick="e=>e.stopPropagation()"></div>
+  <div class="nav-tab" onclick="switchPage(3)" id="tab-3"><input class="nav-title-input" value="💡 아이디어" id="tab-title-3" onchange="saveTabTitle(3,this.value)" onclick="e=>e.stopPropagation()"></div>
+</div>
+
+<!-- ══ PAGE 0: SCHEDULE ══ -->
+<div class="page active" id="page-0">
+
+  <div class="page-header">
+    <div class="hright">
+      <div class="mnav">
+        <button onclick="chM(-1)">‹</button>
+        <span id="cur-month"></span>
+        <button onclick="chM(1)">›</button>
+      </div>
+      <button class="btn btn-g" onclick="openProjMgr()">🎨 프로젝트 관리</button>
+      <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원 관리</button>
+      <button class="btn btn-leave" onclick="openLeaveModal(null,null)">🏖️ 휴가 등록</button>
+    </div>
+    <div></div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="hint">
+    <span>✏️ <b>빈 셀 드래그</b> 기간 생성</span>
+    <span>↔️ <b>바 드래그</b> 이동 (다른 행도 가능)</span>
+    <span>⟺ <b>양끝 핸들</b> 기간 조절</span>
+    <span>🖱 <b>바 클릭</b> 일정 편집</span>
+    <span class="sep">│</span>
+    <span>✅📁📑 <b>바 위 또는 빈 셀 클릭</b> → 중간보고·베리에이션·스토리보드 등록</span>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <!-- SUB TABS -->
+  <div class="sub-tabs">
+    <div class="sub-tab active" id="stab-0" onclick="switchSubTab(0)">📅 스케줄 차트</div>
+    <div class="sub-tab" id="stab-1" onclick="switchSubTab(1)">📊 GRM 공수</div>
+    <div class="sub-tab" id="stab-2" onclick="switchSubTab(2)">🏖️ 휴가 목록</div>
+  </div>
+
+  <!-- SUB 0: GANTT -->
+  <div class="sub-content active" id="scontent-0">
+    <div class="gs">
+      <table>
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <button class="arb" onclick="openAddTask()">+ 새 일정 행 추가</button>
+  </div>
+
+  <!-- SUB 1: GRM -->
+  <div class="sub-content" id="scontent-1">
+    <div class="grm-wrap">
+      <div class="grm-title">📊 GRM 공수 계산 <span style="font-size:11px;font-weight:400;color:var(--tx3)" id="grm-month-label"></span></div>
+      <div class="grm-sub">현재 표시 월의 영업일 기준으로 사람별·프로젝트별 공수를 계산합니다.</div>
+      <div class="grm-grid" id="grm-grid"></div>
+    </div>
+  </div>
+
+  <!-- SUB 2: LEAVE LIST -->
+  <div class="sub-content" id="scontent-2">
+    <div class="grm-wrap">
+      <div class="grm-title">🏖️ 휴가 목록 <span style="font-size:11px;font-weight:400;color:var(--tx3)" id="leave-list-label"></span></div>
+      <div class="grm-sub">등록된 모든 휴가를 날짜 순으로 확인하고 관리할 수 있어요.</div>
+      <div id="leave-list-wrap"></div>
+    </div>
+  </div>
+
+</div><!-- /page-0 -->
+
+<!-- ══ PAGE 1: 백서 ══ -->
+<div class="page" id="page-1">
+  <div class="free-page">
+    <input class="free-page-title" id="p1-title" value="제작 프로세스 백서" placeholder="페이지 제목">
+    <input class="free-page-subtitle" id="p1-sub" value="팀 내 제작 프로세스 및 가이드라인을 기록합니다." placeholder="부제목 / 설명">
+    <textarea class="free-editor" id="p1-body" placeholder="여기에 내용을 자유롭게 작성하세요...
+
+예시:
+■ 기획 단계
+  - 아이디어 수집 → 기획안 작성 → 팀 내 리뷰
+  ...
+
+■ 제작 단계
+  - 스토리보드 작성 → 디자인 시안 → 영상 제작
+  ..."></textarea>
+    <div class="free-tip">💡 제목을 클릭해서 수정할 수 있어요. 내용은 자동 저장됩니다.</div>
+  </div>
+</div>
+
+<!-- ══ PAGE 2: 툴 정보 ══ -->
+<div class="page" id="page-2">
+  <div class="tool-page">
+    <div class="tool-page-header">
+      <div>
+        <input class="free-page-title" id="p2-title" value="🛠 툴 정보" placeholder="페이지 제목">
+        <input class="free-page-subtitle" id="p2-sub" value="팀에서 사용하는 툴과 계정 정보를 정리합니다." placeholder="부제목 / 설명">
+      </div>
+      <button class="btn btn-p" onclick="addToolRow()">＋ 항목 추가</button>
+    </div>
+    <div class="tool-table-wrap">
+      <table class="tool-table" id="tool-table">
+        <thead>
+          <tr>
+            <th class="tool-th-drag"></th>
+            <th class="tool-th">Tool</th>
+            <th class="tool-th">아이디</th>
+            <th class="tool-th">비밀번호</th>
+            <th class="tool-th">기타 정보</th>
+            <th class="tool-th-del"></th>
+          </tr>
+        </thead>
+        <tbody id="tool-tbody"></tbody>
+      </table>
+    </div>
+    <div class="free-tip" style="margin-top:12px">💡 행을 드래그해서 순서를 바꿀 수 있어요. 비밀번호는 👁 버튼으로 확인하세요.</div>
+  </div>
+</div>
+
+<!-- ══ PAGE 3: 아이디어 게시판 ══ -->
+<div class="page" id="page-3">
+  <div class="idea-page">
+    <div class="idea-header">
+      <div class="idea-header-title">💡 메모 보드</div>
+      <input class="idea-search" id="idea-search" placeholder="🔍 메모 검색..." oninput="renderIdeaBoard()">
+    </div>
+    <!-- Inline new note area (Keep style) -->
+    <div class="idea-new-area" id="idea-new-area" onclick="activateNewArea()">
+      <div class="idea-new-placeholder" id="idea-new-placeholder">메모 작성...</div>
+      <div class="idea-new-form" id="idea-new-form">
+        <textarea class="idea-new-body-input" id="if-body" placeholder="메모 내용..." rows="3"></textarea>
+        <div class="idea-new-footer">
+          <select class="idea-new-tag-sel" id="if-tag">
+            <option value="💡 아이디어">💡 아이디어</option>
+            <option value="🐛 버그">🐛 버그</option>
+            <option value="✨ 개선">✨ 개선</option>
+            <option value="📌 공유">📌 공유</option>
+            <option value="🔥 핫이슈">🔥 핫이슈</option>
+          </select>
+          <select class="idea-new-author-sel" id="if-author"></select>
+          <button class="idea-new-close" onclick="deactivateNewArea(event)">닫기</button>
+          <button class="idea-new-submit" onclick="saveIdea(event)">메모 추가</button>
+        </div>
+      </div>
+    </div>
+    <div class="idea-board" id="idea-board"></div>
+  </div>
+</div>
+
+<!-- ══ FIREBASE STATUS BAR ══ -->
+<div id="fb-status-bar" style="display:none;position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px;align-items:flex-end"></div>
+
+<!-- ══ FIREBASE SETUP MODAL ══ -->
+<div class="mb" id="fb-setup-modal">
+  <div class="modal" style="width:520px;max-width:96vw">
+    <div class="mt">🔥 Firebase 연동 설정</div>
+    <div class="mss">Firebase 프로젝트 정보를 입력하면 팀원들과 실시간으로 데이터를 공유할 수 있어요.</div>
+
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 14px;font-size:11px;color:#92400e;margin-bottom:14px;line-height:1.7">
+      <b>📋 Firebase 설정 방법</b><br>
+      1. <a href="https://console.firebase.google.com" target="_blank" style="color:#2563eb">console.firebase.google.com</a> 에서 새 프로젝트 생성<br>
+      2. 프로젝트 설정 → 앱 추가 → 웹 앱 등록 → <b>firebaseConfig</b> 복사<br>
+      3. Realtime Database → 만들기 → <b>테스트 모드</b>로 시작<br>
+      4. 아래 항목들을 입력하고 저장
+    </div>
+
+    <div class="fg"><label>API Key</label><input type="text" id="fb-api-key" placeholder="AIzaSy..."></div>
+    <div class="fg"><label>Auth Domain</label><input type="text" id="fb-auth-domain" placeholder="your-project.firebaseapp.com"></div>
+    <div class="fg"><label>Database URL</label><input type="text" id="fb-db-url" placeholder="https://your-project-default-rtdb.firebaseio.com"></div>
+    <div class="fg"><label>Project ID</label><input type="text" id="fb-project-id" placeholder="your-project-id"></div>
+    <div class="fg"><label>Storage Bucket</label><input type="text" id="fb-storage-bucket" placeholder="your-project.appspot.com"></div>
+    <div class="fg"><label>Messaging Sender ID</label><input type="text" id="fb-sender-id" placeholder="123456789"></div>
+    <div class="fg"><label>App ID</label><input type="text" id="fb-app-id" placeholder="1:123456789:web:abc..."></div>
+
+    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:11px;color:#166534;margin-bottom:14px">
+      💾 설정은 이 기기 브라우저에 저장되며, 같은 Database URL을 사용하는 팀원끼리 실시간 공유돼요.
+    </div>
+
+    <div class="ma" style="gap:8px">
+      <button class="btn btn-g" onclick="closeFbSetup()">취소</button>
+      <button class="btn btn-danger" onclick="disconnectFirebase()" id="fb-disconnect-btn" style="display:none">연결 해제</button>
+      <button class="btn btn-p" onclick="saveFbConfig()">🔥 연결하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALS ══ -->
+
+
+
+<!-- Schedule Edit Modal -->
+<div class="mb" id="cmod">
+  <div class="modal">
+    <div class="mt" id="cm-title"></div>
+    <div class="mss" id="cm-sub"></div>
+    <div class="rbadge" id="cm-badge"></div>
+    <div class="fg"><label>프로젝트</label><div class="psel" id="cm-psel"></div></div>
+    <div class="fg"><label>메모 / 설명</label><textarea id="cm-text" rows="2" placeholder="간단한 설명..."></textarea></div>
+    <div class="fg"><label>링크 (선택)</label><input type="url" id="cm-link" placeholder="https://..."></div>
+    <div class="fg"><label>상태</label>
+      <select id="cm-status">
+        <option value="plan">📋 예정</option>
+        <option value="wip">🔄 진행중</option>
+        <option value="done">✅ 완료</option>
+        <option value="blocked">⛔ 블로킹</option>
+      </select>
+    </div>
+    <div class="ma">
+      <button class="btn btn-g" onclick="closeCmod()">취소</button>
+      <button class="btn btn-danger" id="cm-del" onclick="deleteRange()">삭제</button>
+      <button class="btn btn-p" onclick="saveComment()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Milestone Modal -->
+<div class="mb" id="msmod">
+  <div class="modal">
+    <div class="mt">🏁 마일스톤</div>
+    <div class="mss" id="ms-sub"></div>
+    <div class="ms-grid" id="ms-grid"></div>
+    <div class="fg" style="margin-top:10px"><label>메모</label><input type="text" id="ms-note" placeholder="간단한 메모..."></div>
+    <div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:8px">마일스톤 종류 관리</div>
+      <div id="ms-type-list"></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <input type="text" id="ms-new-label" placeholder="새 종류 이름..." style="flex:1;background:#fafbfc;border:1px solid var(--bd2);border-radius:7px;padding:6px 9px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none">
+        <input type="color" id="ms-new-color" value="#3b82f6" style="width:34px;height:34px;border:1px solid var(--bd2);border-radius:7px;padding:2px;cursor:pointer">
+        <button class="btn btn-p" onclick="addMsType()" style="padding:6px 12px">추가</button>
+      </div>
+    </div>
+    <div class="ma">
+      <button class="btn btn-g" onclick="closeMsmod()">취소</button>
+      <button class="btn btn-p" onclick="saveMilestone()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Task Modal -->
+<div class="mb" id="tmod">
+  <div class="modal">
+    <div class="mt">새 일정 추가</div>
+    <div class="mss">담당자와 업무명을 입력하세요</div>
+    <div class="fg"><label>담당자</label><select id="t-person"></select></div>
+    <div class="fg"><label>업무명</label><input type="text" id="t-name" placeholder="업무 / 일정 이름"></div>
+    <div class="ma">
+      <button class="btn btn-g" onclick="closeTmod()">취소</button>
+      <button class="btn btn-p" onclick="saveTask()">추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leave Modal -->
+<div class="mb" id="lmod">
+  <div class="modal">
+    <div class="mt">휴가 등록</div>
+    <div class="mss">담당자와 기간을 선택하세요</div>
+    <div class="fg"><label>담당자</label><select id="lm-person"></select></div>
+    <div class="fg" style="display:flex;gap:10px">
+      <div style="flex:1"><label>시작일</label><input type="date" id="lm-start" onchange="autoFillLeaveEnd(this.value)"></div>
+      <div style="flex:1"><label>종료일</label><input type="date" id="lm-end"></div>
+    </div>
+    <div class="fg"><label>휴가 종류</label>
+      <div style="display:flex;gap:7px;margin-top:3px" id="lm-type-sel">
+        <div class="lv-pill" data-type="off"     onclick="selLvType('off')"     style="background:#f1f5f9;color:#64748b">🏖️ 휴무</div>
+        <div class="lv-pill" data-type="checkup" onclick="selLvType('checkup')" style="background:#e0f2fe;color:#0891b2">🏥 검진</div>
+        <div class="lv-pill" data-type="refresh" onclick="selLvType('refresh')" style="background:#ede9fe;color:#7c3aed">✨ 리프레쉬</div>
+      </div>
+    </div>
+    <div class="fg"><label>메모 (선택)</label><input type="text" id="lm-note" placeholder="사유 등..."></div>
+    <div class="ma">
+      <button class="btn btn-g" onclick="closeLmod()">취소</button>
+      <button class="btn btn-danger" id="lm-del" onclick="deleteLeave()">삭제</button>
+      <button class="btn btn-p" onclick="saveLeave()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Project Manager Modal -->
+<div class="mb" id="projmod">
+  <div class="modal wide">
+    <div class="mt">🎨 프로젝트 관리</div>
+    <div class="mss">색상·이름 수정, 추가·삭제 가능</div>
+    <div style="max-height:340px;overflow-y:auto">
+      <table class="proj-list" id="proj-list-table"></table>
+    </div>
+    <div style="margin-top:10px">
+      <button class="btn btn-p" style="width:100%" onclick="addNewProject()">+ 프로젝트 추가</button>
+    </div>
+    <div class="ma">
+      <button class="btn btn-g" onclick="closeProjMgr()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Team Manager Modal -->
+<div class="mb" id="teammod">
+  <div class="modal wide">
+    <div class="mt">👥 팀원 관리</div>
+    <div class="mss">그룹과 담당자를 추가·수정·삭제할 수 있어요</div>
+    <div style="max-height:420px;overflow-y:auto" id="team-list"></div>
+    <div style="margin-top:10px">
+      <button class="btn btn-p" style="width:100%" onclick="addNewGroup()">+ 그룹 추가</button>
+    </div>
+    <div class="ma">
+      <button class="btn btn-g" onclick="closeTeamMgr()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════
+let PROJECTS = [
+  {id:'rnd',      name:'R&D',        bar:'#64748b'},
+  {id:'cloud',    name:'Cloud',      bar:'#38bdf8'},
+  {id:'comico',   name:'코미코',      bar:'#f87171'},
+  {id:'oshi',     name:'최애의아이',  bar:'#a78bfa'},
+  {id:'abyss',    name:'어비스디아',  bar:'#f472b6'},
+  {id:'uparu',    name:'우파루',      bar:'#fbbf24'},
+  {id:'suiflash', name:'수이플래시',  bar:'#60a5fa'},
+  {id:'poker',    name:'클래식포커',  bar:'#34d399'},
+  {id:'hangame',  name:'한게임포커',  bar:'#818cf8'},
+  {id:'royal',    name:'로얄홀덤',    bar:'#4ade80'},
+  {id:'sutda',    name:'섯다',        bar:'#fb7185'},
+  {id:'matgo',    name:'신맞고',      bar:'#e879f9'},
+];
+
+let GROUPS = [
+  {id:'grp_d', label:'디자인 파트', gc:'#2563eb', members:[
+    {id:'d1',name:'정지예',role:'디자인'},{id:'d2',name:'임석환',role:'디자인'},
+    {id:'d3',name:'최희영',role:'디자인'},{id:'d4',name:'한승연',role:'디자인'},
+  ]},
+  {id:'grp_v', label:'영상 파트',  gc:'#059669', members:[
+    {id:'g1',name:'현희진',role:'팀장', ac:'#7c3aed'},
+    {id:'v1',name:'양아름솔',role:'영상'},{id:'v2',name:'신창준',role:'영상'},
+    {id:'v3',name:'김지혜',role:'영상'},{id:'v4',name:'배강현',role:'영상'},
+    {id:'v5',name:'임성환',role:'영상'},{id:'v6',name:'남가운',role:'영상'},
+    {id:'v7',name:'김나현',role:'영상'},
+  ]},
+];
+function getPeople(){ return GROUPS.flatMap(g=>g.members); }
+let tasks = getPeople().map(p=>({id:'tk_'+p.id, personId:p.id, name:'일정'}));
+
+// ranges[taskId] = [{start,end,projectId,text,link,status}]
+let ranges = {};
+// leaves[personId] = [{start,end,type,note}]
+let leaves = {};
+// milestones[taskId][dateStr] = {report:bool, variation:bool, storyboard:bool, note:string}
+let milestones = {};
+// avatarImgs[personId] = base64 data URL
+let avatarImgs = {};
+
+// helper: render avatar — image if available, else initial letter
+function renderAv(person, gc){
+  const ac = person.ac || gc;
+  const img = avatarImgs[person.id];
+  if(img){
+    return `<div class="av" style="background:${ac}22;color:${ac};overflow:hidden;padding:0"><img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`;
+  }
+  return `<div class="av" style="background:${ac}22;color:${ac}">${person.name.charAt(0)||'?'}</div>`;
+}
+
+const LEAVE_TYPES = {
+  off:     {label:'휴무',    color:'#64748b', bg:'#f1f5f9', icon:'🏖️'},
+  checkup: {label:'검진',    color:'#0891b2', bg:'#e0f2fe', icon:'🏥'},
+  refresh: {label:'리프레쉬', color:'#7c3aed', bg:'#ede9fe', icon:'✨'},
+};
+let MS_TYPES = [
+  {key:'report',    label:'중간 보고',   color:'#e53e3e'},
+  {key:'storyboard',label:'스토리보드',  color:'#1a1d27'},
+  {key:'variation', label:'베리에이션',  color:'#7c3aed'},
+];
+
+const today = new Date();
+let CY=today.getFullYear(), CM=today.getMonth();
+
+// ════════════════════════════════════════════
+//  NAV
+// ════════════════════════════════════════════
+let curPage=0;
+function switchPage(idx){
+  curPage=idx;
+  document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  if(idx===0) renderGRM();
+  if(idx===2) renderToolTable();
+  if(idx===3) renderIdeaBoard();
+}
+function saveTabTitle(idx,val){}
+
+// ════════════════════════════════════════════
+//  TOOL INFO TABLE
+// ════════════════════════════════════════════
+let toolRows = [
+  {id:1, site:'', user:'', pw:'', note:''},
+];
+let _toolDragIdx = null;
+
+function renderToolTable(){
+  const tbody = document.getElementById('tool-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = toolRows.map((row, idx) => `
+    <tr class="tool-row" id="trow-${row.id}"
+      ondragover="toolRowDragOver(event,${idx})"
+      ondragleave="toolRowDragLeave(event,${idx})"
+      ondrop="toolRowDrop(event,${idx})"
+      ondragend="toolRowDragEnd()">
+      <td class="tool-drag-cell" draggable="true"
+        ondragstart="toolRowDragStart(event,${idx})"
+        title="드래그로 순서 변경">⠿</td>
+      <td><input class="tool-cell-input" value="${escH(row.site)}" placeholder="예) Figma, Notion..."
+        oninput="toolRows[${idx}].site=this.value;fbPush()"></td>
+      <td><input class="tool-cell-input" value="${escH(row.user)}" placeholder="아이디 / 이메일"
+        oninput="toolRows[${idx}].user=this.value;fbPush()"></td>
+      <td><div class="tool-pw-wrap">
+        <input class="tool-cell-input" type="password" value="${escH(row.pw)}" placeholder="비밀번호"
+          id="pw-${row.id}" oninput="toolRows[${idx}].pw=this.value;fbPush()">
+        <button class="tool-pw-eye" onclick="togglePw('pw-${row.id}',this)" tabindex="-1">👁</button>
+      </div></td>
+      <td><input class="tool-cell-input" value="${escH(row.note)}" placeholder="메모, URL 등..."
+        oninput="toolRows[${idx}].note=this.value;fbPush()"></td>
+      <td class="tool-del-cell"><button class="tool-del-btn" onclick="deleteToolRow(${idx})" title="삭제">×</button></td>
+    </tr>`).join('');
+}
+
+function escH(s){return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+
+function addToolRow(){
+  toolRows.push({id:Date.now(), site:'', user:'', pw:'', note:''});
+  renderToolTable();fbPush();
+  // focus new row's first input
+  setTimeout(()=>{
+    const inputs = document.querySelectorAll('#tool-tbody .tool-cell-input');
+    const last = inputs[inputs.length-4];
+    if(last) last.focus();
+  }, 50);
+}
+
+function deleteToolRow(idx){
+  if(toolRows.length<=1){toolRows[0]={id:Date.now(),site:'',user:'',pw:'',note:''};renderToolTable();fbPush();return;}
+  toolRows.splice(idx,1);
+  renderToolTable();fbPush();
+}
+
+function togglePw(id, btn){
+  const inp = document.getElementById(id);
+  if(!inp) return;
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.style.opacity = show ? '1' : '.5';
+}
+
+// drag & drop
+function toolRowDragStart(e, idx){
+  _toolDragIdx = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', idx);
+  setTimeout(()=>{
+    const row = document.getElementById('trow-'+toolRows[idx]?.id);
+    if(row) row.classList.add('tool-row-dragging');
+  },0);
+}
+function toolRowDragOver(e, idx){
+  e.preventDefault();
+  if(_toolDragIdx === null || _toolDragIdx === idx) return;
+  e.dataTransfer.dropEffect = 'move';
+  const row = document.getElementById('trow-'+toolRows[idx]?.id);
+  if(!row) return;
+  const rect = row.getBoundingClientRect();
+  const above = e.clientY - rect.top < rect.height / 2;
+  row.classList.toggle('tool-row-over-top', above);
+  row.classList.toggle('tool-row-over-bottom', !above);
+}
+function toolRowDragLeave(e, idx){
+  const row = document.getElementById('trow-'+toolRows[idx]?.id);
+  if(row) row.classList.remove('tool-row-over-top','tool-row-over-bottom');
+}
+function toolRowDrop(e, idx){
+  e.preventDefault();
+  if(_toolDragIdx === null || _toolDragIdx === idx) return;
+  const row = document.getElementById('trow-'+toolRows[idx]?.id);
+  const rect = row ? row.getBoundingClientRect() : null;
+  const above = rect ? e.clientY - rect.top < rect.height/2 : true;
+  const [moved] = toolRows.splice(_toolDragIdx, 1);
+  const tgt = _toolDragIdx < idx ? (above ? idx-1 : idx) : (above ? idx : idx+1);
+  toolRows.splice(Math.max(0, tgt), 0, moved);
+  _toolDragIdx = null;
+  renderToolTable();fbPush();
+}
+function toolRowDragEnd(){
+  _toolDragIdx = null;
+  document.querySelectorAll('.tool-row').forEach(r=>
+    r.classList.remove('tool-row-dragging','tool-row-over-top','tool-row-over-bottom'));
+}
+
+let curSubTab=0;
+function switchSubTab(idx){
+  curSubTab=idx;
+  document.querySelectorAll('.sub-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.sub-content').forEach((c,i)=>c.classList.toggle('active',i===idx));
+  if(idx===1) renderGRM();
+  if(idx===2) renderLeaveList();
+}
+
+// ════════════════════════════════════════════
+//  LEAVE LIST
+// ════════════════════════════════════════════
+function renderLeaveList(){
+  const people=getPeople();
+  const M=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('leave-list-label').textContent='전체 기간';
+
+  const all=[];
+  people.forEach(person=>{
+    (leaves[person.id]||[]).forEach((lv,li)=>{ all.push({person,lv,li}); });
+  });
+  all.sort((a,b)=>a.lv.start.localeCompare(b.lv.start));
+
+  const wrap=document.getElementById('leave-list-wrap');
+  if(!all.length){
+    wrap.innerHTML=`<div style="text-align:center;padding:40px 0;color:var(--tx3);font-size:13px">등록된 휴가가 없어요<br><span style="font-size:11px;margin-top:6px;display:block">상단 🏖️ 휴가 버튼으로 추가할 수 있어요</span></div>`;
+    return;
+  }
+
+  function getPersonGroup(pid){
+    for(const g of GROUPS){ if(g.members.find(m=>m.id===pid)) return g; }
+    return null;
+  }
+
+  // ── 1. Summary: per-person count (FIRST) ──
+  const summary={};
+  people.forEach(p=>{ summary[p.id]={name:p.name,role:p.role,pid:p.id,count:0,total:0,byType:{}}; });
+  all.forEach(({person,lv})=>{
+    if(!summary[person.id]) return;
+    const d=countWeekdays(lv.start,lv.end);
+    summary[person.id].count++;
+    summary[person.id].total+=d;
+    summary[person.id].byType[lv.type]=(summary[person.id].byType[lv.type]||0)+d;
+  });
+  const summaryList=Object.values(summary).filter(s=>s.total>0).sort((a,b)=>b.total-a.total);
+  const totalDays=summaryList.reduce((s,x)=>s+x.total,0);
+
+  let html=`<div class="lv-section" style="margin-bottom:24px">
+    <div class="lv-section-hd">
+      <span>👤 사람별 합산</span>
+      <span class="lv-section-cnt">총 ${summaryList.length}명 · ${totalDays}일</span>
+    </div>
+    <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">`;
+
+  summaryList.forEach(s=>{
+    const g=getPersonGroup(s.pid);
+    const ac=(g?.members.find(m=>m.id===s.pid)?.ac)||g?.gc||'#999';
+    const img=avatarImgs[s.pid];
+    const avHtml=img
+      ?`<img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`
+      :`<span style="font-size:9px;font-weight:700">${s.name.charAt(0)}</span>`;
+    const barW=totalDays>0?Math.round(s.total/totalDays*100):0;
+    const typeBreakdown=Object.entries(s.byType).map(([type,d])=>{
+      const lt=LEAVE_TYPES[type]||LEAVE_TYPES.off;
+      return `<span style="color:${lt.color};font-size:10px;font-weight:600">${lt.icon} ${d}일</span>`;
+    }).join('<span style="color:var(--bd2);margin:0 3px">·</span>');
+
+    html+=`<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:var(--sur);border:1px solid var(--bd)">
+      <div style="width:26px;height:26px;border-radius:50%;background:${ac}22;color:${ac};display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-size:9px;font-weight:700">${avHtml}</div>
+      <div style="min-width:60px">
+        <div style="font-size:12px;font-weight:700;color:var(--tx)">${s.name}</div>
+        <div style="font-size:10px;color:var(--tx3)">${s.role}</div>
+      </div>
+      <div style="flex:1">
+        <div style="background:var(--sf2);border-radius:4px;height:6px;overflow:hidden">
+          <div style="height:100%;width:${barW}%;background:${ac};border-radius:4px;transition:width .4s"></div>
+        </div>
+        <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${typeBreakdown}</div>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--tx);min-width:36px;text-align:right">${s.total}<span style="font-size:10px;font-weight:400;color:var(--tx3)">일</span></div>
+    </div>`;
+  });
+
+  html+=`</div></div>`;
+
+  // ── 2. Monthly list (SECOND) ──
+  const byMonth={};
+  all.forEach(item=>{
+    const ym=item.lv.start.slice(0,7);
+    if(!byMonth[ym]) byMonth[ym]=[];
+    byMonth[ym].push(item);
+  });
+
+  Object.entries(byMonth).forEach(([ym,items])=>{
+    const [y,m]=ym.split('-');
+    const ldays=items.reduce((s,{lv})=>s+countWeekdays(lv.start,lv.end),0);
+    html+=`<div class="lv-section">
+      <div class="lv-section-hd">
+        <span>${y}년 ${M[parseInt(m)-1]}</span>
+        <span class="lv-section-cnt">${items.length}건 · ${ldays}일</span>
+      </div>
+      <div class="lv-table">`;
+
+    items.forEach(({person,lv,li})=>{
+      const lt=LEAVE_TYPES[lv.type]||LEAVE_TYPES.off;
+      const g=getPersonGroup(person.id);
+      const ac=person.ac||g?.gc||'#999';
+      const img=avatarImgs[person.id];
+      const avHtml=img
+        ?`<img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`
+        :`<span style="font-size:9px;font-weight:700">${person.name.charAt(0)}</span>`;
+      const wdays=countWeekdays(lv.start,lv.end);
+      const isSameDay=lv.start===lv.end;
+      const dateLabel=isSameDay?lv.start:`${lv.start} ~ ${lv.end}`;
+
+      html+=`<div class="lv-row" draggable="true"
+        ondragstart="lvDragStart(event,'${person.id}',${li})"
+        ondragover="lvDragOver(event)"
+        ondrop="lvDrop(event,'${person.id}',${li})"
+        ondragend="lvDragEnd()"
+        onclick="openLeaveModal('${person.id}',${li})">
+        <div style="cursor:grab;color:var(--tx3);font-size:12px;opacity:.3;flex-shrink:0">⠿</div>
+        <div class="av" style="background:${ac}22;color:${ac};width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">${avHtml}</div>
+        <div class="lv-row-name">${person.name}<span class="lv-row-role">${person.role}</span></div>
+        <div class="lv-type-badge" style="background:${lt.bg};color:${lt.color}">${lt.icon} ${lt.label}</div>
+        <div class="lv-row-date">${dateLabel}</div>
+        <div class="lv-row-days">${wdays}일</div>
+        ${lv.note?`<div class="lv-row-note">${lv.note}</div>`:'<div class="lv-row-note" style="color:var(--tx3);opacity:.4">—</div>'}
+        <div class="lv-row-edit">편집 →</div>
+      </div>`;
+    });
+
+    html+=`</div></div>`;
+  });
+
+  wrap.innerHTML=html;
+}
+
+// ════════════════════════════════════════════
+//  IDEA BOARD (Keep style)
+// ════════════════════════════════════════════
+let ideaCards = [];
+let ideaDragSrcIdx = null;
+
+const IDEA_TAGS = [
+  {label:'💡 아이디어', bg:'#fef9c3', color:'#7c6500'},
+  {label:'🐛 버그',    bg:'#fee2e2', color:'#991b1b'},
+  {label:'✨ 개선',    bg:'#d1fae5', color:'#065f46'},
+  {label:'📌 공유',    bg:'#dbeafe', color:'#1e40af'},
+  {label:'🔥 핫이슈', bg:'#ffe4e6', color:'#9f1239'},
+];
+
+const NOTE_COLORS = [
+  {name:'기본',   bg:'#ffffff', border:'rgba(0,0,0,.09)'},
+  {name:'노랑',   bg:'#fff9c4', border:'rgba(0,0,0,.07)'},
+  {name:'연두',   bg:'#ccff90', border:'rgba(0,0,0,.07)'},
+  {name:'민트',   bg:'#a7ffeb', border:'rgba(0,0,0,.07)'},
+  {name:'하늘',   bg:'#cbf0f8', border:'rgba(0,0,0,.07)'},
+  {name:'라벤더', bg:'#e8d5fb', border:'rgba(0,0,0,.07)'},
+  {name:'핑크',   bg:'#ffcdd2', border:'rgba(0,0,0,.07)'},
+  {name:'살구',   bg:'#ffe0b2', border:'rgba(0,0,0,.07)'},
+  {name:'회색',   bg:'#e0e0e0', border:'rgba(0,0,0,.09)'},
+];
+
+const IDEA_EMOJIS = ['👍','❤️','🔥','😂','😮','👏','🤔','💯','🎉','✅','❓','💬','🌟','🚀','😢'];
+
+function renderIdeaBoard(){
+  const board=document.getElementById('idea-board');
+  if(!board) return;
+  const authSel=document.getElementById('if-author');
+  if(authSel&&!authSel.options.length){
+    const anon=document.createElement('option');anon.value='익명';anon.textContent='👤 익명';authSel.appendChild(anon);
+    getPeople().forEach(p=>{const o=document.createElement('option');o.value=p.name;o.textContent=p.name;authSel.appendChild(o)});
+  }
+  const q=(document.getElementById('idea-search')?.value||'').toLowerCase();
+  const pinned=ideaCards.filter(c=>c.pinned);
+  const unpinned=ideaCards.filter(c=>!c.pinned);
+  const sorted=[...pinned,...unpinned];
+  const filtered=q?sorted.filter(c=>(c.title+c.body).toLowerCase().includes(q)):sorted;
+
+  if(!filtered.length){
+    board.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--tx3);font-size:13px">${q?'검색 결과가 없어요':'메모를 작성해보세요!'}</div>`;
+    return;
+  }
+  board.innerHTML=filtered.map((card,vi)=>{
+    const idx=ideaCards.indexOf(card);
+    const nc=NOTE_COLORS.find(n=>n.bg===card.color)||NOTE_COLORS[0];
+    const tag=IDEA_TAGS.find(t=>t.label===card.tag)||IDEA_TAGS[0];
+    const dateStr=new Date(card.ts).toLocaleDateString('ko-KR',{month:'short',day:'numeric'});
+    const reactions=Object.entries(card.reactions||{}).filter(([,p])=>p.length).map(([emoji,pids])=>{
+      return `<span class="idea-reaction${pids.includes('me')?' active':''}" onclick="toggleReaction(${idx},'${emoji}')">${emoji}<span class="idea-reaction-cnt">${pids.length}</span></span>`;
+    }).join('');
+    const comments=(card.comments||[]).map((c,ci)=>{
+      const m=c.pid?getPeople().find(p=>p.id===c.pid):null;
+      const g=m?GROUPS.find(gr=>gr.members.find(p=>p.id===c.pid)):null;
+      const ac=m?(m?.ac||g?.gc||'#999'):'#94a3b8';
+      const img=c.pid?avatarImgs[c.pid]:null;
+      const avHtml=img?`<img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`:`<span>${(m?.name||'👤').charAt(0)}</span>`;
+      return `<div class="idea-comment">
+        <div class="idea-comment-av" style="background:${ac}22;color:${ac}">${avHtml}</div>
+        <div class="idea-comment-bubble">
+          <div class="idea-comment-author">${m?.name||'익명'}</div>
+          <div class="idea-comment-text">${c.text}</div>
+        </div>
+        <button class="idea-comment-del" onclick="deleteComment(${idx},${ci})">×</button>
+      </div>`;
+    }).join('');
+    const personSel='<option value="">👤 익명</option>'+getPeople().map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+    const colorDots=NOTE_COLORS.map(n=>`<div class="idea-color-dot${card.color===n.bg?' selected':''}" style="background:${n.bg}" title="${n.name}" onclick="setNoteColor(${idx},'${n.bg}')"></div>`).join('');
+    return `<div class="idea-card" style="background:${nc.bg};border-color:${nc.border}"
+      draggable="true"
+      ondragstart="ideaDragStart(event,${idx})"
+      ondragover="ideaDragOver(event,${vi})"
+      ondrop="ideaDrop(event,${vi})"
+      ondragend="ideaDragEnd()">
+      <div class="idea-card-drag-handle">⠿⠿</div>
+      <button class="idea-card-pin${card.pinned?' pinned':''}" onclick="togglePin(${idx})" title="${card.pinned?'핀 해제':'핀 고정'}">📌</button>
+      <div class="idea-card-toolbar">
+        ${colorDots}
+        <div class="idea-card-tool-btn" onclick="deleteIdea(${idx})" title="삭제">🗑</div>
+      </div>
+      ${card.tag?`<div class="idea-tag-pill" style="background:${tag.bg};color:${tag.color}">${tag.label}</div>`:''}
+      ${card.title?`<div class="idea-card-title">${card.title}</div>`:''}
+      ${card.body?`<div class="idea-card-body">${card.body}</div>`:''}
+      <div class="idea-card-footer">
+        <span class="idea-card-date">${card.author||''}${card.author?' · ':''}${dateStr}</span>
+      </div>
+      <div class="idea-reactions">
+        ${reactions}
+        <div class="emoji-picker-wrap">
+          <button class="idea-reaction idea-reaction-add" onclick="toggleEmojiPicker(event,${idx})">＋</button>
+          <div class="emoji-picker" id="ep-${idx}">${IDEA_EMOJIS.map(em=>`<button class="emoji-btn" onclick="addReaction(${idx},'${em}');closeAllEmojiPickers()">${em}</button>`).join('')}</div>
+        </div>
+      </div>
+      ${(card.comments||[]).length?`<div class="idea-comments">${comments}</div>`:''}
+      <div class="idea-add-comment">
+        <select id="cmt-person-${idx}">${personSel}</select>
+        <input type="text" id="cmt-input-${idx}" placeholder="댓글..." onkeydown="if(event.key==='Enter')addComment(${idx})">
+        <button onclick="addComment(${idx})">↑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setNoteColor(idx,color){if(ideaCards[idx])ideaCards[idx].color=color;renderIdeaBoard();fbPush()}
+function togglePin(idx){if(ideaCards[idx])ideaCards[idx].pinned=!ideaCards[idx].pinned;renderIdeaBoard();fbPush()}
+
+function activateNewArea(){
+  document.getElementById('idea-new-area').classList.add('active');
+  document.getElementById('idea-new-placeholder').style.display='none';
+  document.getElementById('idea-new-form').classList.add('show');
+  document.getElementById('if-body').focus();
+}
+function deactivateNewArea(e){
+  if(e) e.stopPropagation();
+  document.getElementById('idea-new-area').classList.remove('active');
+  document.getElementById('idea-new-placeholder').style.display='';
+  document.getElementById('idea-new-form').classList.remove('show');
+}
+
+function toggleEmojiPicker(e,idx){
+  e.stopPropagation();
+  closeAllEmojiPickers();
+  const ep=document.getElementById('ep-'+idx);
+  if(ep) ep.classList.toggle('open');
+}
+function closeAllEmojiPickers(){document.querySelectorAll('.emoji-picker').forEach(ep=>ep.classList.remove('open'))}
+document.addEventListener('click',closeAllEmojiPickers);
+
+function addReaction(idx,emoji){
+  const card=ideaCards[idx]; if(!card) return;
+  if(!card.reactions) card.reactions={};
+  if(!card.reactions[emoji]) card.reactions[emoji]=[];
+  const i=card.reactions[emoji].indexOf('me');
+  if(i>=0) card.reactions[emoji].splice(i,1); else card.reactions[emoji].push('me');
+  renderIdeaBoard();fbPush();
+}
+function toggleReaction(idx,emoji){addReaction(idx,emoji)}
+
+function addComment(idx){
+  const card=ideaCards[idx]; if(!card) return;
+  const inp=document.getElementById('cmt-input-'+idx);
+  const sel=document.getElementById('cmt-person-'+idx);
+  const text=(inp?.value||'').trim(); if(!text) return;
+  const pid=sel?.value||'';  // '' = 익명
+  if(!card.comments) card.comments=[];
+  card.comments.push({pid,text,ts:Date.now()});
+  inp.value='';
+  renderIdeaBoard();fbPush();
+}
+function deleteComment(cardIdx,ci){if(ideaCards[cardIdx])ideaCards[cardIdx].comments.splice(ci,1);renderIdeaBoard();fbPush()}
+function deleteIdea(idx){if(!confirm('이 메모를 삭제할까요?'))return;ideaCards.splice(idx,1);renderIdeaBoard();fbPush()}
+
+function ideaDragStart(e,idx){
+  ideaDragSrcIdx=idx;
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain',idx);
+  setTimeout(()=>{document.querySelectorAll('.idea-card')[idx]?.classList.add('idea-dragging')},0);
+}
+function ideaDragOver(e,vi){
+  e.preventDefault();
+  document.querySelectorAll('.idea-card').forEach((c,i)=>c.classList.toggle('idea-drag-over',i===vi&&ideaDragSrcIdx!==vi));
+}
+function ideaDrop(e,vi){
+  e.preventDefault();
+  if(ideaDragSrcIdx===null) return;
+  const moved=ideaCards.splice(ideaDragSrcIdx,1)[0];
+  ideaCards.splice(vi,0,moved);
+  ideaDragSrcIdx=null;
+  renderIdeaBoard();fbPush();
+}
+function ideaDragEnd(){
+  ideaDragSrcIdx=null;
+  document.querySelectorAll('.idea-card').forEach(c=>c.classList.remove('idea-dragging','idea-drag-over'));
+}
+
+function saveIdea(e){
+  if(e) e.stopPropagation();
+  const body=document.getElementById('if-body').value.trim();
+  if(!body) return;
+  const tag=document.getElementById('if-tag').value;
+  const author=document.getElementById('if-author')?.value||'익명';
+  ideaCards.unshift({id:Date.now(),title:'',body,tag,author,ts:Date.now(),reactions:{},comments:[],color:'#ffffff',pinned:false});
+  document.getElementById('if-body').value='';
+  deactivateNewArea(null);
+  renderIdeaBoard();fbPush();
+}
+function openIdeaForm(){activateNewArea()}
+function closeIdeaForm(){deactivateNewArea(null)}
+
+// ════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════
+function dstr(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
+function dn(s){return parseInt(s.replace(/-/g,''),10)}
+function todayStr(){return dstr(today.getFullYear(),today.getMonth(),today.getDate())}
+function getWeekdays(y,m){
+  const days=new Date(y,m+1,0).getDate(),res=[];
+  for(let d=1;d<=days;d++){const dow=new Date(y,m,d).getDay();if(dow&&dow!==6)res.push({d,ds:dstr(y,m,d),dow})}
+  return res;
+}
+function addWeekdays(dateStr,delta){
+  const d=new Date(dateStr);const sign=delta>0?1:-1;let rem=Math.abs(delta);
+  while(rem>0){d.setDate(d.getDate()+sign);const dow=d.getDay();if(dow&&dow!==6)rem--}
+  return d.toISOString().slice(0,10);
+}
+function countWeekdays(a,b){
+  const s=new Date(a),e=new Date(b);let c=0;
+  for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1)){const dow=d.getDay();if(dow&&dow!==6)c++}
+  return c;
+}
+function getProj(id){return PROJECTS.find(p=>p.id===id)||PROJECTS[0]}
+function textFor(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return (r*299+g*587+b*114)/1000>128?'#1a1d27':'#ffffff';
+}
+function getBarStyle(proj,status){
+  const hex=proj.bar;
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  if(status==='wip') return {bg:hex,tc:textFor(hex),shadow:'inset 0 0 0 2px rgba(255,255,255,.8)'};
+  if(status==='done'){const dr=Math.round(r*.7),dg=Math.round(g*.7),db=Math.round(b*.7);return{bg:`rgb(${dr},${dg},${db})`,tc:'#fff',shadow:'none'}}
+  if(status==='blocked'){const gr=Math.round(r*.299+g*.587+b*.114);return{bg:`rgb(${gr},${gr},${gr})`,tc:'#fff',shadow:'none',op:.65}}
+  const lr=Math.round(r+(255-r)*.5),lg=Math.round(g+(255-g)*.5),lb=Math.round(b+(255-b)*.5);
+  const tr2=Math.round(r*.55),tg2=Math.round(g*.55),tb2=Math.round(b*.55);
+  return {bg:`rgb(${lr},${lg},${lb})`,tc:`rgb(${tr2},${tg2},${tb2})`,shadow:'none'};
+}
+function statusBadge(s){return{plan:'📋',wip:'🔄',done:'✅',blocked:'⛔'}[s]||'📋'}
+
+// ════════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════════
+function init(){renderLegend();renderHeader();renderTable();renderStats();renderGRM()}
+
+function renderLegend(){
+  document.getElementById('legend').innerHTML=
+    PROJECTS.map(p=>`<div class="legend-item" onclick="openProjMgr()"><span class="ldot" style="background:${p.bar}"></span>${p.name}</div>`).join('')+
+    `<div class="legend-add" onclick="openProjMgr()">＋ 추가</div>`;
+}
+function renderHeader(){
+  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cur-month').textContent=`${M[CM]} ${CY}`;
+}
+function chM(d){CM+=d;if(CM>11){CM=0;CY++}if(CM<0){CM=11;CY--}renderHeader();renderTable();renderStats();if(curSubTab===1)renderGRM()}
+
+function getMsForCell(taskId, dateStr){
+  return milestones[taskId]?.[dateStr]||null;
+}
+function hasMsOnCell(taskId, dateStr){
+  const ms=getMsForCell(taskId,dateStr);
+  return ms&&(ms.report||ms.variation||ms.storyboard);
+}
+function msBarsHtml(taskId, dateStr){
+  const ms=getMsForCell(taskId,dateStr); if(!ms) return '';
+  return MS_TYPES.filter(t=>ms[t.key]).map(t=>{
+    const note=ms.note?` · ${ms.note}`:'';
+    return `<div class="ms-bar" style="background:${t.color}"
+      draggable="true"
+      ondragstart="msDragStart(event,'${taskId}','${dateStr}')"
+      ondragend="msDragEnd()"
+      onclick="openMsModal(event,'${taskId}','${dateStr}')" title="${t.label}">
+      <div class="ms-tip">${t.label}${note}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTable(){
+  const wds=getWeekdays(CY,CM),td0=todayStr();
+  const DAY=['일','월','화','수','목','금','토'];
+
+  let h=`<tr><th class="cn">이름</th><th class="ct">업무</th>`;
+  wds.forEach(({d,ds,dow})=>{
+    h+=`<th class="cd${ds===td0?' today':''}"><span class="dn">${d}</span><span class="dl">${DAY[dow]}</span></th>`;
+  });
+  h+='</tr>';
+  document.getElementById('thead').innerHTML=h;
+
+  let b='';
+  GROUPS.forEach(group=>{
+    b+=`<tr class="gr"><td colspan="${wds.length+2}"><span class="gdot" style="background:${group.gc}"></span>${group.label}</td></tr>`;
+    group.members.forEach(person=>{
+      tasks.filter(t=>t.personId===person.id).forEach(task=>{
+        const tR=ranges[task.id]||[];
+        b+=`<tr data-task="${task.id}" data-person="${person.id}" data-group="${group.id}" onmouseenter="rowEnter(this)" onmouseleave="rowLeave(this)">`;
+        b+=`<td class="cn" draggable="true"
+          onmousedown="rowDragMD(event)"
+          ondragstart="rowDragStart(event,'${person.id}','${group.id}')"
+          ondragover="rowDragOver(event,'${person.id}','${group.id}')"
+          ondragleave="rowDragLeave(event)"
+          ondrop="rowDrop(event,'${person.id}','${group.id}')"
+          ondragend="rowDragEnd()"
+          title="드래그로 순서 변경">
+          <div class="pi">
+          ${renderAv(person, group.gc)}
+          <div><div class="pn">${person.name}</div><div class="pr">${person.role}</div></div>
+        </div></td>`;
+        b+=`<td class="ct"><div class="tn" title="${task.name}">${task.name}</div></td>`;
+
+        wds.forEach(({ds:dateStr},idx)=>{
+          const isToday=dateStr===td0, n=dn(dateStr);
+          const r=tR.find(r=>n>=dn(r.start)&&n<=dn(r.end));
+          const msHtml=msBarsHtml(task.id, dateStr);
+          const hasMs=hasMsOnCell(task.id, dateStr);
+
+          if(r){
+            const ri=tR.indexOf(r);
+            const proj=getProj(r.projectId);
+            const bs=getBarStyle(proj,r.status);
+            const isS=n===dn(r.start),isE=n===dn(r.end);
+            const hasCmt=!!(r.text||r.link);
+            const cls=`cell bar${isToday?' today':''}${isS?' bs':''}${isE?' be':''} status-${r.status||'plan'}`;
+            b+=`<td class="${cls}" data-task="${task.id}" data-person="${person.id}" data-ri="${ri}" data-idx="${idx}" data-ds="${dateStr}"
+              onclick="barTdClick(event,'${task.id}',${ri},'${dateStr}')"
+              onmouseleave="hideBub()">
+              <div class="bt">
+                <div class="ms-wrap">${msHtml}</div>
+                <div class="bf" style="background:${bs.bg};${bs.op?'opacity:'+bs.op+';':''}${bs.shadow!=='none'?'box-shadow:'+bs.shadow+';':''}"
+                  onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
+                  onclick="barBfClick(event,'${task.id}',${ri})">
+                  ${isS?`<span class="bl" style="color:${bs.tc}">${statusBadge(r.status)} ${proj.name}</span>`:''}
+                  ${isS?`<div class="rh rh-l" onmousedown="resizeMD(event,'${task.id}',${ri},'left',${idx})"></div>`:''}
+                  ${isE?`<div class="rh rh-r" onmousedown="resizeMD(event,'${task.id}',${ri},'right',${idx})"></div>`:''}
+                </div>
+              </div>
+              <div class="bub"></div>
+            </td>`;
+          } else {
+            const lv=(leaves[person.id]||[]).find(l=>n>=dn(l.start)&&n<=dn(l.end));
+            if(lv){
+              const li=(leaves[person.id]||[]).indexOf(lv);
+              const lt=LEAVE_TYPES[lv.type]||LEAVE_TYPES.off;
+              const lvS=n===dn(lv.start),lvE=n===dn(lv.end);
+              b+=`<td class="cell leave${isToday?' today':''}${lvS?' lv-s':''}${lvE?' lv-e':''}" data-task="${task.id}" data-idx="${idx}" data-ds="${dateStr}"
+                draggable="true"
+                ondragstart="lvGanttDragStart(event,'${person.id}',${li})"
+                ondragover="event.preventDefault()"
+                ondrop="lvGanttDrop(event,'${person.id}','${dateStr}')"
+                ondragend="lvGanttDragEnd()"
+                onclick="leaveClick(event,'${person.id}',${li})"
+                onmouseenter="showLeaveBub(this,'${person.id}',${li})"
+                onmouseleave="hideBub()">
+                <div class="lv-fill" style="background:${lt.bg};color:${lt.color}">
+                  ${lvS?`<span class="lv-icon">${lt.icon}</span><span class="lv-lbl">${lt.label}</span>`:''}
+                </div>
+                ${msHtml?`<div style="position:absolute;bottom:3px;left:2px;right:2px;display:flex;flex-direction:column;gap:2px;pointer-events:none">${msHtml}</div>`:''}
+                <div class="bub"></div>
+              </td>`;
+            } else {
+              b+=`<td class="cell empty${isToday?' today':''}${hasMs?' has-ms':''}" data-task="${task.id}" data-person="${person.id}" data-idx="${idx}" data-ds="${dateStr}"
+                onmousedown="createMD(event,'${task.id}',${idx})"
+                onclick="emptyCellClick(event,'${task.id}','${dateStr}')"
+                ondragover="event.preventDefault()"
+                ondrop="msDrop(event,'${task.id}','${dateStr}')">
+                ${msHtml?`<div style="position:absolute;bottom:3px;left:2px;right:2px;display:flex;flex-direction:column;gap:2px;pointer-events:none">${msHtml}</div>`:''}
+              </td>`;
+            }
+          }
+        });
+        b+='</tr>';
+      });
+    });
+  });
+  document.getElementById('tbody').innerHTML=b;
+}
+
+// ════════════════════════════════════════════
+//  INTERACTION
+// ════════════════════════════════════════════
+let iMode=null;
+let iSt=null;
+let didMove=false;
+let bTimeout=null;
+let pending=null;
+let selProjId=PROJECTS[0]?.id;
+let _dragStarted=false; // track if actual drag happened vs click
+
+function rowEnter(tr){if(iMode==='move-cross')tr.classList.add('drop-target')}
+function rowLeave(tr){tr.classList.remove('drop-target')}
+
+function createMD(e,taskId,idx){
+  if(e.button!==0)return;
+  e.preventDefault();
+  _dragStarted=false;
+  iMode='create'; iSt={taskId,anchor:idx,current:idx};
+}
+function paintCreate(){
+  const lo=Math.min(iSt.anchor,iSt.current),hi=Math.max(iSt.anchor,iSt.current);
+  document.querySelectorAll(`td[data-task="${iSt.taskId}"]`).forEach(td=>{
+    const i=+td.dataset.idx;
+    td.classList.toggle('creating',     !td.classList.contains('bar')&&i>=lo&&i<=hi);
+    td.classList.toggle('creating-anchor',!td.classList.contains('bar')&&i===iSt.anchor);
+  });
+}
+function clearCreate(){document.querySelectorAll('.creating,.creating-anchor').forEach(t=>t.classList.remove('creating','creating-anchor'))}
+
+function barMD(e,taskId,personId,ri,idx){
+  if(e.button!==0)return;
+  e.preventDefault();
+  e.stopPropagation();
+  iMode='move'; didMove=false; _dragStarted=false;
+  iSt={taskId,personId,ri,startIdx:idx,curIdx:idx,crossPersonId:null};
+}
+
+function paintMove(curIdx,crossPid){
+  const {taskId,ri,startIdx,personId}=iSt;
+  const r=(ranges[taskId]||[])[ri]; if(!r)return;
+  const wds=getWeekdays(CY,CM);
+  const origSI=wds.findIndex(w=>dn(w.ds)>=dn(r.start));
+  const len=countWeekdays(r.start,r.end)-1;
+  const delta=curIdx-startIdx;
+  const newLo=Math.max(0,Math.min(wds.length-1,origSI+delta));
+  const newHi=Math.min(wds.length-1,newLo+len);
+  document.querySelectorAll('.move-ghost,.move-preview,.bar-ghost,.bar-drop-preview').forEach(t=>t.classList.remove('move-ghost','move-preview','bar-ghost','bar-drop-preview'));
+  if(!crossPid||crossPid===personId){
+    document.querySelectorAll(`td[data-task="${taskId}"]`).forEach(td=>{
+      const i=+td.dataset.idx;
+      const oIn=i>=origSI&&i<=(origSI+len);const nIn=i>=newLo&&i<=newHi;
+      td.classList.toggle('move-ghost',oIn&&!nIn);td.classList.toggle('move-preview',nIn&&!oIn);
+    });
+  } else {
+    document.querySelectorAll(`td[data-task="${taskId}"]`).forEach(td=>{const i=+td.dataset.idx;if(i>=origSI&&i<=(origSI+len))td.classList.add('bar-ghost')});
+    const tgt=tasks.find(t=>t.personId===crossPid);
+    if(tgt) document.querySelectorAll(`td[data-task="${tgt.id}"]`).forEach(td=>{const i=+td.dataset.idx;if(i>=newLo&&i<=newHi&&!td.classList.contains('bar'))td.classList.add('bar-drop-preview')});
+  }
+}
+
+function clearMovePreview(){
+  document.querySelectorAll('.move-ghost,.move-preview,.bar-ghost,.bar-drop-preview').forEach(t=>t.classList.remove('move-ghost','move-preview','bar-ghost','bar-drop-preview'));
+  document.querySelectorAll('.drop-target').forEach(t=>t.classList.remove('drop-target'));
+}
+
+function resizeMD(e,taskId,ri,side,idx){
+  e.preventDefault();e.stopPropagation();
+  iMode='resize'; didMove=false;
+  iSt={taskId,ri,side,startIdx:idx,curIdx:idx};
+}
+
+document.addEventListener('mousemove',e=>{
+  if(!iMode||!iSt)return;
+  const el=document.elementFromPoint(e.clientX,e.clientY);
+  const td=el?.closest('td[data-idx]'); if(!td)return;
+  if(iMode==='create'){
+    if(td.dataset.task!==iSt.taskId)return;
+    const ni=+td.dataset.idx;
+    if(ni!==iSt.current){_dragStarted=true;iSt.current=ni;paintCreate()}
+  } else if(iMode==='move'||iMode==='move-cross'){
+    const idx=+td.dataset.idx,crossPid=td.dataset.person||null;
+    if(crossPid&&crossPid!==iSt.personId) iMode='move-cross';
+    if(idx!==iSt.curIdx||crossPid!==iSt.crossPersonId){
+      didMove=true;_dragStarted=true;
+      iSt.curIdx=idx;iSt.crossPersonId=crossPid||iSt.crossPersonId;
+      paintMove(idx,iSt.crossPersonId);
+    }
+  } else if(iMode==='resize'){
+    if(td.dataset.task!==iSt.taskId)return;
+    const idx=+td.dataset.idx;
+    if(idx!==iSt.curIdx){didMove=true;iSt.curIdx=idx;paintResize(idx)}
+  }
+});
+
+document.addEventListener('mouseup',e=>{
+  if(!iMode)return;
+  if(iMode==='create') finishCreate();
+  else if(iMode==='move'||iMode==='move-cross') finishMove();
+  else if(iMode==='resize') finishResize();
+  iMode=null;
+  // reset _dragStarted after a tick so click handlers can read it first
+  setTimeout(()=>{ _dragStarted=false; }, 0);
+});
+
+function finishCreate(){
+  clearCreate();
+  const wds=getWeekdays(CY,CM);
+  const lo=Math.min(iSt.anchor,iSt.current),hi=Math.max(iSt.anchor,iSt.current);
+  const start=wds[lo]?.ds,end=wds[hi]?.ds,taskId=iSt.taskId;
+  const wasDrag=_dragStarted;
+  iSt=null;
+  // Note: _dragStarted is reset by mouseup handler after click events fire
+  if(wasDrag&&start&&end){pending={taskId,start,end};openModal(taskId,start,end,null)}
+}
+
+function finishMove(){
+  clearMovePreview();
+  if(!didMove){iSt=null;return}
+  const {taskId,ri,startIdx,curIdx,crossPersonId,personId}=iSt;iSt=null;
+  const r=(ranges[taskId]||[])[ri];if(!r)return;
+  const delta=curIdx-startIdx;
+  const newStart=addWeekdays(r.start,delta),newEnd=addWeekdays(r.end,delta);
+  const entry={...r,start:newStart,end:newEnd};
+  ranges[taskId]=ranges[taskId].filter((_,i)=>i!==ri);
+  if(crossPersonId&&crossPersonId!==personId){
+    const tgt=tasks.find(t=>t.personId===crossPersonId);
+    if(tgt){if(!ranges[tgt.id])ranges[tgt.id]=[];ranges[tgt.id]=ranges[tgt.id].filter(x=>dn(x.end)<dn(newStart)||dn(x.start)>dn(newEnd));ranges[tgt.id].push(entry)}
+  } else {
+    if(delta!==0){ranges[taskId]=ranges[taskId].filter(x=>dn(x.end)<dn(newStart)||dn(x.start)>dn(newEnd));ranges[taskId].push(entry)}
+    else ranges[taskId].push(r);
+  }
+  renderTable();renderStats();
+}
+
+function paintResize(curIdx){
+  if(!iSt||iMode!=='resize')return;
+  const {taskId,ri,side}=iSt;const r=(ranges[taskId]||[])[ri];if(!r)return;
+  const wds=getWeekdays(CY,CM);let lo,hi;
+  if(side==='left'){const ei=wds.findIndex(w=>dn(w.ds)>=dn(r.end));lo=Math.min(curIdx,ei);hi=ei}
+  else{const si=wds.findIndex(w=>dn(w.ds)>=dn(r.start));lo=si;hi=Math.max(curIdx,si)}
+  document.querySelectorAll(`td[data-task="${taskId}"]`).forEach(td=>{
+    const i=+td.dataset.idx;
+    td.classList.toggle('move-preview',i>=lo&&i<=hi);
+    td.classList.toggle('move-ghost',td.classList.contains('bar')&&!(i>=lo&&i<=hi));
+  });
+}
+
+function finishResize(){
+  clearMovePreview();
+  const {taskId,ri,side,curIdx}=iSt;iSt=null;
+  const r=(ranges[taskId]||[])[ri];if(!r)return;
+  const wds=getWeekdays(CY,CM);let ns=r.start,ne=r.end;
+  if(side==='left'){const ei=wds.findIndex(x=>dn(x.ds)>=dn(r.end));ns=wds[Math.min(curIdx,ei)]?.ds||r.start}
+  else{const si=wds.findIndex(x=>dn(x.ds)>=dn(r.start));ne=wds[Math.max(curIdx,si)]?.ds||r.end}
+  ranges[taskId][ri]={...r,start:ns,end:ne};
+  renderTable();renderStats();
+}
+
+// ── BAR TD CLICK → milestone modal (clicking anywhere on bar cell except the bf bar itself) ──
+function barTdClick(e, taskId, ri, dateStr){
+  if(didMove) return;
+  // if click was on the bf bar or its children → barBfClick handles it
+  if(e.target.closest('.bf')) return;
+  // if click was on a ms-dot → openMsModal handles it
+  if(e.target.classList.contains('ms-dot')) return;
+  openMsModal(e, taskId, dateStr);
+}
+
+// ── BAR BF CLICK → schedule edit modal ──
+function barBfClick(e, taskId, ri){
+  if(didMove) return;
+  e.stopPropagation();
+  const r=(ranges[taskId]||[])[ri]; if(!r) return;
+  pending={taskId, start:r.start, end:r.end, editIdx:ri};
+  openModal(taskId, r.start, r.end, ri);
+}
+
+// ── EMPTY CELL CLICK → open milestone modal ──
+function emptyCellClick(e,taskId,dateStr){
+  // if a real drag happened (moved more than 1 cell), skip
+  if(_dragStarted) return;
+  if(e.target.closest('.ms-wrap')||e.target.classList.contains('ms-dot')) return;
+  // if iMode is still 'create' and no drag happened → it was a single click → open ms modal
+  openMsModal(e, taskId, dateStr);
+}
+
+// ── TOOLTIP ──
+document.addEventListener('mouseover',e=>{
+  const td=e.target.closest('td.bar');if(!td||iMode)return;
+  const {task:taskId,ri}=td.dataset;
+  const r=(ranges[taskId]||[])[+ri];if(!r)return;
+  clearTimeout(bTimeout);
+  const bub=td.querySelector('.bub');if(!bub)return;
+  const proj=getProj(r.projectId);
+  bub.innerHTML=`
+    <div class="bd2t">${r.start}${r.start!==r.end?' → '+r.end:''} ${statusBadge(r.status)}</div>
+    <div class="bpp" style="color:${proj.bar}">● ${proj.name}</div>
+    ${r.text?`<div class="bt2">${r.text}</div>`:''}
+    ${r.link?`<a class="blink" href="${r.link}" target="_blank">🔗 링크</a>`:''}
+  `;
+  bub.classList.add('vis');
+});
+document.addEventListener('mouseout',e=>{if(e.target.closest('td.bar'))hideBub()});
+function hideBub(){bTimeout=setTimeout(()=>document.querySelectorAll('.bub.vis').forEach(b=>b.classList.remove('vis')),80)}
+function showLeaveBub(td,personId,li){
+  const lv=(leaves[personId]||[])[li];if(!lv)return;
+  clearTimeout(bTimeout);
+  const bub=td.querySelector('.bub');if(!bub)return;
+  const lt=LEAVE_TYPES[lv.type]||LEAVE_TYPES.off;
+  bub.innerHTML=`<div class="bd2t" style="color:${lt.color}">${lt.icon} ${lt.label}</div><div class="bd2t">${lv.start}${lv.start!==lv.end?' → '+lv.end:''}</div>${lv.note?`<div class="bt2">${lv.note}</div>`:''}`;
+  bub.classList.add('vis');
+}
+
+// ════════════════════════════════════════════
+//  MILESTONE MODAL
+// ════════════════════════════════════════════
+let msPending=null;
+
+function openMsModal(e,taskId,dateStr){
+  e.stopPropagation();
+  msPending={taskId,dateStr};
+  const ms=getMsForCell(taskId,dateStr)||{};
+  const task=tasks.find(t=>t.id===taskId);
+  const person=getPeople().find(p=>p.id===task?.personId);
+  document.getElementById('ms-sub').textContent=`${person?.name||''} · ${dateStr}`;
+  document.getElementById('ms-note').value=ms.note||'';
+  renderMsGrid(ms);
+  renderMsTypeList();
+  document.getElementById('msmod').classList.add('open');
+}
+
+function renderMsGrid(ms){
+  ms=ms||getMsForCell(msPending?.taskId,msPending?.dateStr)||{};
+  document.getElementById('ms-grid').innerHTML=MS_TYPES.map(t=>`
+    <label class="ms-row${ms[t.key]?' checked':''}" id="msrow-${t.key}">
+      <input type="checkbox" id="ms-${t.key}" ${ms[t.key]?'checked':''} onchange="toggleMsRow('${t.key}')">
+      <div style="width:12px;height:12px;border-radius:2px;background:${t.color};flex-shrink:0"></div>
+      <span class="ms-label">${t.label}</span>
+    </label>
+  `).join('');
+}
+
+function renderMsTypeList(){
+  document.getElementById('ms-type-list').innerHTML=MS_TYPES.map((t,i)=>`
+    <div style="display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--bd)">
+      <div style="width:10px;height:10px;border-radius:2px;background:${t.color};flex-shrink:0"></div>
+      <span style="flex:1;font-size:12px;color:var(--tx)">${t.label}</span>
+      <button onclick="deleteMsType(${i})" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:14px;line-height:1;padding:0 4px" title="삭제">×</button>
+    </div>
+  `).join('');
+}
+
+function toggleMsRow(key){
+  const chk=document.getElementById('ms-'+key);
+  document.getElementById('msrow-'+key).classList.toggle('checked',chk.checked);
+}
+
+function addMsType(){
+  const label=document.getElementById('ms-new-label').value.trim();
+  const color=document.getElementById('ms-new-color').value;
+  if(!label) return;
+  const key='ms_'+Date.now();
+  MS_TYPES.push({key,label,color});
+  document.getElementById('ms-new-label').value='';
+  renderMsGrid();
+  renderMsTypeList();
+}
+
+function deleteMsType(idx){
+  const t=MS_TYPES[idx];
+  if(!t) return;
+  // remove this key from all milestones
+  Object.values(milestones).forEach(byDate=>{
+    Object.values(byDate).forEach(ms=>{ delete ms[t.key]; });
+  });
+  MS_TYPES.splice(idx,1);
+  renderMsGrid();
+  renderMsTypeList();
+  renderTable();
+}
+
+function closeMsmod(){document.getElementById('msmod').classList.remove('open');msPending=null}
+function saveMilestone_inner(){
+  if(!msPending)return;
+  const {taskId,dateStr}=msPending;
+  const entry={note:document.getElementById('ms-note').value};
+  MS_TYPES.forEach(t=>{
+    const chk=document.getElementById('ms-'+t.key);
+    entry[t.key]=chk?chk.checked:false;
+  });
+  const hasAny=MS_TYPES.some(t=>entry[t.key]);
+  if(!milestones[taskId])milestones[taskId]={};
+  if(hasAny) milestones[taskId][dateStr]=entry;
+  else delete milestones[taskId][dateStr];
+  closeMsmod();renderTable();fbPush();
+}
+
+// ════════════════════════════════════════════
+//  SCHEDULE MODAL
+// ════════════════════════════════════════════
+function renderPsel(pid){
+  selProjId=pid||PROJECTS[0]?.id;
+  document.getElementById('cm-psel').innerHTML=PROJECTS.map(p=>`
+    <div class="ppill${p.id===selProjId?' sel':''}"
+      style="background:${p.id===selProjId?p.bar+'18':'#f4f5f7'};color:${p.bar};border-color:${p.id===selProjId?p.bar:'transparent'}"
+      onclick="selP('${p.id}')">
+      <span class="ppdot" style="background:${p.bar}"></span>${p.name}
+    </div>`).join('');
+}
+function selP(id){selProjId=id;renderPsel(id)}
+
+function openModal(taskId,start,end,editIdx){
+  const task=tasks.find(t=>t.id===taskId);
+  const person=getPeople().find(p=>p.id===task?.personId);
+  const r=editIdx!=null?(ranges[taskId]||[])[editIdx]:null;
+  document.getElementById('cm-title').textContent=person?.name||'일정';
+  document.getElementById('cm-sub').textContent=person?.role||'';
+  document.getElementById('cm-badge').textContent=start===end?`📅 ${start}`:`📅 ${start}  →  ${end}`;
+  document.getElementById('cm-text').value=r?.text||'';
+  document.getElementById('cm-link').value=r?.link||'';
+  document.getElementById('cm-status').value=r?.status||'plan';
+  document.getElementById('cm-del').style.display=editIdx!=null?'':'none';
+  renderPsel(r?.projectId||null);
+  document.getElementById('cmod').classList.add('open');
+}
+function closeCmod(){document.getElementById('cmod').classList.remove('open');pending=null}
+function saveComment(){
+  if(!pending)return;
+  const {taskId,start,end,editIdx}=pending;
+  if(!ranges[taskId])ranges[taskId]=[];
+  const entry={start,end,projectId:selProjId,text:document.getElementById('cm-text').value,link:document.getElementById('cm-link').value,status:document.getElementById('cm-status').value};
+  if(editIdx!=null) ranges[taskId][editIdx]=entry;
+  else{ranges[taskId]=ranges[taskId].filter(r=>dn(r.end)<dn(start)||dn(r.start)>dn(end));ranges[taskId].push(entry)}
+  closeCmod();renderTable();renderStats();fbPush();
+}
+function deleteRange(){
+  if(!pending||pending.editIdx==null)return;
+  ranges[pending.taskId]?.splice(pending.editIdx,1);
+  closeCmod();renderTable();renderStats();fbPush();
+}
+
+// ════════════════════════════════════════════
+//  ADD TASK
+// ════════════════════════════════════════════
+function openAddTask(){
+  document.getElementById('t-person').innerHTML=getPeople().map(p=>`<option value="${p.id}">${p.name} (${p.role})</option>`).join('');
+  document.getElementById('t-name').value='';
+  document.getElementById('tmod').classList.add('open');
+}
+function closeTmod(){document.getElementById('tmod').classList.remove('open')}
+function saveTask(){
+  const pid=document.getElementById('t-person').value;
+  const name=document.getElementById('t-name').value.trim();
+  if(!name)return;
+  tasks.push({id:'tk_'+Date.now(),personId:pid,name});
+  closeTmod();renderTable();renderStats();fbPush();
+}
+
+// ════════════════════════════════════════════
+//  LEAVE
+// ════════════════════════════════════════════
+let selLv='off';let pendingLv=null;
+function selLvType(type){
+  selLv=type;
+  document.querySelectorAll('.lv-pill').forEach(p=>{const t=p.dataset.type,lt=LEAVE_TYPES[t];p.style.borderColor=t===type?lt.color:'transparent';p.style.fontWeight=t===type?'700':'600'});
+}
+function openLeaveModal(personId,editIdx){
+  document.getElementById('lm-person').innerHTML=getPeople().map(p=>`<option value="${p.id}"${p.id===personId?' selected':''}>${p.name} (${p.role})</option>`).join('');
+  const lv=editIdx!=null?(leaves[personId]||[])[editIdx]:null;
+  document.getElementById('lm-start').value=lv?.start||'';
+  document.getElementById('lm-end').value=lv?.end||'';
+  document.getElementById('lm-note').value=lv?.note||'';
+  document.getElementById('lm-del').style.display=editIdx!=null?'':'none';
+  pendingLv={personId:personId||getPeople()[0]?.id,editIdx};
+  selLvType(lv?.type||'off');
+  document.getElementById('lmod').classList.add('open');
+}
+function closeLmod(){document.getElementById('lmod').classList.remove('open');pendingLv=null}
+function saveLeave(){
+  const pid=document.getElementById('lm-person').value,start=document.getElementById('lm-start').value,end=document.getElementById('lm-end').value,note=document.getElementById('lm-note').value;
+  if(!start||!end)return;
+  if(!leaves[pid])leaves[pid]=[];
+  const entry={start,end,type:selLv,note};const{editIdx}=pendingLv||{};
+  if(editIdx!=null) leaves[pid][editIdx]=entry;
+  else{leaves[pid]=leaves[pid].filter(l=>dn(l.end)<dn(start)||dn(l.start)>dn(end));leaves[pid].push(entry)}
+  closeLmod();renderTable();renderStats();if(curSubTab===2)renderLeaveList();fbPush();
+}
+function deleteLeave(){
+  if(!pendingLv||pendingLv.editIdx==null)return;
+  leaves[pendingLv.personId]?.splice(pendingLv.editIdx,1);
+  closeLmod();renderTable();renderStats();if(curSubTab===2)renderLeaveList();fbPush();
+}
+function leaveClick(e,personId,li){e.stopPropagation();openLeaveModal(personId,li)}
+function autoFillLeaveEnd(val){
+  const end=document.getElementById('lm-end');
+  if(!end.value||end.value<val) end.value=val;
+}
+
+// ── Leave drag in gantt chart ──
+let _lvDragSrc={personId:null,li:null};
+function lvGanttDragStart(e,personId,li){
+  _lvDragSrc={personId,li};
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain','lv');
+}
+function lvGanttDrop(e,targetPersonId,targetDateStr){
+  e.preventDefault();
+  const {personId:srcPid,li}=_lvDragSrc;
+  if(srcPid==null||li==null) return;
+  const lvList=leaves[srcPid]||[];
+  const lv=lvList[li]; if(!lv) return;
+  const dur=countWeekdays(lv.start,lv.end)-1;
+  // calc new start as targetDateStr, shift end by same weekday duration
+  const newStart=targetDateStr;
+  let newEnd=newStart;
+  if(dur>0) newEnd=addWeekdays(newStart,dur);
+  lvList[li]={...lv,start:newStart,end:newEnd};
+  _lvDragSrc={personId:null,li:null};
+  renderTable();renderStats();if(curSubTab===2)renderLeaveList();fbPush();
+}
+function lvGanttDragEnd(){_lvDragSrc={personId:null,li:null}}
+
+// ── Leave drag in leave list ──
+let _lvListDragSrc={personId:null,li:null};
+function lvDragStart(e,personId,li){
+  _lvListDragSrc={personId,li};
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain','lvlist');
+  setTimeout(()=>{
+    const rows=document.querySelectorAll('.lv-row');
+    rows.forEach(r=>{if(r.dataset&&r.dataset.pid==personId&&parseInt(r.dataset.li)===li)r.style.opacity='.4'});
+  },0);
+}
+function lvDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='move'}
+function lvDrop(e,targetPid,targetLi){
+  e.preventDefault();e.stopPropagation();
+  const {personId:srcPid,li:srcLi}=_lvListDragSrc;
+  if(srcPid==null) return;
+  if(srcPid===targetPid&&srcLi===targetLi) return;
+  // swap the two leave entries
+  const srcList=leaves[srcPid]||[];
+  const tgtList=leaves[targetPid]||[];
+  const srcLv=srcList[srcLi]; if(!srcLv) return;
+  const tgtLv=tgtList[targetLi]; if(!tgtLv) return;
+  // swap start/end only (keep type/note), or swap the whole entry if same person
+  if(srcPid===targetPid){
+    [srcList[srcLi],srcList[targetLi]]=[srcList[targetLi],srcList[srcLi]];
+  } else {
+    // move to target person's date range
+    const dur=countWeekdays(srcLv.start,srcLv.end)-1;
+    const newEnd=dur>0?addWeekdays(tgtLv.start,dur):tgtLv.start;
+    leaves[srcPid][srcLi]={...srcLv,start:tgtLv.start,end:newEnd};
+  }
+  _lvListDragSrc={personId:null,li:null};
+  renderTable();renderStats();renderLeaveList();fbPush();
+}
+function lvDragEnd(){
+  _lvListDragSrc={personId:null,li:null};
+  renderLeaveList();
+}
+
+// ── Milestone drag ──
+let _msDrag={taskId:null,dateStr:null};
+function msDragStart(e,taskId,dateStr){
+  e.stopPropagation();
+  _msDrag={taskId,dateStr};
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain','ms');
+}
+function msDrop(e,targetTaskId,targetDateStr){
+  e.preventDefault();e.stopPropagation();
+  const {taskId:srcTask,dateStr:srcDate}=_msDrag;
+  if(!srcTask||!srcDate) return;
+  if(srcTask===targetTaskId&&srcDate===targetDateStr) return;
+  const srcMs=(milestones[srcTask]||{})[srcDate];
+  if(!srcMs) return;
+  if(!milestones[targetTaskId]) milestones[targetTaskId]={};
+  // merge: don't overwrite existing, just move
+  const existing=(milestones[targetTaskId][targetDateStr])||{};
+  milestones[targetTaskId][targetDateStr]={...existing,...srcMs};
+  delete milestones[srcTask][srcDate];
+  _msDrag={taskId:null,dateStr:null};
+  renderTable();fbPush();
+}
+function msDragEnd(){_msDrag={taskId:null,dateStr:null}}
+
+// ════════════════════════════════════════════
+//  PROJECT MANAGER
+// ════════════════════════════════════════════
+function openProjMgr(){renderProjList();document.getElementById('projmod').classList.add('open')}
+function closeProjMgr(){document.getElementById('projmod').classList.remove('open');renderLegend();renderTable();renderStats();fbPush()}
+function renderProjList(){
+  const rows=PROJECTS.map((p,i)=>`
+    <tr data-pi="${i}">
+      <td><div class="color-input-wrap">
+        <div class="color-swatch" style="background:${p.bar}" id="sw-${i}"></div>
+        <input type="color" value="${p.bar}" oninput="pjCol(${i},this.value)">
+      </div></td>
+      <td><input class="proj-name-input" value="${p.name}" oninput="pjName(${i},this.value)"></td>
+      <td style="color:var(--tx3);font-size:11px">${Object.values(ranges).reduce((s,a)=>s+a.filter(r=>r.projectId===p.id).length,0)}개</td>
+      <td><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="rmProj('${p.id}')">삭제</button></td>
+    </tr>`).join('');
+  document.getElementById('proj-list-table').innerHTML=`<thead><tr style="font-size:10px;color:var(--tx3);text-transform:uppercase"><td style="padding:5px 8px">색상</td><td>이름</td><td>사용</td><td></td></tr></thead><tbody>${rows}</tbody>`;
+}
+function pjCol(i,val){PROJECTS[i].bar=val;const sw=document.getElementById('sw-'+i);if(sw)sw.style.background=val}
+function pjName(i,val){PROJECTS[i].name=val}
+function rmProj(pid){
+  const inUse=Object.values(ranges).some(a=>a.some(r=>r.projectId===pid));
+  if(inUse&&!confirm('이 프로젝트를 사용 중인 일정이 있습니다. 삭제하시겠습니까?'))return;
+  const fb=PROJECTS.find(p=>p.id!==pid)?.id||null;
+  if(inUse)Object.values(ranges).forEach(a=>a.forEach(r=>{if(r.projectId===pid)r.projectId=fb}));
+  PROJECTS=PROJECTS.filter(p=>p.id!==pid);renderProjList();
+}
+function addNewProject(){
+  const hue=Math.floor(Math.random()*360);
+  PROJECTS.push({id:'proj_'+Date.now(),name:'새 프로젝트',bar:hslToHex(hue,65,40)});
+  renderProjList();
+}
+function hslToHex(h,s,l){s/=100;l/=100;const a=s*Math.min(l,1-l);const f=n=>{const k=(n+h/30)%12;const c=l-a*Math.max(Math.min(k-3,9-k,1),-1);return Math.round(255*c).toString(16).padStart(2,'0')};return`#${f(0)}${f(8)}${f(4)}`}
+
+// ════════════════════════════════════════════
+//  STATS
+// ════════════════════════════════════════════
+function renderStats(){
+  let total=0,days=0,notes=0;const pc={};
+  Object.values(ranges).forEach(arr=>arr.forEach(r=>{
+    total++;pc[r.projectId]=(pc[r.projectId]||0)+1;
+    if(r.text||r.link)notes++;
+    const s=new Date(r.start),e=new Date(r.end);
+    for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1)){const dow=d.getDay();if(dow&&dow!==6)days++}
+  }));
+  const lvT=Object.values(leaves).reduce((s,a)=>s+a.length,0);
+  const top=Object.entries(pc).sort((a,b)=>b[1]-a[1])[0];
+  const tp=top?getProj(top[0]):null;
+  document.getElementById('stats').innerHTML=`
+    <div class="sc"><div class="sl">등록 일정</div><div class="sv">${total}</div></div>
+    <div class="sc"><div class="sl">총 영업일</div><div class="sv">${days}</div></div>
+    <div class="sc"><div class="sl">휴가</div><div class="sv">${lvT}</div></div>
+    ${tp?`<div class="sc"><div class="sl">TOP 프로젝트</div><div class="sv" style="font-size:12px;color:${tp.bar};margin-top:2px">${tp.name} (${top[1]})</div></div>`:''}
+  `;
+}
+
+// ════════════════════════════════════════════
+//  GRM 공수 계산
+// ════════════════════════════════════════════
+function renderGRM(){
+  const wds=getWeekdays(CY,CM);
+  const totalWD=wds.length;
+  const M=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('grm-month-label').textContent=`${CY}년 ${M[CM]} (영업일 ${totalWD}일)`;
+
+  // person workload: for each person, count weekdays they have a range in this month
+  const personDays={}; // personId → {projId → days}
+  getPeople().forEach(p=>{personDays[p.id]={}});
+
+  tasks.forEach(task=>{
+    const pid=task.personId;
+    (ranges[task.id]||[]).forEach(r=>{
+      const proj=r.projectId;
+      // count overlap with this month's weekdays
+      wds.forEach(({ds})=>{
+        if(dn(ds)>=dn(r.start)&&dn(ds)<=dn(r.end)){
+          if(!personDays[pid][proj])personDays[pid][proj]=0;
+          personDays[pid][proj]++;
+        }
+      });
+    });
+  });
+
+  // project aggregate: sum across all people
+  const projDays={}; // projId → total days across team
+  PROJECTS.forEach(p=>{projDays[p.id]=0});
+  Object.values(personDays).forEach(pd=>{
+    Object.entries(pd).forEach(([pid,d])=>{
+      if(projDays[pid]===undefined)projDays[pid]=0;
+      projDays[pid]+=d;
+    });
+  });
+
+  // render
+  const grid=document.getElementById('grm-grid');
+
+  // CARD 1: person breakdown
+  let personHTML=`<div class="grm-card">
+    <div class="grm-card-title">👤 사람별 공수</div>`;
+
+  getPeople().forEach(person=>{
+    const pd=personDays[person.id]||{};
+    const totalPersonDays=Object.values(pd).reduce((a,b)=>a+b,0);
+    const pct=totalWD>0?Math.round(totalPersonDays/totalWD*100):0;
+    const projEntries=Object.entries(pd).sort((a,b)=>b[1]-a[1]);
+
+    // stacked breakdown bar
+    const segments=projEntries.map(([projId,d])=>{
+      const proj=getProj(projId);
+      const w=totalWD>0?(d/totalWD*100).toFixed(1):0;
+      return `<div class="grm-seg" title="${proj.name}: ${d}일 (${w}%)" style="width:${w}%;background:${proj.bar}"></div>`;
+    }).join('');
+    const freeDays=totalWD-totalPersonDays;
+    const freeW=totalWD>0?(freeDays/totalWD*100).toFixed(1):100;
+    const freeBar=freeDays>0?`<div class="grm-seg" style="width:${freeW}%;background:#e2e4ea"></div>`:'';
+
+    personHTML+=`
+      <div class="grm-row">
+        <div class="grm-name">${person.name}</div>
+        <div style="flex:1">
+          <div class="grm-breakdown">${segments}${freeBar}</div>
+        </div>
+        <div class="grm-pct">${pct}%</div>
+      </div>`;
+  });
+  personHTML+='</div>';
+
+  // CARD 2: project breakdown
+  let projHTML=`<div class="grm-card">
+    <div class="grm-card-title">📦 프로젝트별 공수 (팀 합산)</div>`;
+
+  const totalTeamDays=getPeople().length*totalWD;
+  const projWithDays=PROJECTS.map(p=>({...p,days:projDays[p.id]||0})).filter(p=>p.days>0).sort((a,b)=>b.days-a.days);
+  const maxDays=projWithDays[0]?.days||1;
+
+  projWithDays.forEach(proj=>{
+    const pct=totalTeamDays>0?Math.round(proj.days/totalTeamDays*100):0;
+    const barW=Math.round(proj.days/maxDays*100);
+    projHTML+=`
+      <div class="grm-row">
+        <div class="grm-name">${proj.name}</div>
+        <div class="grm-bar-wrap" style="flex:1">
+          <div class="grm-bar-fill" style="width:${barW}%;background:${proj.bar}"></div>
+        </div>
+        <div class="grm-pct">${pct}%</div>
+      </div>
+      <div style="font-size:10px;color:var(--tx3);margin:-6px 0 8px 88px">${proj.days}인·일</div>`;
+  });
+
+  if(projWithDays.length===0){
+    projHTML+=`<div style="color:var(--tx3);font-size:13px;padding:20px 0;text-align:center">이번 달 등록된 일정이 없어요</div>`;
+  }
+
+  // legend
+  projHTML+=`<div class="grm-legend">`;
+  projWithDays.forEach(p=>{projHTML+=`<div class="grm-legend-item"><div class="grm-ldot" style="background:${p.bar}"></div>${p.name}</div>`});
+  projHTML+=`</div></div>`;
+
+  grid.innerHTML=personHTML+projHTML;
+}
+
+// ════════════════════════════════════════════
+//  GANTT ROW DRAG & DROP (이름 셀로 순서 변경)
+// ════════════════════════════════════════════
+let _rowDrag = {personId: null, groupId: null};
+
+function rowDragMD(e){
+  // stop it from interfering with the gantt cell mousedown/mousemove
+  e.stopPropagation();
+}
+
+function rowDragStart(e, personId, groupId){
+  e.stopPropagation();
+  _rowDrag = {personId, groupId};
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', personId);
+  setTimeout(()=>{
+    const tr = document.querySelector(`tr[data-person="${personId}"]`);
+    if(tr) tr.classList.add('row-dragging');
+  }, 0);
+}
+
+function rowDragOver(e, personId, groupId){
+  e.preventDefault();
+  e.stopPropagation();
+  // only allow within same group
+  if(_rowDrag.groupId !== groupId) return;
+  if(_rowDrag.personId === personId) return;
+  e.dataTransfer.dropEffect = 'move';
+  const tr = document.querySelector(`tr[data-person="${personId}"]`);
+  if(!tr) return;
+  const rect = tr.getBoundingClientRect();
+  const before = e.clientY - rect.top < rect.height / 2;
+  tr.classList.toggle('row-drag-over-top', before);
+  tr.classList.toggle('row-drag-over-bottom', !before);
+}
+
+function rowDragLeave(e){
+  const tr = e.currentTarget.closest('tr');
+  if(tr){
+    tr.classList.remove('row-drag-over-top','row-drag-over-bottom');
+  }
+}
+
+function rowDrop(e, targetPersonId, targetGroupId){
+  e.preventDefault();
+  e.stopPropagation();
+  const {personId: srcPersonId, groupId: srcGroupId} = _rowDrag;
+  if(!srcPersonId || srcGroupId !== targetGroupId) return;
+  if(srcPersonId === targetPersonId) return;
+
+  const tr = document.querySelector(`tr[data-person="${targetPersonId}"]`);
+  const rect = tr ? tr.getBoundingClientRect() : null;
+  const dropBefore = rect ? (e.clientY - rect.top < rect.height / 2) : false;
+
+  const g = GROUPS.find(g => g.id === targetGroupId);
+  if(!g) return;
+
+  const srcIdx = g.members.findIndex(m => m.id === srcPersonId);
+  if(srcIdx < 0) return;
+  const [moved] = g.members.splice(srcIdx, 1);
+
+  let tgtIdx = g.members.findIndex(m => m.id === targetPersonId);
+  if(!dropBefore) tgtIdx++;
+  g.members.splice(Math.max(0, tgtIdx), 0, moved);
+
+  rowDragEnd();
+  renderTable();
+  fbPush();
+}
+
+function rowDragEnd(){
+  _rowDrag = {personId: null, groupId: null};
+  document.querySelectorAll('.row-dragging,.row-drag-over-top,.row-drag-over-bottom')
+    .forEach(el => el.classList.remove('row-dragging','row-drag-over-top','row-drag-over-bottom'));
+}
+
+// ════════════════════════════════════════════
+//  TEAM MANAGER
+// ════════════════════════════════════════════
+function openTeamMgr(){renderTeamList();document.getElementById('teammod').classList.add('open')}
+function closeTeamMgr(){
+  document.getElementById('teammod').classList.remove('open');
+  // sync tasks: add tasks for new members, keep existing
+  const people=getPeople();
+  people.forEach(p=>{
+    if(!tasks.find(t=>t.personId===p.id)){
+      tasks.push({id:'tk_'+p.id, personId:p.id, name:'일정'});
+    }
+  });
+  renderTable();renderStats();renderGRM();fbPush();
+}
+
+function renderTeamList(){
+  const html=GROUPS.map((g)=>{
+    const memberRows=g.members.map((m)=>{
+      const ac=m.ac||g.gc;
+      const img=avatarImgs[m.id];
+      const avInner=img
+        ?`<img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`
+        :`<span style="font-size:10px;font-weight:700;pointer-events:none">${m.name.charAt(0)||'?'}</span>`;
+      return `
+      <div class="team-member-row" id="tmrow-${g.id}-${m.id}"
+        ondragover="memberDragOver(event)"
+        ondragleave="memberDragLeave(event)"
+        ondrop="memberDrop(event,'${g.id}','${m.id}')">
+        <div class="drag-handle" title="드래그로 순서 변경"
+          draggable="true"
+          onmousedown="event.stopPropagation()"
+          ondragstart="memberDragStart(event,'${g.id}','${m.id}')"
+          ondragend="memberDragEnd()"><span></span><span></span><span></span></div>
+        <div class="tm-av-wrap" onclick="triggerAvatarUpload('${m.id}')" title="클릭하여 프로필 이미지 변경">
+          <div class="tm-av" style="background:${ac}22;color:${ac}">${avInner}</div>
+          <div class="tm-av-overlay">📷</div>
+          <input type="file" id="av-input-${m.id}" accept="image/*" style="display:none" onchange="handleAvatarUpload(event,'${m.id}')">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
+          <input class="tm-name-input" value="${m.name}" placeholder="이름" draggable="false" oninput="updateMember('${g.id}','${m.id}','name',this.value)">
+          <input class="tm-role-input" value="${m.role}" placeholder="역할" draggable="false" oninput="updateMember('${g.id}','${m.id}','role',this.value)">
+        </div>
+        <div class="color-input-wrap" title="개인 컬러">
+          <div class="color-swatch" style="background:${ac};width:18px;height:18px;border-radius:50%;border:2px solid rgba(0,0,0,.1)" id="ac-sw-${m.id}"></div>
+          <input type="color" value="${ac}" oninput="updateMemberColor('${g.id}','${m.id}',this.value)">
+        </div>
+        <button class="tm-del-btn" onclick="deleteMember('${g.id}','${m.id}')" title="삭제">×</button>
+      </div>`;}).join('');
+
+    return `<div class="team-group" id="tgrp-${g.id}"
+      ondragover="groupDragOver(event,'${g.id}')"
+      ondragleave="groupDragLeave(event,'${g.id}')"
+      ondrop="groupDrop(event,'${g.id}')">
+      <div class="team-group-header">
+        <div class="drag-handle" title="그룹 순서 변경"
+          draggable="true"
+          ondragstart="groupDragStart(event,'${g.id}')"
+          ondragend="groupDragEnd()"><span></span><span></span><span></span></div>
+        <div class="tg-color-wrap" id="tgcw-${g.id}">
+          <div class="tg-color-swatch" style="background:${g.gc}" id="tgsw-${g.id}"></div>
+          <input type="color" value="${g.gc}" oninput="updateGroupColor('${g.id}',this.value)">
+        </div>
+        <input class="tg-name-input" value="${g.label}" placeholder="그룹명" draggable="false" oninput="updateGroupLabel('${g.id}',this.value)">
+        <button class="tg-del-btn" onclick="deleteGroup('${g.id}')">그룹 삭제</button>
+      </div>
+      ${memberRows}
+      <button class="tg-add-btn" onclick="addMemberToGroup('${g.id}')">＋ 팀원 추가</button>
+    </div>`;
+  }).join('');
+  document.getElementById('team-list').innerHTML=html;
+}
+
+// ── MEMBER DRAG & DROP ──
+let _mDrag={gid:null, mid:null};
+
+function memberDragStart(e, gid, mid){
+  // prevent group drag triggering
+  e.stopPropagation();
+  _mDrag={gid, mid};
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain', `${gid}::${mid}`);
+  setTimeout(()=>{
+    const el=document.getElementById(`tmrow-${gid}-${mid}`);
+    if(el) el.classList.add('tm-dragging');
+  },0);
+}
+
+function memberDragOver(e){
+  e.preventDefault();
+  e.stopPropagation();
+  e.dataTransfer.dropEffect='move';
+  const row=e.currentTarget;
+  const rect=row.getBoundingClientRect();
+  const mid=e.clientY-rect.top < rect.height/2;
+  row.classList.toggle('tm-drag-over-top', mid);
+  row.classList.toggle('tm-drag-over-bottom', !mid);
+}
+
+function memberDragLeave(e){
+  e.currentTarget.classList.remove('tm-drag-over-top','tm-drag-over-bottom');
+}
+
+function memberDrop(e, targetGid, targetMid){
+  e.preventDefault();
+  e.stopPropagation();
+  const row=e.currentTarget;
+  const rect=row.getBoundingClientRect();
+  const dropBefore=e.clientY-rect.top < rect.height/2;
+  row.classList.remove('tm-drag-over-top','tm-drag-over-bottom');
+
+  const {gid:srcGid, mid:srcMid}=_mDrag;
+  if(!srcGid||!srcMid) return;
+  if(srcGid===targetGid && srcMid===targetMid) return;
+
+  // find source member
+  const srcG=GROUPS.find(g=>g.id===srcGid); if(!srcG) return;
+  const srcIdx=srcG.members.findIndex(m=>m.id===srcMid); if(srcIdx<0) return;
+  const [srcMember]=srcG.members.splice(srcIdx,1);
+
+  // find target position
+  const tgtG=GROUPS.find(g=>g.id===targetGid); if(!tgtG) return;
+  let tgtIdx=tgtG.members.findIndex(m=>m.id===targetMid);
+  if(!dropBefore) tgtIdx++;
+  // if moved within same group and removed from before the target, adjust
+  if(srcGid===targetGid && srcIdx < tgtIdx) tgtIdx--;
+  tgtG.members.splice(Math.max(0,tgtIdx), 0, srcMember);
+
+  renderTeamList();
+}
+
+function memberDragEnd(){
+  _mDrag={gid:null,mid:null};
+  document.querySelectorAll('.tm-dragging,.tm-drag-over-top,.tm-drag-over-bottom')
+    .forEach(el=>el.classList.remove('tm-dragging','tm-drag-over-top','tm-drag-over-bottom'));
+}
+
+// ── GROUP DRAG & DROP ──
+let _gDrag={gid:null};
+
+function groupDragStart(e, gid){
+  _gDrag={gid};
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain', gid);
+  setTimeout(()=>{
+    const el=document.getElementById(`tgrp-${gid}`);
+    if(el) el.classList.add('tg-dragging');
+  },0);
+}
+
+function groupDragOver(e, gid){
+  // ignore if it's a member drag
+  if(_mDrag.mid) return;
+  if(!_gDrag.gid || _gDrag.gid===gid) return;
+  e.preventDefault();
+  e.stopPropagation();
+  e.dataTransfer.dropEffect='move';
+  const el=document.getElementById(`tgrp-${gid}`);
+  const rect=el.getBoundingClientRect();
+  const before=e.clientY-rect.top < rect.height/2;
+  el.classList.toggle('tg-drag-over-top', before);
+  el.classList.toggle('tg-drag-over-bottom', !before);
+}
+
+function groupDragLeave(e, gid){
+  if(e.relatedTarget && e.currentTarget.contains(e.relatedTarget)) return;
+  const el=document.getElementById(`tgrp-${gid}`);
+  if(el) el.classList.remove('tg-drag-over-top','tg-drag-over-bottom');
+}
+
+function groupDrop(e, targetGid){
+  if(_mDrag.mid) return; // member drop takes priority
+  e.preventDefault();
+  const {gid:srcGid}=_gDrag;
+  if(!srcGid||srcGid===targetGid) return;
+
+  const tgtEl=document.getElementById(`tgrp-${targetGid}`);
+  const rect=tgtEl.getBoundingClientRect();
+  const dropBefore=e.clientY-rect.top < rect.height/2;
+  tgtEl.classList.remove('tg-drag-over-top','tg-drag-over-bottom');
+
+  const srcIdx=GROUPS.findIndex(g=>g.id===srcGid); if(srcIdx<0) return;
+  const [srcGroup]=GROUPS.splice(srcIdx,1);
+  let tgtIdx=GROUPS.findIndex(g=>g.id===targetGid);
+  if(!dropBefore) tgtIdx++;
+  GROUPS.splice(Math.max(0,tgtIdx),0,srcGroup);
+  renderTeamList();
+}
+
+function groupDragEnd(){
+  _gDrag={gid:null};
+  document.querySelectorAll('.tg-dragging,.tg-drag-over-top,.tg-drag-over-bottom')
+    .forEach(el=>el.classList.remove('tg-dragging','tg-drag-over-top','tg-drag-over-bottom'));
+}
+
+function updateMember(gid, mid, field, val){
+  const g=GROUPS.find(g=>g.id===gid); if(!g)return;
+  const m=g.members.find(m=>m.id===mid); if(!m)return;
+  m[field]=val;
+  if(field==='name' && !avatarImgs[mid]){
+    const av=document.querySelector(`#tmrow-${gid}-${mid} .tm-av span`);
+    if(av) av.textContent=val.charAt(0)||'?';
+  }
+}
+
+function updateMemberColor(gid, mid, val){
+  const g=GROUPS.find(g=>g.id===gid); if(!g)return;
+  const m=g.members.find(m=>m.id===mid); if(!m)return;
+  m.ac=val;
+  const sw=document.getElementById(`ac-sw-${mid}`); if(sw) sw.style.background=val;
+  const av=document.querySelector(`#tmrow-${gid}-${mid} .tm-av`);
+  if(av && !avatarImgs[mid]){av.style.background=val+'22';av.style.color=val;}
+}
+
+function triggerAvatarUpload(mid){
+  const inp=document.getElementById('av-input-'+mid);
+  if(inp) inp.click();
+}
+
+function handleAvatarUpload(e, mid){
+  const file=e.target.files?.[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    avatarImgs[mid]=ev.target.result;
+    renderTeamList(); // re-render to show new image
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateGroupLabel(gid, val){
+  const g=GROUPS.find(g=>g.id===gid); if(!g)return;
+  g.label=val;
+}
+
+function updateGroupColor(gid, val){
+  const g=GROUPS.find(g=>g.id===gid); if(!g)return;
+  g.gc=val;
+  const sw=document.getElementById('tgsw-'+gid); if(sw) sw.style.background=val;
+  // refresh all avatar colors in the group rows
+  g.members.forEach(m=>{
+    const av=document.querySelector(`#tmrow-${gid}-${m.id} .tm-av`);
+    if(av){av.style.background=val+'22';av.style.color=val}
+  });
+}
+
+function addMemberToGroup(gid){
+  const g=GROUPS.find(g=>g.id===gid); if(!g)return;
+  const newId='mbr_'+Date.now();
+  g.members.push({id:newId, name:'', role:''});
+  renderTeamList();
+  // focus the new name input
+  setTimeout(()=>{
+    const input=document.querySelector(`#tmrow-${gid}-${newId} .tm-name-input`);
+    if(input) input.focus();
+  },50);
+}
+
+function deleteMember(gid, mid){
+  const g=GROUPS.find(g=>g.id===gid); if(!g)return;
+  const m=g.members.find(m=>m.id===mid);
+  const hasData=Object.keys(ranges).some(tid=>{
+    const t=tasks.find(t=>t.id===tid);
+    return t?.personId===mid && (ranges[tid]||[]).length>0;
+  });
+  if(hasData && !confirm(`${m?.name||'이 팀원'}의 등록된 일정이 있습니다. 그래도 삭제할까요?`)) return;
+  g.members=g.members.filter(m=>m.id!==mid);
+  // remove their tasks
+  tasks=tasks.filter(t=>t.personId!==mid);
+  // remove their ranges and leaves
+  Object.keys(ranges).forEach(tid=>{const t=tasks.find(t=>t.id===tid);if(!t||t.personId===mid)delete ranges[tid]});
+  delete leaves[mid];
+  renderTeamList();
+}
+
+function deleteGroup(gid){
+  const g=GROUPS.find(g=>g.id===gid);
+  const memberIds=g?.members.map(m=>m.id)||[];
+  const hasData=memberIds.some(mid=>Object.keys(ranges).some(tid=>{
+    const t=tasks.find(t=>t.id===tid);
+    return t?.personId===mid && (ranges[tid]||[]).length>0;
+  }));
+  if(hasData && !confirm(`"${g?.label}" 그룹 멤버들의 일정 데이터가 있습니다. 그룹 전체를 삭제할까요?`)) return;
+  memberIds.forEach(mid=>{
+    tasks=tasks.filter(t=>t.personId!==mid);
+    delete leaves[mid];
+  });
+  GROUPS=GROUPS.filter(g=>g.id!==gid);
+  renderTeamList();
+}
+
+function addNewGroup(){
+  const hue=Math.floor(Math.random()*360);
+  const gc=hslToHex(hue,55,45);
+  const newId='grp_'+Date.now();
+  GROUPS.push({id:newId, label:'새 그룹', gc, members:[]});
+  renderTeamList();
+  // focus group name input
+  setTimeout(()=>{
+    const input=document.querySelector(`#tgrp-${newId} .tg-name-input`);
+    if(input) input.focus();
+  },50);
+}
+
+// ── OUTSIDE CLICK ──
+document.querySelectorAll('.mb').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg){bg.classList.remove('open');pending=null;pendingLv=null;msPending=null}});
+});
+
+// ════════════════════════════════════════════
+//  FIREBASE REALTIME SYNC
+// ════════════════════════════════════════════
+let _fbApp = null, _fbDb = null, _fbRef = null;
+let _fbListeners = [];
+let _fbIgnoreNext = false; // prevent echo on local write
+let _fbConnected = false;
+
+const FB_CONFIG_KEY = 'cd_schedule_fb_config';
+
+function getFbConfig(){
+  try{ return JSON.parse(localStorage.getItem(FB_CONFIG_KEY)||'null'); }
+  catch(e){ return null; }
+}
+function saveFbConfigToStorage(cfg){
+  localStorage.setItem(FB_CONFIG_KEY, JSON.stringify(cfg));
+}
+
+function openFbSetup(){
+  const cfg = getFbConfig();
+  if(cfg){
+    document.getElementById('fb-api-key').value       = cfg.apiKey||'';
+    document.getElementById('fb-auth-domain').value   = cfg.authDomain||'';
+    document.getElementById('fb-db-url').value        = cfg.databaseURL||'';
+    document.getElementById('fb-project-id').value    = cfg.projectId||'';
+    document.getElementById('fb-storage-bucket').value= cfg.storageBucket||'';
+    document.getElementById('fb-sender-id').value     = cfg.messagingSenderId||'';
+    document.getElementById('fb-app-id').value        = cfg.appId||'';
+    document.getElementById('fb-disconnect-btn').style.display='';
+  }
+  document.getElementById('fb-setup-modal').classList.add('open');
+}
+function closeFbSetup(){
+  document.getElementById('fb-setup-modal').classList.remove('open');
+}
+
+function saveFbConfig(){
+  const cfg = {
+    apiKey:              document.getElementById('fb-api-key').value.trim(),
+    authDomain:          document.getElementById('fb-auth-domain').value.trim(),
+    databaseURL:         document.getElementById('fb-db-url').value.trim(),
+    projectId:           document.getElementById('fb-project-id').value.trim(),
+    storageBucket:       document.getElementById('fb-storage-bucket').value.trim(),
+    messagingSenderId:   document.getElementById('fb-sender-id').value.trim(),
+    appId:               document.getElementById('fb-app-id').value.trim(),
+  };
+  if(!cfg.apiKey || !cfg.databaseURL){
+    alert('API Key와 Database URL은 필수입니다.');
+    return;
+  }
+  saveFbConfigToStorage(cfg);
+  closeFbSetup();
+  connectFirebase(cfg);
+}
+
+function disconnectFirebase(){
+  _fbListeners.forEach(unsub => { try{ unsub(); }catch(e){} });
+  _fbListeners = [];
+  _fbDb = null; _fbRef = null; _fbConnected = false;
+  localStorage.removeItem(FB_CONFIG_KEY);
+  setFbIndicator('off');
+  document.getElementById('fb-disconnect-btn').style.display='none';
+  closeFbSetup();
+  showToast('Firebase 연결이 해제됐어요.');
+}
+
+async function connectFirebase(cfg){
+  setFbIndicator('connecting');
+  try{
+    // Wait for Firebase module to be available
+    let attempts = 0;
+    while(!window._fbMod && attempts < 30){ await new Promise(r=>setTimeout(r,100)); attempts++; }
+    if(!window._fbMod) throw new Error('Firebase SDK 로드 실패');
+
+    const { initializeApp, getDatabase, ref, onValue, set, get } = window._fbMod;
+
+    // Re-init if already initialized
+    try{ _fbApp = initializeApp(cfg, 'cd-schedule-'+Date.now()); }
+    catch(e){ _fbApp = initializeApp(cfg); }
+
+    _fbDb = getDatabase(_fbApp);
+    _fbRef = ref(_fbDb, 'cd_schedule');
+
+    // ── UPLOAD current data first if DB is empty ──
+    const snap = await get(_fbRef);
+    if(!snap.exists()){
+      await pushAllToFb();
+      showToast('✅ Firebase 연결 완료! 현재 데이터를 업로드했어요.');
+    } else {
+      // Load from DB
+      const data = snap.val();
+      loadFromFbData(data);
+      showToast('✅ Firebase 연결 완료! 팀 데이터를 불러왔어요.');
+    }
+
+    // ── Subscribe to real-time changes ──
+    const unsub = onValue(_fbRef, (snapshot) => {
+      if(_fbIgnoreNext){ _fbIgnoreNext=false; return; }
+      const data = snapshot.val();
+      if(data) loadFromFbData(data);
+    });
+    _fbListeners.push(unsub);
+    _fbConnected = true;
+    setFbIndicator('on');
+    document.getElementById('fb-disconnect-btn').style.display='';
+
+  } catch(err){
+    console.error('Firebase error:', err);
+    setFbIndicator('off');
+    showToast('❌ Firebase 연결 실패: ' + err.message, 'error');
+  }
+}
+
+function loadFromFbData(data){
+  if(data.PROJECTS) PROJECTS = data.PROJECTS;
+  if(data.GROUPS){
+    GROUPS = data.GROUPS;
+    // Sync tasks list
+    const people = getPeople();
+    tasks = tasks.filter(t => people.find(p=>p.id===t.personId));
+    people.forEach(p=>{ if(!tasks.find(t=>t.personId===p.id)) tasks.push({id:'tk_'+p.id, personId:p.id, name:'일정'}); });
+  }
+  if(data.ranges)    ranges    = data.ranges;
+  if(data.leaves)    leaves    = data.leaves;
+  if(data.milestones) milestones = data.milestones;
+  if(data.avatarImgs) avatarImgs = data.avatarImgs;
+  if(data.ideaCards)  ideaCards  = data.ideaCards;
+  if(data.toolRows)   toolRows   = data.toolRows;
+  if(data.MS_TYPES)   MS_TYPES   = data.MS_TYPES;
+
+  // Re-render everything
+  renderLegend(); renderHeader(); renderTable(); renderStats();
+  if(curSubTab===1) renderGRM();
+  if(curSubTab===2) renderLeaveList();
+  if(curPage===2) renderToolTable();
+  if(curPage===3) renderIdeaBoard();
+  showSyncPulse();
+}
+
+async function pushAllToFb(){
+  if(!_fbDb || !_fbRef) return;
+  const { set } = window._fbMod;
+  _fbIgnoreNext = true;
+  const payload = {
+    PROJECTS, GROUPS, ranges, leaves, milestones,
+    avatarImgs, ideaCards, toolRows, MS_TYPES,
+    _updated: Date.now()
+  };
+  try{ await set(_fbRef, payload); }
+  catch(e){ console.error('FB write error', e); _fbIgnoreNext=false; }
+}
+
+// Debounced push — call after any data change
+let _fbPushTimer = null;
+function fbPush(){
+  if(!_fbConnected) return;
+  clearTimeout(_fbPushTimer);
+  _fbPushTimer = setTimeout(pushAllToFb, 600);
+}
+
+// ── UI helpers ──
+function setFbIndicator(state){
+  const dot   = document.getElementById('fb-dot');
+  const label = document.getElementById('fb-label');
+  const wrap  = document.getElementById('fb-indicator');
+  if(!dot) return;
+  if(state==='on'){
+    dot.style.background='#22c55e';
+    label.textContent='🔥 실시간 연결 중';
+    wrap.style.background='#f0fdf4';
+    wrap.style.color='#166534';
+    wrap.style.borderColor='#86efac';
+  } else if(state==='connecting'){
+    dot.style.background='#f59e0b';
+    label.textContent='🔥 연결 중...';
+    wrap.style.background='#fffbeb';
+    wrap.style.color='#92400e';
+    wrap.style.borderColor='#fcd34d';
+  } else {
+    dot.style.background='#cbd5e1';
+    label.textContent='🔥 Firebase 연결';
+    wrap.style.background='#f1f5f9';
+    wrap.style.color='#64748b';
+    wrap.style.borderColor='#e2e8f0';
+  }
+}
+
+let _syncPulseTimer = null;
+function showSyncPulse(){
+  const label = document.getElementById('fb-label');
+  if(!label || !_fbConnected) return;
+  label.textContent = '🔄 동기화됨';
+  clearTimeout(_syncPulseTimer);
+  _syncPulseTimer = setTimeout(()=>{ if(_fbConnected) label.textContent='🔥 실시간 연결 중'; }, 2000);
+}
+
+let _toastTimer = null;
+function showToast(msg, type='success'){
+  let toast = document.getElementById('fb-toast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'fb-toast';
+    toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1d27;color:#fff;padding:10px 20px;border-radius:24px;font-size:12px;font-family:Noto Sans KR,sans-serif;font-weight:600;z-index:9999;transition:opacity .3s;pointer-events:none';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  toast.style.background = type==='error' ? '#ef4444' : '#1a1d27';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=>{ toast.style.opacity='0'; }, 3000);
+}
+
+// ── Patch all data-mutating functions to call fbPush ──
+// We wrap the save/render functions that change data
+const _origSaveRange = typeof saveRange !== 'undefined' ? saveRange : null;
+
+function _fbHook(){
+  // Called after any write operation
+  fbPush();
+}
+
+// Auto-connect on load if config exists
+async function initFirebase(){
+  const cfg = getFbConfig();
+  if(cfg && cfg.apiKey && cfg.databaseURL){
+    await connectFirebase(cfg);
+  }
+}
+
+init();
+// Auto-connect Firebase if config saved in localStorage
+setTimeout(initFirebase, 500);
+</script>
+</body>
+</html>
