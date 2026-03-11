@@ -624,42 +624,6 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 </div>
 
 <!-- Milestone Modal -->
-<div class="mb" id="msmod">
-  <div class="modal">
-    <div class="mt">🏁 마일스톤</div>
-    <div class="mss" id="ms-sub"></div>
-    <div class="ms-grid" id="ms-grid"></div>
-    <div class="fg" style="margin-top:10px"><label>메모</label><input type="text" id="ms-note" placeholder="간단한 메모..."></div>
-    <div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px">
-      <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:8px">마일스톤 종류 관리</div>
-      <div id="ms-type-list"></div>
-      <div style="display:flex;gap:6px;margin-top:8px">
-        <input type="text" id="ms-new-label" placeholder="새 종류 이름..." style="flex:1;background:#fafbfc;border:1px solid var(--bd2);border-radius:7px;padding:6px 9px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none">
-        <input type="color" id="ms-new-color" value="#3b82f6" style="width:34px;height:34px;border:1px solid var(--bd2);border-radius:7px;padding:2px;cursor:pointer">
-        <button class="btn btn-p" onclick="addMsType()" style="padding:6px 12px">추가</button>
-      </div>
-    </div>
-    <div class="ma">
-      <button class="btn btn-g" onclick="closeMsmod()">취소</button>
-      <button class="btn btn-p" onclick="saveMilestone()">저장</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add Task Modal -->
-<div class="mb" id="tmod">
-  <div class="modal">
-    <div class="mt">새 일정 추가</div>
-    <div class="mss">담당자와 업무명을 입력하세요</div>
-    <div class="fg"><label>담당자</label><select id="t-person"></select></div>
-    <div class="fg"><label>업무명</label><input type="text" id="t-name" placeholder="업무 / 일정 이름"></div>
-    <div class="ma">
-      <button class="btn btn-g" onclick="closeTmod()">취소</button>
-      <button class="btn btn-p" onclick="saveTask()">추가</button>
-    </div>
-  </div>
-</div>
-
 <!-- Leave Modal -->
 <div class="mb" id="lmod">
   <div class="modal">
@@ -673,6 +637,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
     <div class="fg"><label>휴가 종류</label>
       <div style="display:flex;gap:7px;margin-top:3px" id="lm-type-sel">
         <div class="lv-pill" data-type="off"     onclick="selLvType('off')"     style="background:#f1f5f9;color:#64748b">🏖️ 휴무</div>
+        <div class="lv-pill" data-type="offday"  onclick="selLvType('offday')"  style="background:#ccfbf1;color:#0d9488">🌿 오프데이</div>
         <div class="lv-pill" data-type="checkup" onclick="selLvType('checkup')" style="background:#e0f2fe;color:#0891b2">🏥 검진</div>
         <div class="lv-pill" data-type="refresh" onclick="selLvType('refresh')" style="background:#ede9fe;color:#7c3aed">✨ 리프레쉬</div>
       </div>
@@ -774,6 +739,7 @@ function renderAv(person, gc){
 
 const LEAVE_TYPES = {
   off:     {label:'휴무',    color:'#64748b', bg:'#f1f5f9', icon:'🏖️'},
+  offday:  {label:'오프데이', color:'#0d9488', bg:'#ccfbf1', icon:'🌿'},
   checkup: {label:'검진',    color:'#0891b2', bg:'#e0f2fe', icon:'🏥'},
   refresh: {label:'리프레쉬', color:'#7c3aed', bg:'#ede9fe', icon:'✨'},
 };
@@ -1571,11 +1537,10 @@ function finishResize(){
 // ── BAR TD CLICK → milestone modal (clicking anywhere on bar cell except the bf bar itself) ──
 function barTdClick(e, taskId, ri, dateStr){
   if(didMove) return;
-  // if click was on the bf bar or its children → barBfClick handles it
   if(e.target.closest('.bf')) return;
-  // if click was on a ms-dot → openMsModal handles it
-  if(e.target.classList.contains('ms-dot')) return;
-  openMsModal(e, taskId, dateStr);
+  const task=tasks.find(t=>t.id===taskId);
+  if(!task) return;
+  openLeaveModal(task.personId, null, dateStr);
 }
 
 // ── BAR BF CLICK → schedule edit modal ──
@@ -1587,13 +1552,12 @@ function barBfClick(e, taskId, ri){
   openModal(taskId, r.start, r.end, ri);
 }
 
-// ── EMPTY CELL CLICK → open milestone modal ──
+// ── EMPTY CELL CLICK → open leave modal ──
 function emptyCellClick(e,taskId,dateStr){
-  // if a real drag happened (moved more than 1 cell), skip
   if(_dragStarted) return;
-  if(e.target.closest('.ms-wrap')||e.target.classList.contains('ms-dot')) return;
-  // if iMode is still 'create' and no drag happened → it was a single click → open ms modal
-  openMsModal(e, taskId, dateStr);
+  const task=tasks.find(t=>t.id===taskId);
+  if(!task) return;
+  openLeaveModal(task.personId, null, dateStr);
 }
 
 // ── TOOLTIP ──
@@ -1628,18 +1592,7 @@ function showLeaveBub(td,personId,li){
 // ════════════════════════════════════════════
 let msPending=null;
 
-function openMsModal(e,taskId,dateStr){
-  e.stopPropagation();
-  msPending={taskId,dateStr};
-  const ms=getMsForCell(taskId,dateStr)||{};
-  const task=tasks.find(t=>t.id===taskId);
-  const person=getPeople().find(p=>p.id===task?.personId);
-  document.getElementById('ms-sub').textContent=`${person?.name||''} · ${dateStr}`;
-  document.getElementById('ms-note').value=ms.note||'';
-  renderMsGrid(ms);
-  renderMsTypeList();
-  document.getElementById('msmod').classList.add('open');
-}
+function openMsModal(e,taskId,dateStr){ /* removed */ }
 
 function renderMsGrid(ms){
   ms=ms||getMsForCell(msPending?.taskId,msPending?.dateStr)||{};
@@ -1691,21 +1644,7 @@ function deleteMsType(idx){
   renderTable();
 }
 
-function closeMsmod(){document.getElementById('msmod').classList.remove('open');msPending=null}
-function saveMilestone(){
-  if(!msPending)return;
-  const {taskId,dateStr}=msPending;
-  const entry={note:document.getElementById('ms-note').value};
-  MS_TYPES.forEach(t=>{
-    const chk=document.getElementById('ms-'+t.key);
-    entry[t.key]=chk?chk.checked:false;
-  });
-  const hasAny=MS_TYPES.some(t=>entry[t.key]);
-  if(!milestones[taskId])milestones[taskId]={};
-  if(hasAny) milestones[taskId][dateStr]=entry;
-  else delete milestones[taskId][dateStr];
-  closeMsmod();renderTable();fbPush();
-}
+function closeMsmod(){}
 
 // ════════════════════════════════════════════
 //  SCHEDULE MODAL
@@ -1728,7 +1667,7 @@ function openModal(taskId,start,end,editIdx){
   document.getElementById('cm-title').textContent=person?.name||'일정';
   document.getElementById('cm-sub').textContent=person?.role||'';
   document.getElementById('cm-badge').textContent=start===end?`📅 ${start}`:`📅 ${start}  →  ${end}`;
-  document.getElementById('cm-text').value=r?.text||'';
+  document.getElementById('cm-text').value=r?.text||'스토리보드: \n중간점검: ';
   document.getElementById('cm-link').value=r?.link||'';
   document.getElementById('cm-status').value=r?.status||'plan';
   document.getElementById('cm-del').style.display=editIdx!=null?'':'none';
@@ -1776,11 +1715,11 @@ function selLvType(type){
   selLv=type;
   document.querySelectorAll('.lv-pill').forEach(p=>{const t=p.dataset.type,lt=LEAVE_TYPES[t];p.style.borderColor=t===type?lt.color:'transparent';p.style.fontWeight=t===type?'700':'600'});
 }
-function openLeaveModal(personId,editIdx){
+function openLeaveModal(personId,editIdx,dateStr){
   document.getElementById('lm-person').innerHTML=getPeople().map(p=>`<option value="${p.id}"${p.id===personId?' selected':''}>${p.name} (${p.role})</option>`).join('');
   const lv=editIdx!=null?(leaves[personId]||[])[editIdx]:null;
-  document.getElementById('lm-start').value=lv?.start||'';
-  document.getElementById('lm-end').value=lv?.end||'';
+  document.getElementById('lm-start').value=lv?.start||dateStr||'';
+  document.getElementById('lm-end').value=lv?.end||dateStr||'';
   document.getElementById('lm-note').value=lv?.note||'';
   document.getElementById('lm-del').style.display=editIdx!=null?'':'none';
   pendingLv={personId:personId||getPeople()[0]?.id,editIdx};
