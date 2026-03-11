@@ -6,7 +6,8 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: wss:;">
 <title>스케줄 매니저</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<!-- Firebase SDK will be loaded dynamically -->
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root{
   --bg:#f5f6f8;--sur:#fff;--sf2:#f0f1f4;
@@ -435,9 +436,9 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 <div class="nav-tabs" id="nav-tabs">
   <div class="nav-logo">CD<span>.schedule</span></div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding-right:12px">
-    <div id="fb-indicator" onclick="openFbSetup()" title="Firebase 연동 설정" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:11px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none">
+    <div id="fb-indicator" onclick="openFbSetup()" title="Supabase 연결 상태" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:11px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none">
       <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
-      <span id="fb-label">🔥 Firebase 연결</span>
+      <span id="fb-label">⚪ 오프라인</span>
     </div>
   </div>
   <div class="nav-tab active" onclick="switchPage(0)" id="tab-0"><input class="nav-title-input" value="📅 스케줄" id="tab-title-0" onchange="saveTabTitle(0,this.value)" onclick="e=>e.stopPropagation()"></div>
@@ -592,42 +593,6 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
   </div>
 </div>
 
-<!-- ══ FIREBASE STATUS BAR ══ -->
-<div id="fb-status-bar" style="display:none;position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px;align-items:flex-end"></div>
-
-<!-- ══ FIREBASE SETUP MODAL ══ -->
-<div class="mb" id="fb-setup-modal">
-  <div class="modal" style="width:520px;max-width:96vw">
-    <div class="mt">🔥 Firebase 연동 설정</div>
-    <div class="mss">Firebase 프로젝트 정보를 입력하면 팀원들과 실시간으로 데이터를 공유할 수 있어요.</div>
-
-    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 14px;font-size:11px;color:#92400e;margin-bottom:14px;line-height:1.7">
-      <b>📋 Firebase 설정 방법</b><br>
-      1. <a href="https://console.firebase.google.com" target="_blank" style="color:#2563eb">console.firebase.google.com</a> 에서 새 프로젝트 생성<br>
-      2. 프로젝트 설정 → 앱 추가 → 웹 앱 등록 → <b>firebaseConfig</b> 복사<br>
-      3. Realtime Database → 만들기 → <b>테스트 모드</b>로 시작<br>
-      4. 아래 항목들을 입력하고 저장
-    </div>
-
-    <div class="fg"><label>API Key</label><input type="text" id="fb-api-key" placeholder="AIzaSy..."></div>
-    <div class="fg"><label>Auth Domain</label><input type="text" id="fb-auth-domain" placeholder="your-project.firebaseapp.com"></div>
-    <div class="fg"><label>Database URL</label><input type="text" id="fb-db-url" placeholder="https://your-project-default-rtdb.firebaseio.com"></div>
-    <div class="fg"><label>Project ID</label><input type="text" id="fb-project-id" placeholder="your-project-id"></div>
-    <div class="fg"><label>Storage Bucket</label><input type="text" id="fb-storage-bucket" placeholder="your-project.appspot.com"></div>
-    <div class="fg"><label>Messaging Sender ID</label><input type="text" id="fb-sender-id" placeholder="123456789"></div>
-    <div class="fg"><label>App ID</label><input type="text" id="fb-app-id" placeholder="1:123456789:web:abc..."></div>
-
-    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:11px;color:#166534;margin-bottom:14px">
-      💾 설정은 이 기기 브라우저에 저장되며, 같은 Database URL을 사용하는 팀원끼리 실시간 공유돼요.
-    </div>
-
-    <div class="ma" style="gap:8px">
-      <button class="btn btn-g" onclick="closeFbSetup()">취소</button>
-      <button class="btn btn-danger" onclick="disconnectFirebase()" id="fb-disconnect-btn" style="display:none">연결 해제</button>
-      <button class="btn btn-p" onclick="saveFbConfig()">🔥 연결하기</button>
-    </div>
-  </div>
-</div>
 
 <!-- ══ MODALS ══ -->
 
@@ -2477,157 +2442,91 @@ document.querySelectorAll('.mb').forEach(bg=>{
 });
 
 // ════════════════════════════════════════════
-//  FIREBASE REALTIME SYNC
+//  SUPABASE REALTIME SYNC
 // ════════════════════════════════════════════
-let _fbApp = null, _fbDb = null, _fbRef = null;
-let _fbListeners = [];
-let _fbIgnoreNext = false; // prevent echo on local write
-let _fbConnected = false;
+const SB_URL = "https://rgemlxzcmnifghrysyof.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnZW1seHpjbW5pZmdocnlzeW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyMDg5MjcsImV4cCI6MjA4ODc4NDkyN30.YYJgHtulo0DBshwgQDWXLWSPorPQdjsEUull_QYx5m8";
+const SB_TABLE = "schedule_data";
+const SB_ROW_ID = 1;
+const SB_CHANNEL = "cd_schedule_realtime";
 
-const FB_CONFIG_KEY = 'cd_schedule_fb_config';
+let _sb = null;
+let _sbChannel = null;
+let _sbConnected = false;
+let _sbIgnoreNext = false;
+let _sbPushTimer = null;
 
-function getFbConfig(){
-  try{ return JSON.parse(localStorage.getItem(FB_CONFIG_KEY)||'null'); }
-  catch(e){ return null; }
-}
-function saveFbConfigToStorage(cfg){
-  localStorage.setItem(FB_CONFIG_KEY, JSON.stringify(cfg));
-}
-
-function openFbSetup(){
-  const cfg = getFbConfig();
-  if(cfg){
-    document.getElementById('fb-api-key').value       = cfg.apiKey||'';
-    document.getElementById('fb-auth-domain').value   = cfg.authDomain||'';
-    document.getElementById('fb-db-url').value        = cfg.databaseURL||'';
-    document.getElementById('fb-project-id').value    = cfg.projectId||'';
-    document.getElementById('fb-storage-bucket').value= cfg.storageBucket||'';
-    document.getElementById('fb-sender-id').value     = cfg.messagingSenderId||'';
-    document.getElementById('fb-app-id').value        = cfg.appId||'';
-    document.getElementById('fb-disconnect-btn').style.display='';
-  }
-  document.getElementById('fb-setup-modal').classList.add('open');
-}
-function closeFbSetup(){
-  document.getElementById('fb-setup-modal').classList.remove('open');
-}
-
-function saveFbConfig(){
-  const cfg = {
-    apiKey:              document.getElementById('fb-api-key').value.trim(),
-    authDomain:          document.getElementById('fb-auth-domain').value.trim(),
-    databaseURL:         document.getElementById('fb-db-url').value.trim(),
-    projectId:           document.getElementById('fb-project-id').value.trim(),
-    storageBucket:       document.getElementById('fb-storage-bucket').value.trim(),
-    messagingSenderId:   document.getElementById('fb-sender-id').value.trim(),
-    appId:               document.getElementById('fb-app-id').value.trim(),
-  };
-  if(!cfg.apiKey || !cfg.databaseURL){
-    alert('API Key와 Database URL은 필수입니다.');
-    return;
-  }
-  saveFbConfigToStorage(cfg);
-  closeFbSetup();
-  connectFirebase(cfg);
-}
-
-function disconnectFirebase(){
-  if(_fbRef) _fbRef.off();
-  _fbListeners.forEach(unsub => { try{ unsub(); }catch(e){} });
-  _fbListeners = [];
-  _fbDb = null; _fbRef = null; _fbConnected = false;
-  localStorage.removeItem(FB_CONFIG_KEY);
-  setFbIndicator('off');
-  document.getElementById('fb-disconnect-btn').style.display='none';
-  closeFbSetup();
-  showToast('Firebase 연결이 해제됐어요.');
-}
-
-async function loadFirebaseSDK(){
-  return new Promise((resolve, reject) => {
-    if(window.firebase && window.firebase.database){ resolve(); return; }
-    
-    function loadScript(src){
-      return new Promise((res, rej) => {
-        const s = document.createElement('script');
-        s.src = src;
-        s.onload = () => setTimeout(res, 100);
-        s.onerror = (e) => rej(new Error('로드 실패: ' + src));
-        document.head.appendChild(s);
-      });
-    }
-
-    loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js')
-      .then(() => loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'))
-      .then(() => resolve())
-      .catch(e => reject(e));
-  });
-}
-
-async function connectFirebase(cfg){
-  setFbIndicator('connecting');
+async function initSupabase(){
   try{
-    await loadFirebaseSDK();
+    // Wait for supabase SDK
+    let attempts = 0;
+    while(!window.supabase && attempts < 50){ await new Promise(r=>setTimeout(r,100)); attempts++; }
+    if(!window.supabase) throw new Error('Supabase SDK 로드 실패');
 
-    // Initialize app
-    const appName = 'cd-schedule';
-    let app;
-    try{ app = firebase.app(appName); }
-    catch(e){ app = firebase.initializeApp(cfg, appName); }
+    _sb = window.supabase.createClient(SB_URL, SB_KEY);
+    setFbIndicator('connecting');
 
-    const db = app.database();
-    _fbDb = db;
-    _fbRef = db.ref('cd_schedule');
+    // Check if table exists and has data
+    const { data, error } = await _sb.from(SB_TABLE).select('*').eq('id', SB_ROW_ID).single();
 
-    // Check if DB has data
-    const snap = await _fbRef.once('value');
-    if(!snap.exists()){
-      await pushAllToFb();
-      showToast('✅ Firebase 연결 완료! 현재 데이터를 업로드했어요.');
-    } else {
-      loadFromFbData(snap.val());
-      showToast('✅ Firebase 연결 완료! 팀 데이터를 불러왔어요.');
+    if(error && error.code === '42P01'){
+      // Table doesn't exist - show instructions
+      showToast('⚠️ Supabase 테이블 생성이 필요해요. 아래 안내를 확인하세요.', 'error');
+      openFbSetup();
+      return;
     }
 
-    // Subscribe to real-time changes
-    const handler = (snapshot) => {
-      if(_fbIgnoreNext){ _fbIgnoreNext=false; return; }
-      const data = snapshot.val();
-      if(data) loadFromFbData(data);
-    };
-    _fbRef.on('value', handler);
-    _fbListeners.push(() => _fbRef.off('value', handler));
+    if(error || !data){
+      // Table exists but no data - upload current
+      await pushAllToSb();
+      showToast('✅ Supabase 연결 완료! 데이터를 업로드했어요.');
+    } else {
+      loadFromSbData(data.payload);
+      showToast('✅ Supabase 연결 완료! 팀 데이터를 불러왔어요.');
+    }
 
-    _fbConnected = true;
-    setFbIndicator('on');
-    document.getElementById('fb-disconnect-btn').style.display='';
+    // Subscribe to realtime changes
+    _sbChannel = _sb.channel(SB_CHANNEL)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: SB_TABLE,
+        filter: `id=eq.${SB_ROW_ID}`
+      }, (payload) => {
+        if(_sbIgnoreNext){ _sbIgnoreNext=false; return; }
+        if(payload.new?.payload) loadFromSbData(payload.new.payload);
+      })
+      .subscribe((status) => {
+        if(status === 'SUBSCRIBED'){
+          _sbConnected = true;
+          setFbIndicator('on');
+        }
+      });
 
   } catch(err){
-    console.error('Firebase error:', err);
+    console.error('Supabase error:', err);
     setFbIndicator('off');
-    showToast('❌ ' + (err.message||err), 'error');
-    alert('Firebase 오류 상세:\n' + (err.stack||err.message||err));
+    showToast('❌ ' + err.message, 'error');
   }
 }
 
-function loadFromFbData(data){
-  if(data.PROJECTS) PROJECTS = data.PROJECTS;
-  if(data.GROUPS){
-    GROUPS = data.GROUPS;
-    // Sync tasks list
+function loadFromSbData(payload){
+  if(!payload) return;
+  if(payload.PROJECTS) PROJECTS = payload.PROJECTS;
+  if(payload.GROUPS){
+    GROUPS = payload.GROUPS;
     const people = getPeople();
     tasks = tasks.filter(t => people.find(p=>p.id===t.personId));
     people.forEach(p=>{ if(!tasks.find(t=>t.personId===p.id)) tasks.push({id:'tk_'+p.id, personId:p.id, name:'일정'}); });
   }
-  if(data.ranges)    ranges    = data.ranges;
-  if(data.leaves)    leaves    = data.leaves;
-  if(data.milestones) milestones = data.milestones;
-  if(data.avatarImgs) avatarImgs = data.avatarImgs;
-  if(data.ideaCards)  ideaCards  = data.ideaCards;
-  if(data.toolRows)   toolRows   = data.toolRows;
-  if(data.MS_TYPES)   MS_TYPES   = data.MS_TYPES;
+  if(payload.ranges)     ranges     = payload.ranges;
+  if(payload.leaves)     leaves     = payload.leaves;
+  if(payload.milestones) milestones = payload.milestones;
+  if(payload.avatarImgs) avatarImgs = payload.avatarImgs;
+  if(payload.ideaCards)  ideaCards  = payload.ideaCards;
+  if(payload.toolRows)   toolRows   = payload.toolRows;
+  if(payload.MS_TYPES)   MS_TYPES   = payload.MS_TYPES;
 
-  // Re-render everything
   renderLegend(); renderHeader(); renderTable(); renderStats();
   if(curSubTab===1) renderGRM();
   if(curSubTab===2) renderLeaveList();
@@ -2636,27 +2535,27 @@ function loadFromFbData(data){
   showSyncPulse();
 }
 
-async function pushAllToFb(){
-  if(!_fbRef) return;
-  _fbIgnoreNext = true;
+async function pushAllToSb(){
+  if(!_sb) return;
+  _sbIgnoreNext = true;
   const payload = {
     PROJECTS, GROUPS, ranges, leaves, milestones,
     avatarImgs, ideaCards, toolRows, MS_TYPES,
     _updated: Date.now()
   };
-  try{ await _fbRef.set(payload); }
-  catch(e){ console.error('FB write error', e); _fbIgnoreNext=false; }
+  try{
+    const { error } = await _sb.from(SB_TABLE).upsert({ id: SB_ROW_ID, payload });
+    if(error) throw error;
+  } catch(e){ console.error('SB write error', e); _sbIgnoreNext=false; }
 }
 
-// Debounced push — call after any data change
-let _fbPushTimer = null;
 function fbPush(){
-  if(!_fbConnected) return;
-  clearTimeout(_fbPushTimer);
-  _fbPushTimer = setTimeout(pushAllToFb, 600);
+  if(!_sbConnected) return;
+  clearTimeout(_sbPushTimer);
+  _sbPushTimer = setTimeout(pushAllToSb, 600);
 }
 
-// ── UI helpers ──
+// UI helpers
 function setFbIndicator(state){
   const dot   = document.getElementById('fb-dot');
   const label = document.getElementById('fb-label');
@@ -2664,19 +2563,19 @@ function setFbIndicator(state){
   if(!dot) return;
   if(state==='on'){
     dot.style.background='#22c55e';
-    label.textContent='🔥 실시간 연결 중';
+    label.textContent='🟢 실시간 연결 중';
     wrap.style.background='#f0fdf4';
     wrap.style.color='#166534';
     wrap.style.borderColor='#86efac';
   } else if(state==='connecting'){
     dot.style.background='#f59e0b';
-    label.textContent='🔥 연결 중...';
+    label.textContent='⏳ 연결 중...';
     wrap.style.background='#fffbeb';
     wrap.style.color='#92400e';
     wrap.style.borderColor='#fcd34d';
   } else {
     dot.style.background='#cbd5e1';
-    label.textContent='🔥 Firebase 연결';
+    label.textContent='⚪ 오프라인';
     wrap.style.background='#f1f5f9';
     wrap.style.color='#64748b';
     wrap.style.borderColor='#e2e8f0';
@@ -2686,48 +2585,37 @@ function setFbIndicator(state){
 let _syncPulseTimer = null;
 function showSyncPulse(){
   const label = document.getElementById('fb-label');
-  if(!label || !_fbConnected) return;
+  if(!label || !_sbConnected) return;
   label.textContent = '🔄 동기화됨';
   clearTimeout(_syncPulseTimer);
-  _syncPulseTimer = setTimeout(()=>{ if(_fbConnected) label.textContent='🔥 실시간 연결 중'; }, 2000);
+  _syncPulseTimer = setTimeout(()=>{ if(_sbConnected) label.textContent='🟢 실시간 연결 중'; }, 2000);
 }
 
 let _toastTimer = null;
 function showToast(msg, type='success'){
-  let toast = document.getElementById('fb-toast');
+  let toast = document.getElementById('sb-toast');
   if(!toast){
     toast = document.createElement('div');
-    toast.id = 'fb-toast';
-    toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1d27;color:#fff;padding:10px 20px;border-radius:24px;font-size:12px;font-family:Noto Sans KR,sans-serif;font-weight:600;z-index:9999;transition:opacity .3s;pointer-events:none';
+    toast.id = 'sb-toast';
+    toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1d27;color:#fff;padding:10px 20px;border-radius:24px;font-size:12px;font-family:Noto Sans KR,sans-serif;font-weight:600;z-index:9999;transition:opacity .3s;pointer-events:none;white-space:nowrap';
     document.body.appendChild(toast);
   }
   toast.textContent = msg;
   toast.style.opacity = '1';
   toast.style.background = type==='error' ? '#ef4444' : '#1a1d27';
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(()=>{ toast.style.opacity='0'; }, 3000);
+  _toastTimer = setTimeout(()=>{ toast.style.opacity='0'; }, 4000);
 }
 
-// ── Patch all data-mutating functions to call fbPush ──
-// We wrap the save/render functions that change data
-const _origSaveRange = typeof saveRange !== 'undefined' ? saveRange : null;
-
-function _fbHook(){
-  // Called after any write operation
-  fbPush();
+// Stub functions for compatibility
+function openFbSetup(){
+  alert('📋 Supabase 테이블 생성 방법:\n\n1. supabase.com → 프로젝트 → SQL Editor\n2. 아래 SQL 실행:\n\nCREATE TABLE schedule_data (\n  id bigint PRIMARY KEY,\n  payload jsonb\n);\nINSERT INTO schedule_data (id, payload) VALUES (1, \'{}\');\n\nALTER TABLE schedule_data ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "allow_all" ON schedule_data FOR ALL USING (true) WITH CHECK (true);\n\n3. 페이지 새로고침!');
 }
-
-// Auto-connect on load if config exists
-async function initFirebase(){
-  const cfg = getFbConfig();
-  if(cfg && cfg.apiKey && cfg.databaseURL){
-    await connectFirebase(cfg);
-  }
-}
+function closeFbSetup(){}
+function openFbSetup_indicator(){ openFbSetup(); }
 
 init();
-// Auto-connect Firebase if config saved in localStorage
-setTimeout(initFirebase, 500);
+setTimeout(initSupabase, 300);
 </script>
 </body>
 </html>
