@@ -6,10 +6,18 @@
 <title>스케줄 매니저</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-  import { getDatabase, ref, onValue, set, get } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-  window._fbMod = { initializeApp, getDatabase, ref, onValue, set, get };
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  // Bridge to match existing _fbMod interface
+  window._fbMod = {
+    initializeApp: (cfg, name) => firebase.initializeApp(cfg, name),
+    getDatabase: (app) => app.database(),
+    ref: (db, path) => db.ref(path),
+    onValue: (ref, cb) => { ref.on('value', cb); return () => ref.off('value', cb); },
+    set: (ref, val) => ref.set(val),
+    get: (ref) => ref.once('value').then(snap => ({ exists: () => snap.exists(), val: () => snap.val() })),
+  };
 </script>
 <style>
 :root{
@@ -2549,36 +2557,41 @@ function disconnectFirebase(){
 async function connectFirebase(cfg){
   setFbIndicator('connecting');
   try{
-    // Wait for Firebase module to be available
+    // Wait for Firebase compat SDK to be available
     let attempts = 0;
-    while(!window._fbMod && attempts < 30){ await new Promise(r=>setTimeout(r,100)); attempts++; }
-    if(!window._fbMod) throw new Error('Firebase SDK 로드 실패');
+    while(!window.firebase && attempts < 30){ await new Promise(r=>setTimeout(r,100)); attempts++; }
+    if(!window.firebase) throw new Error('Firebase SDK 로드 실패 - 인터넷 연결을 확인해주세요');
 
     const { initializeApp, getDatabase, ref, onValue, set, get } = window._fbMod;
 
-    // Re-init if already initialized
-    try{ _fbApp = initializeApp(cfg, 'cd-schedule-'+Date.now()); }
-    catch(e){ _fbApp = initializeApp(cfg); }
+    // Initialize app with unique name to avoid duplicate app error
+    const appName = 'cd-schedule';
+    let app;
+    try{
+      app = firebase.app(appName);
+    } catch(e){
+      app = initializeApp(cfg, appName);
+    }
 
-    _fbDb = getDatabase(_fbApp);
-    _fbRef = ref(_fbDb, 'cd_schedule');
+    const db = getDatabase(app);
+    _fbDb = db;
+    _fbRef = ref(db, 'cd_schedule');
 
-    // ── UPLOAD current data first if DB is empty ──
+    // Check if DB has data
     const snap = await get(_fbRef);
     if(!snap.exists()){
       await pushAllToFb();
       showToast('✅ Firebase 연결 완료! 현재 데이터를 업로드했어요.');
     } else {
-      // Load from DB
       const data = snap.val();
       loadFromFbData(data);
       showToast('✅ Firebase 연결 완료! 팀 데이터를 불러왔어요.');
     }
 
-    // ── Subscribe to real-time changes ──
+    // Subscribe to real-time changes
     const unsub = onValue(_fbRef, (snapshot) => {
       if(_fbIgnoreNext){ _fbIgnoreNext=false; return; }
-      const data = snapshot.val();
+      const data = snapshot.val ? snapshot.val() : snapshot;
       if(data) loadFromFbData(data);
     });
     _fbListeners.push(unsub);
@@ -2589,7 +2602,7 @@ async function connectFirebase(cfg){
   } catch(err){
     console.error('Firebase error:', err);
     setFbIndicator('off');
-    showToast('❌ Firebase 연결 실패: ' + err.message, 'error');
+    showToast('❌ ' + err.message, 'error');
   }
 }
 
@@ -2621,14 +2634,13 @@ function loadFromFbData(data){
 
 async function pushAllToFb(){
   if(!_fbDb || !_fbRef) return;
-  const { set } = window._fbMod;
   _fbIgnoreNext = true;
   const payload = {
     PROJECTS, GROUPS, ranges, leaves, milestones,
     avatarImgs, ideaCards, toolRows, MS_TYPES,
     _updated: Date.now()
   };
-  try{ await set(_fbRef, payload); }
+  try{ await _fbRef.set(payload); }
   catch(e){ console.error('FB write error', e); _fbIgnoreNext=false; }
 }
 
