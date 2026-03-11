@@ -26,7 +26,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);
 .nav-tab.active{color:var(--acc);border-bottom-color:var(--acc)}
 .nav-title-input{background:none;border:none;outline:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;color:inherit;width:auto;cursor:pointer;padding:0}
 .nav-title-input:focus{cursor:text;background:#f0f7ff;border-radius:4px;padding:1px 5px}
-.nav-logo{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#333;margin-right:16px;flex-shrink:0}
+.nav-logo{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#333;margin-left:8px;flex-shrink:0}
 .nav-logo span{color:var(--tx3);font-weight:400}
 
 /* ── PAGE ── */
@@ -428,23 +428,119 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 .idea-form-overlay.open{display:flex}
 .idea-form{background:#fff;border-radius:14px;padding:24px;width:480px;max-width:95vw;box-shadow:0 14px 44px rgba(0,0,0,.14);animation:mi .17s ease}
 .idea-form-title{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:14px}
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVE (iPhone optimized)
+══════════════════════════════════════ */
+@media(max-width:768px){
+
+  /* ── NAV ── */
+  .nav-tabs{padding:0 8px;gap:0;overflow-x:auto;scrollbar-width:none}
+  .nav-tabs::-webkit-scrollbar{display:none}
+  .nav-logo{font-size:12px;margin-right:8px;flex-shrink:0}
+  .nav-tab{padding:10px 10px;font-size:11px}
+  #fb-indicator{font-size:10px;padding:3px 7px}
+  #fb-indicator span:last-child{display:none} /* hide label, show dot only */
+  #fb-dot{width:8px;height:8px}
+
+  /* ── PAGE HEADER (schedule) ── */
+  .page-header{padding:8px 10px;flex-wrap:wrap;gap:6px}
+  .hright{gap:5px;flex-wrap:wrap}
+  .btn{padding:7px 10px;font-size:11px}
+  .btn-leave{padding:7px 12px}
+  #cur-month{min-width:80px;font-size:11px}
+
+  /* ── LEGEND ── */
+  .legend{padding:5px 10px;gap:4px}
+  .legend-item{font-size:10px;padding:2px 7px}
+
+  /* ── HINT ── */
+  .hint{display:none}
+
+  /* ── STATS ── */
+  .stats{padding:8px 10px 0;gap:6px}
+  .sc{padding:6px 10px}
+  .sv{font-size:15px}
+  .sl{font-size:9px}
+
+  /* ── SUBTABS ── */
+  .sub-tabs{padding:8px 10px 0}
+  .sub-tab{padding:5px 10px;font-size:11px}
+  .sub-content{margin:0 10px}
+
+  /* ── GANTT TABLE ── */
+  .gs{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  :root{--cell:36px;--nc:90px;--tc:110px}
+  .pn{font-size:11px}
+  .pr{font-size:9px}
+  .av{width:22px;height:22px;font-size:9px}
+  .tn{font-size:11px;max-width:104px}
+  th.cd .dn{font-size:11px}
+  th.cd .dl{font-size:8px}
+  td.cell{height:38px}
+  .bf{height:22px}
+
+  /* ── MODALS ── */
+  .modal{width:96vw!important;max-width:96vw!important;padding:18px 14px!important;max-height:88vh;overflow-y:auto}
+  .mb{align-items:flex-end!important;padding-bottom:0}
+  .mb .modal{border-radius:18px 18px 0 0!important;animation:slideUp .22s ease!important}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .fg input,.fg select,.fg textarea{font-size:16px!important} /* prevent iOS zoom */
+  .mt{font-size:15px}
+
+  /* ── IDEA BOARD ── */
+  .idea-page{padding:12px 10px}
+  .idea-board{grid-template-columns:1fr 1fr;gap:8px}
+  .idea-new-area{padding:10px 12px}
+  .idea-card{padding:12px 10px 8px}
+  .idea-card-title{font-size:12px}
+  .idea-card-body{font-size:11px}
+
+  /* ── TOOL TABLE ── */
+  .tool-page{padding:14px 10px}
+  .tool-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tool-cell-input{font-size:14px!important;padding:8px 10px}
+
+  /* ── FREE PAGE ── */
+  .free-page{padding:16px 12px}
+  .free-editor{font-size:14px}
+
+  /* ── GRM ── */
+  .grm-wrap{padding:14px 10px}
+
+  /* ── LEAVE LIST ── */
+  .lv-summary-grid{grid-template-columns:1fr!important}
+
+  /* ── TEAM / PROJ MODAL ── */
+  .modal[style*="width:600px"],.modal[style*="width:580px"]{width:96vw!important}
+
+  /* Touch feedback */
+  .btn:active{opacity:.75;transform:scale(.97)}
+  .nav-tab:active{opacity:.7}
+  td.cell:active{background:rgba(79,140,255,.15)!important}
+}
+
+@media(max-width:400px){
+  .idea-board{grid-template-columns:1fr}
+  :root{--nc:78px;--tc:96px;--cell:32px}
+  .nav-tab{padding:9px 8px;font-size:10px}
+}
 </style>
 </head>
 <body>
 
 <!-- ── NAVIGATION ── -->
 <div class="nav-tabs" id="nav-tabs">
-  <div class="nav-logo">CD<span>.schedule</span></div>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding-right:12px">
-    <div id="fb-indicator" onclick="openFbSetup()" title="Supabase 연결 상태" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:11px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none">
-      <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
-      <span id="fb-label">⚪ 오프라인</span>
-    </div>
-  </div>
   <div class="nav-tab active" onclick="switchPage(0)" id="tab-0"><input class="nav-title-input" value="📅 스케줄" id="tab-title-0" onchange="saveTabTitle(0,this.value)" onclick="e=>e.stopPropagation()"></div>
   <div class="nav-tab" onclick="switchPage(1)" id="tab-1"><input class="nav-title-input" value="📋 제작 프로세스 백서" id="tab-title-1" onchange="saveTabTitle(1,this.value)" onclick="e=>e.stopPropagation()"></div>
   <div class="nav-tab" onclick="switchPage(2)" id="tab-2"><input class="nav-title-input" value="🛠 툴 정보" id="tab-title-2" onchange="saveTabTitle(2,this.value)" onclick="e=>e.stopPropagation()"></div>
   <div class="nav-tab" onclick="switchPage(3)" id="tab-3"><input class="nav-title-input" value="💡 아이디어" id="tab-title-3" onchange="saveTabTitle(3,this.value)" onclick="e=>e.stopPropagation()"></div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:12px;padding-right:4px;flex-shrink:0">
+    <div id="fb-indicator" onclick="openFbSetup()" title="Supabase 연결 상태" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:11px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none">
+      <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
+      <span id="fb-label">⚪ 오프라인</span>
+    </div>
+    <div class="nav-logo">CD<span>.schedule</span></div>
+  </div>
 </div>
 
 <!-- ══ PAGE 0: SCHEDULE ══ -->
@@ -2553,7 +2649,47 @@ function openFbSetup(){
 function closeFbSetup(){}
 function openFbSetup_indicator(){ openFbSetup(); }
 
+// ════════════════════════════════════════════
+//  TOUCH SUPPORT (iPhone/Mobile)
+// ════════════════════════════════════════════
+function addTouchSupport(){
+  // Convert touch events to mouse events for drag operations
+  function touchToMouse(type, touch){
+    return new MouseEvent(type, {
+      bubbles:true, cancelable:true,
+      clientX:touch.clientX, clientY:touch.clientY,
+      screenX:touch.screenX, screenY:touch.screenY
+    });
+  }
+
+  // Patch elements with onmousedown to also respond to touch
+  document.addEventListener('touchstart', e=>{
+    const el = e.target.closest('[onmousedown]');
+    if(!el) return;
+    const me = touchToMouse('mousedown', e.touches[0]);
+    el.dispatchEvent(me);
+  }, {passive:false});
+
+  document.addEventListener('touchmove', e=>{
+    if(iMode==='idle') return;
+    e.preventDefault();
+    const me = touchToMouse('mousemove', e.touches[0]);
+    document.dispatchEvent(me);
+  }, {passive:false});
+
+  document.addEventListener('touchend', e=>{
+    if(iMode==='idle') return;
+    const touch = e.changedTouches[0];
+    const me = touchToMouse('mouseup', touch);
+    document.dispatchEvent(me);
+    // also fire click on target for tap
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if(el) el.click();
+  }, {passive:false});
+}
+
 init();
+addTouchSupport();
 setTimeout(initSupabase, 300);
 </script>
 </body>
