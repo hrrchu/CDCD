@@ -5,20 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>스케줄 매니저</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script>
-  // Bridge to match existing _fbMod interface
-  window._fbMod = {
-    initializeApp: (cfg, name) => firebase.initializeApp(cfg, name),
-    getDatabase: (app) => app.database(),
-    ref: (db, path) => db.ref(path),
-    onValue: (ref, cb) => { ref.on('value', cb); return () => ref.off('value', cb); },
-    set: (ref, val) => ref.set(val),
-    get: (ref) => ref.once('value').then(snap => ({ exists: () => snap.exists(), val: () => snap.val() })),
-  };
-</script>
+<!-- Firebase SDK will be loaded dynamically -->
 <style>
 :root{
   --bg:#f5f6f8;--sur:#fff;--sf2:#f0f1f4;
@@ -2544,6 +2531,7 @@ function saveFbConfig(){
 }
 
 function disconnectFirebase(){
+  if(_fbRef) _fbRef.off();
   _fbListeners.forEach(unsub => { try{ unsub(); }catch(e){} });
   _fbListeners = [];
   _fbDb = null; _fbRef = null; _fbConnected = false;
@@ -2554,47 +2542,57 @@ function disconnectFirebase(){
   showToast('Firebase 연결이 해제됐어요.');
 }
 
+async function loadFirebaseSDK(){
+  return new Promise((resolve, reject) => {
+    if(window.firebase){ resolve(); return; }
+    const s1 = document.createElement('script');
+    s1.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
+    s1.onload = () => {
+      const s2 = document.createElement('script');
+      s2.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js';
+      s2.onload = () => resolve();
+      s2.onerror = () => reject(new Error('Database SDK 로드 실패'));
+      document.head.appendChild(s2);
+    };
+    s1.onerror = () => reject(new Error('App SDK 로드 실패'));
+    document.head.appendChild(s1);
+  });
+}
+
 async function connectFirebase(cfg){
   setFbIndicator('connecting');
   try{
-    // Wait for Firebase compat SDK to be available
-    let attempts = 0;
-    while(!window.firebase && attempts < 30){ await new Promise(r=>setTimeout(r,100)); attempts++; }
-    if(!window.firebase) throw new Error('Firebase SDK 로드 실패 - 인터넷 연결을 확인해주세요');
+    await loadFirebaseSDK();
 
-    const { initializeApp, getDatabase, ref, onValue, set, get } = window._fbMod;
-
-    // Initialize app with unique name to avoid duplicate app error
+    // Initialize app
     const appName = 'cd-schedule';
     let app;
-    try{
-      app = firebase.app(appName);
-    } catch(e){
-      app = initializeApp(cfg, appName);
-    }
+    try{ app = firebase.app(appName); }
+    catch(e){ app = firebase.initializeApp(cfg, appName); }
 
-    const db = getDatabase(app);
+    const db = app.database();
     _fbDb = db;
-    _fbRef = ref(db, 'cd_schedule');
+    _fbRef = db.ref('cd_schedule');
 
     // Check if DB has data
-    const snap = await get(_fbRef);
+    const snap = await _fbRef.once('value');
     if(!snap.exists()){
       await pushAllToFb();
       showToast('✅ Firebase 연결 완료! 현재 데이터를 업로드했어요.');
     } else {
-      const data = snap.val();
-      loadFromFbData(data);
+      loadFromFbData(snap.val());
       showToast('✅ Firebase 연결 완료! 팀 데이터를 불러왔어요.');
     }
 
     // Subscribe to real-time changes
-    const unsub = onValue(_fbRef, (snapshot) => {
+    const handler = (snapshot) => {
       if(_fbIgnoreNext){ _fbIgnoreNext=false; return; }
-      const data = snapshot.val ? snapshot.val() : snapshot;
+      const data = snapshot.val();
       if(data) loadFromFbData(data);
-    });
-    _fbListeners.push(unsub);
+    };
+    _fbRef.on('value', handler);
+    _fbListeners.push(() => _fbRef.off('value', handler));
+
     _fbConnected = true;
     setFbIndicator('on');
     document.getElementById('fb-disconnect-btn').style.display='';
@@ -2633,7 +2631,7 @@ function loadFromFbData(data){
 }
 
 async function pushAllToFb(){
-  if(!_fbDb || !_fbRef) return;
+  if(!_fbRef) return;
   _fbIgnoreNext = true;
   const payload = {
     PROJECTS, GROUPS, ranges, leaves, milestones,
