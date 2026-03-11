@@ -636,10 +636,10 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
     </div>
     <div class="fg"><label>휴가 종류</label>
       <div style="display:flex;gap:7px;margin-top:3px" id="lm-type-sel">
-        <div class="lv-pill" data-type="off"     onclick="selLvType('off')"     style="background:#f1f5f9;color:#64748b">🏖️ 휴무</div>
-        <div class="lv-pill" data-type="offday"  onclick="selLvType('offday')"  style="background:#ccfbf1;color:#0d9488">🌿 오프데이</div>
-        <div class="lv-pill" data-type="checkup" onclick="selLvType('checkup')" style="background:#e0f2fe;color:#0891b2">🏥 검진</div>
-        <div class="lv-pill" data-type="refresh" onclick="selLvType('refresh')" style="background:#ede9fe;color:#7c3aed">✨ 리프레쉬</div>
+        <div class="lv-pill" data-type="off"     onclick="selLvType('off')"     style="background:#e2e8f0;color:#64748b">🏖️ 휴무</div>
+        <div class="lv-pill" data-type="offday"  onclick="selLvType('offday')"  style="background:#e2e8f0;color:#64748b">🌿 오프데이</div>
+        <div class="lv-pill" data-type="checkup" onclick="selLvType('checkup')" style="background:#e2e8f0;color:#64748b">🏥 검진</div>
+        <div class="lv-pill" data-type="refresh" onclick="selLvType('refresh')" style="background:#e2e8f0;color:#64748b">✨ 리프레쉬</div>
       </div>
     </div>
     <div class="fg"><label>메모 (선택)</label><input type="text" id="lm-note" placeholder="사유 등..."></div>
@@ -738,10 +738,10 @@ function renderAv(person, gc){
 }
 
 const LEAVE_TYPES = {
-  off:     {label:'휴무',    color:'#64748b', bg:'#f1f5f9', icon:'🏖️'},
-  offday:  {label:'오프데이', color:'#0d9488', bg:'#ccfbf1', icon:'🌿'},
-  checkup: {label:'검진',    color:'#0891b2', bg:'#e0f2fe', icon:'🏥'},
-  refresh: {label:'리프레쉬', color:'#7c3aed', bg:'#ede9fe', icon:'✨'},
+  off:     {label:'휴무',    color:'#64748b', bg:'#e2e8f0', icon:'🏖️'},
+  offday:  {label:'오프데이', color:'#64748b', bg:'#e2e8f0', icon:'🌿'},
+  checkup: {label:'검진',    color:'#64748b', bg:'#e2e8f0', icon:'🏥'},
+  refresh: {label:'리프레쉬', color:'#64748b', bg:'#e2e8f0', icon:'✨'},
 };
 let MS_TYPES = [
   {key:'report',    label:'중간 보고',   color:'#e53e3e'},
