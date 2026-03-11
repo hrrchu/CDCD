@@ -1692,7 +1692,7 @@ function deleteMsType(idx){
 }
 
 function closeMsmod(){document.getElementById('msmod').classList.remove('open');msPending=null}
-function saveMilestone_inner(){
+function saveMilestone(){
   if(!msPending)return;
   const {taskId,dateStr}=msPending;
   const entry={note:document.getElementById('ms-note').value};
