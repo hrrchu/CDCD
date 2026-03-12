@@ -78,7 +78,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);
 .gs{overflow-x:auto}
 table{border-collapse:collapse;min-width:100%;user-select:none}
 thead th{background:#fafbfc;padding:0;border-bottom:2px solid var(--bd2);border-right:1px solid var(--bd);position:sticky;top:0;z-index:10}
-th.cn{width:var(--nc);min-width:0;font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;padding:9px 4px;text-align:left;position:sticky;left:0;z-index:20;background:#fafbfc}
+th.cn{width:var(--nc);min-width:0;font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;padding:9px 0;text-align:left;position:sticky;left:0;z-index:20;background:#fafbfc}
 th.cn{position:relative}
 .cn-resizer{position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:30;background:transparent;transition:background .15s}
 .cn-resizer:hover,.cn-resizer.dragging{background:var(--acc);opacity:.5}
@@ -98,7 +98,7 @@ tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:#f8f9fb}
 tr.gr td{background:#f3f4f7;padding:5px 12px;font-size:11px;font-weight:700;color:var(--tx2);border-bottom:1px solid var(--bd2)}
 .gdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
-td.cn{position:sticky;left:0;z-index:5;background:var(--sur);width:var(--nc);min-width:0;padding:6px 4px;border-right:1px solid var(--bd);cursor:default;touch-action:pan-y}
+td.cn{position:sticky;left:0;z-index:5;background:var(--sur);width:var(--nc);min-width:0;padding:2px 0;border-right:1px solid var(--bd);cursor:default;touch-action:pan-y}
 
 
 tr.row-dragging td{opacity:.4}
@@ -106,7 +106,7 @@ tr.row-drag-over-top td.cn{border-top:2.5px solid var(--acc)!important}
 tr.row-drag-over-bottom td.cn{border-bottom:2.5px solid var(--acc)!important}
 td.ct{display:none}
 tbody tr:hover td.cn{background:#f8f9fb}
-.pi{display:flex;align-items:center;gap:7px}
+.pi{display:flex;align-items:center;gap:5px;padding:0 4px}
 .av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
 .pn{font-size:12px;font-weight:600;color:var(--tx);white-space:nowrap}
 .pr{font-size:10px;color:var(--tx3)}
@@ -307,7 +307,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 .free-page-title:focus{background:#f8f9ff;border-radius:6px;padding:2px 6px}
 .free-page-subtitle{font-size:13px;color:var(--tx3);margin-bottom:24px;outline:none;width:100%;border:none;background:none;font-family:'Noto Sans KR',sans-serif}
 .free-page-subtitle:focus{background:#f8f9ff;border-radius:6px;padding:2px 6px}
-.free-editor{width:100%;min-height:320px;background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:18px;font-family:'Noto Sans KR',sans-serif;font-size:14px;line-height:1.8;color:var(--tx);outline:none;box-shadow:var(--sh);resize:vertical}
+.free-editor{width:100%;min-height:2400px;background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:18px;font-family:'Noto Sans KR',sans-serif;font-size:14px;line-height:1.8;color:var(--tx);outline:none;box-shadow:var(--sh);resize:vertical}
 .free-editor:focus{border-color:var(--acc)}
 .free-tip{font-size:11px;color:var(--tx3);margin-top:8px}
 
@@ -337,7 +337,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 .tool-th{padding:10px 14px;font-size:11px;font-weight:700;color:var(--tx2);text-align:left;background:var(--sf2);border-bottom:2px solid var(--bd);white-space:nowrap}
 .tool-th-drag{width:32px;background:var(--sf2);border-bottom:2px solid var(--bd)}
 .tool-th-del{width:36px;background:var(--sf2);border-bottom:2px solid var(--bd)}
-.tool-row{transition:background .1s}
+.tool-row{transition:background .1s, border-left-color .15s;border-left:3px solid transparent}
 .tool-row:hover{background:#f8faff}
 .tool-row.tool-row-dragging{opacity:.38;background:#eef4ff}
 .tool-row.tool-row-over-top{box-shadow:inset 0 2px 0 var(--acc)}
@@ -541,11 +541,11 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 
 <!-- ── NAVIGATION ── -->
 <div class="nav-tabs" id="nav-tabs">
-  <div class="nav-tab active" onclick="switchPage(0)" id="tab-0"><input class="nav-title-input" value="📅 스케줄" id="tab-title-0" onchange="saveTabTitle(0,this.value)" onclick="e=>e.stopPropagation()"></div>
-  <div class="nav-tab" onclick="switchPage(1)" id="tab-1"><input class="nav-title-input" value="📋 제작 프로세스 백서" id="tab-title-1" onchange="saveTabTitle(1,this.value)" onclick="e=>e.stopPropagation()"></div>
-  <div class="nav-tab" onclick="switchPage(2)" id="tab-2"><input class="nav-title-input" value="🛠 툴 정보" id="tab-title-2" onchange="saveTabTitle(2,this.value)" onclick="e=>e.stopPropagation()"></div>
-  <div class="nav-tab" onclick="switchPage(3)" id="tab-3"><input class="nav-title-input" value="💡 아이디어" id="tab-title-3" onchange="saveTabTitle(3,this.value)" onclick="e=>e.stopPropagation()"></div>
-  <div class="nav-tab" onclick="switchPage(4)" id="tab-4"><input class="nav-title-input" value="🗳 투표" id="tab-title-4" onchange="saveTabTitle(4,this.value)" onclick="e=>e.stopPropagation()"></div>
+  <div class="nav-tab active" onclick="switchPage(0)" id="tab-0"><input class="nav-title-input" value="📅 schedule" id="tab-title-0" onchange="saveTabTitle(0,this.value)" onclick="e=>e.stopPropagation()"></div>
+  <div class="nav-tab" onclick="switchPage(1)" id="tab-1"><input class="nav-title-input" value="📋 process" id="tab-title-1" onchange="saveTabTitle(1,this.value)" onclick="e=>e.stopPropagation()"></div>
+  <div class="nav-tab" onclick="switchPage(2)" id="tab-2"><input class="nav-title-input" value="🛠 tool" id="tab-title-2" onchange="saveTabTitle(2,this.value)" onclick="e=>e.stopPropagation()"></div>
+  <div class="nav-tab" onclick="switchPage(3)" id="tab-3"><input class="nav-title-input" value="💡 idea" id="tab-title-3" onchange="saveTabTitle(3,this.value)" onclick="e=>e.stopPropagation()"></div>
+  <div class="nav-tab" onclick="switchPage(4)" id="tab-4"><input class="nav-title-input" value="🗳 vote" id="tab-title-4" onchange="saveTabTitle(4,this.value)" onclick="e=>e.stopPropagation()"></div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:12px;padding-right:4px;flex-shrink:0">
     <div id="fb-indicator" onclick="openFbSetup()" title="Supabase 연결 상태" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:11px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none">
       <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
@@ -567,11 +567,10 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
       </div>
       <button class="btn btn-g" onclick="openProjMgr()">🎨 프로젝트 관리</button>
       <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원 관리</button>
-      <button class="btn btn-p" onclick="openScheduleAdd()">➕ 일정 등록</button>
+      <button class="btn btn-leave" onclick="openScheduleAdd()">➕ 일정 등록</button>
       <button class="btn btn-leave" onclick="openLeaveModal(null,null)">🏖️ 휴가 등록</button>
-      <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5" onclick="openBulkDelete()">🗑 일괄 삭제</button>
     </div>
-    <div></div>
+    <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5" onclick="openBulkDelete()">🗑 일괄 삭제</button>
   </div>
 
   <div class="legend" id="legend"></div>
@@ -664,7 +663,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
   <div class="tool-page">
     <div class="tool-page-header">
       <div>
-        <input class="free-page-title" id="p2-title" value="🛠 툴 정보" placeholder="페이지 제목">
+        <input class="free-page-title" id="p2-title" value="🛠 tool" placeholder="페이지 제목">
         <input class="free-page-subtitle" id="p2-sub" value="팀에서 사용하는 툴과 계정 정보를 정리합니다." placeholder="부제목 / 설명">
       </div>
       <button class="btn btn-p" onclick="addToolRow()">＋ 항목 추가</button>
@@ -674,6 +673,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
         <thead>
           <tr>
             <th class="tool-th-drag"></th>
+            <th class="tool-th" style="width:110px">종류</th>
             <th class="tool-th">Tool</th>
             <th class="tool-th">아이디</th>
             <th class="tool-th">비밀번호</th>
@@ -702,7 +702,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
         <textarea class="idea-new-body-input" id="if-body" placeholder="메모 내용..." rows="3"></textarea>
         <div class="idea-new-footer">
           <select class="idea-new-tag-sel" id="if-tag">
-            <option value="💡 아이디어">💡 아이디어</option>
+            <option value="💡 idea">💡 아이디어</option>
             <option value="🐛 버그">🐛 버그</option>
             <option value="✨ 개선">✨ 개선</option>
             <option value="📌 공유">📌 공유</option>
@@ -1674,11 +1674,25 @@ let toolRows = [
 ];
 let _toolDragIdx = null;
 
+const TOOL_CATS = [
+  {value:'Font',   label:'Font',   bg:'#ede9fe', color:'#6d28d9'},
+  {value:'Sound',  label:'Sound',  bg:'#fce7f3', color:'#be185d'},
+  {value:'3D',     label:'3D',     bg:'#fff7ed', color:'#c2410c'},
+  {value:'2D',     label:'2D',     bg:'#ecfdf5', color:'#065f46'},
+  {value:'Motion', label:'Motion', bg:'#eff6ff', color:'#1d4ed8'},
+  {value:'기타',   label:'기타',   bg:'#f1f5f9', color:'#475569'},
+];
+function getToolCat(val){ return TOOL_CATS.find(c=>c.value===val)||TOOL_CATS[5]; }
+
 function renderToolTable(){
   const tbody = document.getElementById('tool-tbody');
   if(!tbody) return;
-  tbody.innerHTML = toolRows.map((row, idx) => `
+  tbody.innerHTML = toolRows.map((row, idx) => {
+    const cat = getToolCat(row.cat||'');
+    const selOpts = TOOL_CATS.map(c=>`<option value="${c.value}"${(row.cat||'')==c.value?' selected':''}>${c.label}</option>`).join('');
+    return `
     <tr class="tool-row" id="trow-${row.id}"
+      style="border-left:3px solid ${cat.color}"
       ondragover="toolRowDragOver(event,${idx})"
       ondragleave="toolRowDragLeave(event,${idx})"
       ondrop="toolRowDrop(event,${idx})"
@@ -1686,6 +1700,13 @@ function renderToolTable(){
       <td class="tool-drag-cell" draggable="true"
         ondragstart="toolRowDragStart(event,${idx})"
         title="드래그로 순서 변경">⠿</td>
+      <td style="padding:4px 6px">
+        <select style="border:none;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;outline:none;font-family:'Noto Sans KR',sans-serif;background:${cat.bg};color:${cat.color};width:90px"
+          onchange="toolRows[${idx}].cat=this.value;renderToolTable();fbPush()">
+          <option value="">— 선택 —</option>
+          ${selOpts}
+        </select>
+      </td>
       <td><input class="tool-cell-input" value="${escH(row.site)}" placeholder="예) Figma, Notion..."
         oninput="toolRows[${idx}].site=this.value;fbPush()"></td>
       <td><input class="tool-cell-input" value="${escH(row.user)}" placeholder="아이디 / 이메일"
@@ -1698,13 +1719,14 @@ function renderToolTable(){
       <td><input class="tool-cell-input" value="${escH(row.note)}" placeholder="메모, URL 등..."
         oninput="toolRows[${idx}].note=this.value;fbPush()"></td>
       <td class="tool-del-cell"><button class="tool-del-btn" onclick="deleteToolRow(${idx})" title="삭제">×</button></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function escH(s){return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
 
 function addToolRow(){
-  toolRows.push({id:Date.now(), site:'', user:'', pw:'', note:''});
+  toolRows.push({id:Date.now(), cat:'', site:'', user:'', pw:'', note:''});
   renderToolTable();fbPush();
   // focus new row's first input
   setTimeout(()=>{
@@ -1715,7 +1737,7 @@ function addToolRow(){
 }
 
 function deleteToolRow(idx){
-  if(toolRows.length<=1){toolRows[0]={id:Date.now(),site:'',user:'',pw:'',note:''};renderToolTable();fbPush();return;}
+  if(toolRows.length<=1){toolRows[0]={id:Date.now(),cat:'',site:'',user:'',pw:'',note:''};renderToolTable();fbPush();return;}
   toolRows.splice(idx,1);
   renderToolTable();fbPush();
 }
