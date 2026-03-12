@@ -307,7 +307,14 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 .free-page-title:focus{background:#f8f9ff;border-radius:6px;padding:2px 6px}
 .free-page-subtitle{font-size:13px;color:var(--tx3);margin-bottom:24px;outline:none;width:100%;border:none;background:none;font-family:'Noto Sans KR',sans-serif}
 .free-page-subtitle:focus{background:#f8f9ff;border-radius:6px;padding:2px 6px}
-.free-editor{width:100%;min-height:2400px;background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:18px;font-family:'Noto Sans KR',sans-serif;font-size:14px;line-height:1.8;color:var(--tx);outline:none;box-shadow:var(--sh);resize:vertical}
+.free-editor{width:100%;min-height:2400px;background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:18px;font-family:'Noto Sans KR',sans-serif;font-size:14px;line-height:1.8;color:var(--tx);outline:none;box-shadow:var(--sh);white-space:pre-wrap;word-break:break-word;box-sizing:border-box}
+.free-editor:empty:before{content:attr(data-placeholder);color:var(--tx3);pointer-events:none;white-space:pre-wrap}
+[contenteditable][data-placeholder]:empty:before{content:attr(data-placeholder);color:var(--tx3);pointer-events:none;white-space:pre-wrap}
+#cm-text a,#cm-link a,[contenteditable] a{color:var(--acc);text-decoration:underline;cursor:pointer}
+[contenteditable][data-placeholder]:empty:before{content:attr(data-placeholder);color:var(--tx3);pointer-events:none;white-space:pre-wrap}
+.idea-new-body-input[contenteditable]:empty:before{content:attr(data-placeholder);color:var(--tx3);pointer-events:none}
+.free-editor a{color:var(--acc);text-decoration:underline;cursor:pointer}
+.free-editor a:hover{opacity:.75}
 .free-editor:focus{border-color:var(--acc)}
 .free-tip{font-size:11px;color:var(--tx3);margin-top:8px}
 
@@ -378,6 +385,9 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 .idea-card:hover .idea-card-drag-handle{opacity:.5}
 .idea-card-drag-handle:hover{opacity:1!important}
 .idea-card-pin{position:absolute;top:6px;right:6px;opacity:0;border:none;background:none;cursor:pointer;font-size:13px;color:rgba(0,0,0,.4);transition:opacity .1s;padding:2px}
+.idea-del-inline{background:rgba(0,0,0,.06);border:1px dashed rgba(0,0,0,.15);color:rgba(0,0,0,.5);font-size:15px;padding:2px 8px;cursor:pointer;border-radius:16px;opacity:0;transition:opacity .15s}
+.idea-card:hover .idea-del-inline{opacity:1}
+.idea-del-inline:hover{background:rgba(229,62,62,.12)!important;border-color:rgba(229,62,62,.3)!important;color:#e53e3e!important}
 .idea-card:hover .idea-card-pin{opacity:.6}
 .idea-card-pin.pinned{opacity:1!important;color:#e67e22}
 .idea-card-title{font-size:13px;font-weight:700;color:rgba(0,0,0,.8);margin-bottom:6px;line-height:1.4;padding-right:28px;word-break:break-word}
@@ -551,7 +561,29 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
       <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
       <span id="fb-label">⚪ 오프라인</span>
     </div>
+    <button id="admin-btn" onclick="toggleAdmin()" title="관리자 모드"
+      style="font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid var(--bd2);background:#f8fafc;color:var(--tx2);cursor:pointer;transition:.15s;display:flex;align-items:center;gap:5px">
+      🔒 <span id="admin-btn-label">관리자</span>
+    </button>
     <div class="nav-logo">CD<span>.schedule</span></div>
+  </div>
+</div>
+
+<!-- Admin Auth Modal -->
+<div class="mb" id="admin-modal">
+  <div class="modal" style="width:340px">
+    <div class="mt">🔐 관리자 로그인</div>
+    <div class="mss">비밀번호를 입력해주세요</div>
+    <div class="fg" style="margin-top:12px">
+      <input type="password" id="admin-pw-input" placeholder="비밀번호"
+        style="font-size:16px;letter-spacing:4px;text-align:center"
+        onkeydown="if(event.key==='Enter')submitAdminPw()">
+    </div>
+    <div id="admin-pw-err" style="color:#e53e3e;font-size:12px;text-align:center;min-height:16px;margin-top:4px"></div>
+    <div class="ma" style="margin-top:12px">
+      <button class="btn btn-g" onclick="closeAdminModal()">취소</button>
+      <button class="btn btn-p" onclick="submitAdminPw()">확인</button>
+    </div>
   </div>
 </div>
 
@@ -644,16 +676,15 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
   <div class="free-page">
     <input class="free-page-title" id="p1-title" value="제작 프로세스 백서" placeholder="페이지 제목">
     <input class="free-page-subtitle" id="p1-sub" value="팀 내 제작 프로세스 및 가이드라인을 기록합니다." placeholder="부제목 / 설명">
-    <textarea class="free-editor" id="p1-body" placeholder="여기에 내용을 자유롭게 작성하세요...
-
-예시:
-■ 기획 단계
-  - 아이디어 수집 → 기획안 작성 → 팀 내 리뷰
-  ...
-
-■ 제작 단계
-  - 스토리보드 작성 → 디자인 시안 → 영상 제작
-  ..."></textarea>
+    <div
+      class="free-editor"
+      id="p1-body"
+      contenteditable="true"
+      spellcheck="false"
+      data-placeholder="여기에 내용을 자유롭게 작성하세요&#10;&#10;URL을 붙여넣으면 바로 링크로 변환돼요 🔗"
+      oninput="p1BodyInput()"
+      onpaste="p1Paste(event)"
+    ></div>
     <div class="free-tip">💡 제목을 클릭해서 수정할 수 있어요. 내용은 자동 저장됩니다.</div>
   </div>
 </div>
@@ -699,7 +730,13 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
     <div class="idea-new-area" id="idea-new-area" onclick="activateNewArea()">
       <div class="idea-new-placeholder" id="idea-new-placeholder">메모 작성...</div>
       <div class="idea-new-form" id="idea-new-form">
-        <textarea class="idea-new-body-input" id="if-body" placeholder="메모 내용..." rows="3"></textarea>
+        <div class="idea-new-body-input" id="if-body"
+          contenteditable="true"
+          spellcheck="false"
+          data-placeholder="메모 내용..."
+          onpaste="cmPaste(event,'if-body')"
+          style="min-height:60px;outline:none;white-space:pre-wrap;word-break:break-word"
+        ></div>
         <div class="idea-new-footer">
           <select class="idea-new-tag-sel" id="if-tag">
             <option value="💡 idea">💡 아이디어</option>
@@ -824,8 +861,26 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
       </div>
     </div>
 
-    <div class="fg"><label>메모 / 설명</label><textarea id="cm-text" rows="3" placeholder="간단한 설명..." style="resize:vertical;min-height:70px"></textarea></div>
-    <div class="fg"><label>링크 (선택)</label><input type="url" id="cm-link" placeholder="https://..."></div>
+    <div class="fg"><label>메모 / 설명</label>
+      <div id="cm-text"
+        contenteditable="true"
+        spellcheck="false"
+        data-placeholder="스토리보드 점검 : &#10;중간 점검 : "
+        onpaste="cmPaste(event,'cm-text')"
+        oninput="cmTextInput()"
+        style="border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.7;min-height:70px;outline:none;white-space:pre-wrap;word-break:break-word;color:var(--tx);background:#fff"
+      ></div>
+    </div>
+    <div class="fg"><label>링크 (선택)</label>
+      <div id="cm-link"
+        contenteditable="true"
+        spellcheck="false"
+        data-placeholder="https://..."
+        onpaste="cmPaste(event,'cm-link')"
+        oninput="cmLinkInput()"
+        style="border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-size:13px;font-family:'Space Mono',monospace;line-height:1.5;min-height:36px;outline:none;white-space:pre-wrap;word-break:break-all;color:var(--tx);background:#fff"
+      ></div>
+    </div>
     <div class="fg"><label>상태</label>
       <select id="cm-status">
         <option value="plan">📋 예정</option>
@@ -1172,8 +1227,99 @@ function switchPage(idx){
   if(idx===2) renderToolTable();
   if(idx===3) renderIdeaBoard();
   if(idx===4){ renderVotePage(); switchP4Tab(0); }
+  if(idx===1){ /* process page */ }
 }
 function saveTabTitle(idx,val){}
+
+// ════════════════════════════════════════════
+//  ADMIN AUTH
+// ════════════════════════════════════════════
+const ADMIN_PW = 'cd2024!'; // ← 비밀번호 여기서 변경
+let _isAdmin = false;
+const ADMIN_PAGES = [0, 1, 2]; // schedule, process, tool = 관리자 전용 편집
+
+function applyAdminMode(){
+  const btn = document.getElementById('admin-btn');
+  const label = document.getElementById('admin-btn-label');
+  if(_isAdmin){
+    btn.style.background = '#eff6ff';
+    btn.style.color = '#2563eb';
+    btn.style.borderColor = '#bfdbfe';
+    label.textContent = '관리자 ✓';
+    // 편집 가능하게
+    setAdminEditable(true);
+  } else {
+    btn.style.background = '#f8fafc';
+    btn.style.color = 'var(--tx2)';
+    btn.style.borderColor = 'var(--bd2)';
+    label.textContent = '관리자';
+    setAdminEditable(false);
+  }
+}
+
+function setAdminEditable(on){
+  // schedule 헤더 버튼들
+  const adminOnlyBtns = document.querySelectorAll('.admin-only');
+  adminOnlyBtns.forEach(el=>{ el.style.display = on ? '' : 'none'; });
+  // page-header 전체 (일정/휴가 등록 버튼)
+  const ph = document.querySelector('.page-header .hright');
+  if(ph) ph.style.pointerEvents = on ? '' : 'none', ph.style.opacity = on ? '' : '0.4';
+  // process 편집
+  const p1 = document.getElementById('p1-body');
+  if(p1) p1.contentEditable = on ? 'true' : 'false';
+  const p1t = document.getElementById('p1-title');
+  if(p1t) p1t.readOnly = !on;
+  const p1s = document.getElementById('p1-sub');
+  if(p1s) p1s.readOnly = !on;
+  // tool 편집 막기
+  document.querySelectorAll('.tool-cell-input, .tool-drag-cell, .tool-del-btn, #tool-add-btn').forEach(el=>{
+    el.disabled = !on; el.style.pointerEvents = on ? '' : 'none';
+  });
+  document.querySelectorAll('#tool-tbody [contenteditable]').forEach(el=>{
+    el.contentEditable = on ? 'true' : 'false';
+  });
+  // tool 추가/삭제 버튼
+  const toolAddBtn = document.querySelector('[onclick="addToolRow()"]');
+  if(toolAddBtn) toolAddBtn.style.display = on ? '' : 'none';
+  // gantt 드래그/클릭 잠금
+  const gs = document.querySelector('.gs');
+  if(gs) gs.style.pointerEvents = on ? '' : (curPage===0 ? 'none' : '');
+}
+
+function toggleAdmin(){
+  if(_isAdmin){
+    // 로그아웃
+    _isAdmin = false;
+    applyAdminMode();
+    showToast('관리자 모드 해제');
+  } else {
+    // 로그인 모달
+    document.getElementById('admin-pw-input').value = '';
+    document.getElementById('admin-pw-err').textContent = '';
+    document.getElementById('admin-modal').classList.add('open');
+    setTimeout(()=>document.getElementById('admin-pw-input').focus(), 100);
+  }
+}
+
+function closeAdminModal(){ document.getElementById('admin-modal').classList.remove('open'); }
+
+function submitAdminPw(){
+  const pw = document.getElementById('admin-pw-input').value;
+  if(pw === ADMIN_PW){
+    _isAdmin = true;
+    closeAdminModal();
+    applyAdminMode();
+    showToast('🔓 관리자 모드 활성화');
+  } else {
+    document.getElementById('admin-pw-err').textContent = '비밀번호가 틀렸어요';
+    document.getElementById('admin-pw-input').value = '';
+    document.getElementById('admin-pw-input').focus();
+  }
+}
+
+// switchPage 시 편집 상태 재적용
+const _origSwitchPage = switchPage;
+
 
 // ════════════════════════════════════════════
 //  PAGE 4 SUB-TABS
@@ -1409,7 +1555,7 @@ function openVoteCreate(){
   _vEditId = null;
   document.getElementById('vm-title').textContent = '🗳 투표 만들기';
   document.getElementById('vm-q').value = '';
-  document.getElementById('vm-due').value = '';
+  document.getElementById('vm-due').value = todayStr();
   document.getElementById('vm-anon').checked = false;
   document.querySelector('input[name="vm-type"][value="single"]').checked = true;
   toggleVmOptsWrap();
@@ -1497,8 +1643,11 @@ function renderVotePage(){
 
     const optsHtml = v.opts.map(o=>{
       const pct = total ? Math.round(o.voters.length/total*100) : 0;
-      const voterPersonId = _voterCtx[v.id]||'';
-      const voted = o.voters.includes(voterPersonId);
+      const _ctx = _voterCtx[v.id]||'anon';
+      const voterPersonId = _ctx;
+      const voted = voterPersonId==='anon'
+        ? o.voters.includes(getAnonId(v.id))
+        : o.voters.includes(voterPersonId);
       return `<div style="margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
           <button onclick="castVote('${v.id}','${o.id}')"
@@ -1528,7 +1677,7 @@ function renderVotePage(){
             <span style="font-size:12px;font-weight:700;color:var(--tx)">${name}</span>
             <span style="font-size:10px;color:var(--tx3)">${time}</span>
           </div>
-          <div style="font-size:13px;color:var(--tx);line-height:1.5;word-break:break-word">${c.text}</div>
+          <div style="font-size:13px;color:var(--tx);line-height:1.5;word-break:break-word">${linkify(c.text)}</div>
         </div>
         <button onclick="deleteComment('${v.id}',${ci})" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--tx3);font-size:12px;padding:2px 4px;opacity:.5">✕</button>
       </div>`;
@@ -1544,10 +1693,10 @@ function renderVotePage(){
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">${dueLabel}${anonLabel}${typeLabel}<span style="font-size:11px;color:var(--tx3)">총 ${total}표</span></div>
-      <div id="vote-voter-sel-${v.id}" style="margin-bottom:12px;display:flex;align-items:center;gap:8px">
-        <span style="font-size:12px;color:var(--tx2)">참여자:</span>
+      <div id="vote-voter-sel-${v.id}" style="margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:12px;color:var(--tx2);font-weight:600">참여:</span>
         <select onchange="setVoterCtx('${v.id}',this.value)" style="border:1px solid var(--bd2);border-radius:7px;padding:5px 8px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none">
-          <option value="">— 선택 —</option>
+          <option value="anon"${(!_voterCtx[v.id]||_voterCtx[v.id]==='anon')?' selected':''}>🕵️ 익명</option>
           ${people.map(p=>`<option value="${p.id}"${_voterCtx[v.id]===p.id?' selected':''}>${p.name}</option>`).join('')}
         </select>
       </div>
@@ -1570,34 +1719,43 @@ function renderVotePage(){
       </div>
     </div>`;
   }).join('');
+  // 모든 note preview 초기화
 }
 
 // 현재 투표 주체 (팀원 선택)
 let _voterCtx = {}; // {voteId: personId}
+// 익명 투표용 세션 ID (새로고침마다 새 익명)
+const _anonIds = {};
+function getAnonId(voteId){
+  if(!_anonIds[voteId]) _anonIds[voteId] = 'anon_' + Math.random().toString(36).slice(2,9);
+  return _anonIds[voteId];
+}
+
 function setVoterCtx(voteId, personId){ _voterCtx[voteId]=personId; }
 
 function castVote(voteId, optId){
   const v = votes.find(v=>v.id===voteId); if(!v) return;
-  const personId = _voterCtx[voteId];
-  if(!personId){ showToast('먼저 참여자를 선택해주세요 👆','error'); return; }
   if(v.closed || (v.due && v.due < todayStr())){ showToast('마감된 투표예요','error'); return; }
+  const ctx = _voterCtx[voteId]||'anon';
+  const people = getPeople();
+  // 익명: 세션별 고유ID 사용
+  const targets = ctx==='anon' ? [getAnonId(voteId)] : [ctx];
 
-  if(v.type==='single' || v.type==='thumb'){
-    // 기존 투표 취소 후 선택
-    v.opts.forEach(o=>{ o.voters = o.voters.filter(id=>id!==personId); });
-    const opt = v.opts.find(o=>o.id===optId);
-    if(opt && !opt.voters.includes(personId)) opt.voters.push(personId);
-  } else {
-    // 복수선택: 토글
-    const opt = v.opts.find(o=>o.id===optId); if(!opt) return;
-    const idx = opt.voters.indexOf(personId);
-    if(idx>=0) opt.voters.splice(idx,1);
-    else opt.voters.push(personId);
-  }
+  targets.forEach(personId=>{
+    if(v.type==='single' || v.type==='thumb'){
+      v.opts.forEach(o=>{ o.voters = o.voters.filter(id=>id!==personId); });
+      const opt = v.opts.find(o=>o.id===optId);
+      if(opt && !opt.voters.includes(personId)) opt.voters.push(personId);
+    } else {
+      const opt = v.opts.find(o=>o.id===optId); if(!opt) return;
+      const idx = opt.voters.indexOf(personId);
+      if(idx>=0) opt.voters.splice(idx,1);
+      else opt.voters.push(personId);
+    }
+  });
   renderVotePage();
-  // 참여자 선택 복원
   const sel = document.querySelector(`#vote-voter-sel-${voteId} select`);
-  if(sel) sel.value = personId;
+  if(sel) sel.value = ctx;
   fbPush();
 }
 
@@ -1716,14 +1874,31 @@ function renderToolTable(){
           id="pw-${row.id}" oninput="toolRows[${idx}].pw=this.value;fbPush()">
         <button class="tool-pw-eye" onclick="togglePw('pw-${row.id}',this)" tabindex="-1">👁</button>
       </div></td>
-      <td><input class="tool-cell-input" value="${escH(row.note)}" placeholder="메모, URL 등..."
-        oninput="toolRows[${idx}].note=this.value;fbPush()"></td>
+      <td style="padding:2px 4px">
+        <div id="tnote-${row.id}"
+          contenteditable="true"
+          spellcheck="false"
+          data-placeholder="메모, URL 등..."
+          onpaste="toolNotePaste(event,${idx},'${row.id}')"
+          oninput="toolNoteInput(${idx},'${row.id}',this)"
+          style="font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.5;min-height:28px;outline:none;white-space:pre-wrap;word-break:break-all;padding:3px 2px;color:var(--tx)"
+        >${row.note ? cmSetContentStr(row.note) : ''}</div>
+      </td>
       <td class="tool-del-cell"><button class="tool-del-btn" onclick="deleteToolRow(${idx})" title="삭제">×</button></td>
     </tr>`;
   }).join('');
 }
 
 function escH(s){return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+// URL → 클릭 가능 링크 변환
+function linkify(text){
+  if(!text) return '';
+  const escaped = escH(text);
+  return escaped.replace(/(https?:\/\/[^\s<>"']+)/g,
+    '<a href="$1" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:underline;word-break:break-all">$1</a>'
+  );
+}
+
 
 function addToolRow(){
   toolRows.push({id:Date.now(), cat:'', site:'', user:'', pw:'', note:''});
@@ -1740,6 +1915,168 @@ function deleteToolRow(idx){
   if(toolRows.length<=1){toolRows[0]={id:Date.now(),cat:'',site:'',user:'',pw:'',note:''};renderToolTable();fbPush();return;}
   toolRows.splice(idx,1);
   renderToolTable();fbPush();
+}
+
+
+function updateToolNotePreview(rowId, val){
+  const el = document.getElementById('tnp-'+rowId);
+  if(!el) return;
+  el.innerHTML = val ? linkify(val) : '<span style="color:var(--tx3)">메모, URL 등...</span>';
+  el.style.display = '';
+  fbPush();
+}
+
+
+// ════════════════════════════════════════════
+//  PROCESS PAGE (contenteditable)
+// ════════════════════════════════════════════
+let _p1PushTimer = null;
+
+function p1BodyInput(){
+  clearTimeout(_p1PushTimer);
+  _p1PushTimer = setTimeout(()=>{ fbPush(); }, 800);
+}
+
+function p1GetHtml(){
+  const el = document.getElementById('p1-body');
+  return el ? el.innerHTML : '';
+}
+
+function p1SetHtml(html){
+  const el = document.getElementById('p1-body');
+  if(!el) return;
+  el.innerHTML = html || '';
+}
+
+function p1Paste(e){
+  e.preventDefault();
+  const text = e.clipboardData.getData('text/plain');
+  // URL이면 <a> 태그로 변환, 아니면 그냥 텍스트
+  const urlReg = /(https?:\/\/[^\s]+)/g;
+  if(urlReg.test(text)){
+    const html = text.replace(/(https?:\/\/[^\s]+)/g,
+      url=>`<a href="${url}" target="_blank" rel="noopener">${url}</a>`
+    ).replace(/\n/g,'<br>');
+    document.execCommand('insertHTML', false, html);
+  } else {
+    // 일반 텍스트 - 줄바꿈 보존
+    const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    document.execCommand('insertHTML', false, escaped);
+  }
+  fbPush();
+}
+
+// ────────────────────────────────────────────
+//  SCHEDULE MODAL - contenteditable helpers
+// ────────────────────────────────────────────
+function cmPaste(e, elId){
+  e.preventDefault();
+  const text = e.clipboardData.getData('text/plain');
+  const urlReg = /(https?:\/\/[^\s]+)/g;
+  if(urlReg.test(text)){
+    const html = text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/(https?:\/\/[^\s]+)/g, url=>`<a href="${url}" target="_blank" rel="noopener">${url}</a>`)
+      .replace(/\n/g,'<br>');
+    document.execCommand('insertHTML', false, html);
+  } else {
+    const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    document.execCommand('insertHTML', false, escaped);
+  }
+}
+function cmTextInput(){ /* 변경감지 - 저장은 saveComment에서 */ }
+function cmLinkInput(){ /* 링크칸 입력 감지 */ }
+
+function cmGetText(elId){
+  // contenteditable → plain text (줄바꿈 보존)
+  const el = document.getElementById(elId);
+  if(!el) return '';
+  return el.innerText || '';
+}
+function cmGetLink(){
+  const el = document.getElementById('cm-link');
+  if(!el) return '';
+  // 링크 태그 href 우선, 없으면 텍스트
+  const a = el.querySelector('a');
+  if(a) return a.href;
+  return (el.innerText||'').trim();
+}
+function cmSetContent(elId, text){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  if(!text){ el.innerHTML=''; return; }
+  // URL 포함 시 linkify
+  const urlReg = /(https?:\/\/[^\s]+)/g;
+  const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  if(urlReg.test(text)){
+    el.innerHTML = escaped
+      .replace(/(https?:\/\/[^\s;]+)/g, url=>`<a href="${url}" target="_blank" rel="noopener">${url}</a>`)
+      .replace(/\n/g,'<br>');
+  } else {
+    el.innerHTML = escaped.replace(/\n/g,'<br>');
+  }
+}
+
+function cmSetContentStr(text){
+  if(!text) return '';
+  const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const urlReg = /(https?:\/\/[^\s<]+)/g;
+  if(urlReg.test(text)){
+    return escaped.replace(/(https?:\/\/[^\s<&]+)/g,
+      url=>`<a href="${url}" target="_blank" rel="noopener">${url}</a>`
+    ).replace(/\n/g,'<br>');
+  }
+  return escaped.replace(/\n/g,'<br>');
+}
+
+function toolNotePaste(e, idx, rowId){
+  e.preventDefault();
+  const text = e.clipboardData.getData('text/plain');
+  const urlReg = /(https?:\/\/[^\s]+)/g;
+  let html;
+  if(urlReg.test(text)){
+    const esc = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    html = esc.replace(/(https?:\/\/[^\s<&]+)/g,
+      url=>`<a href="${url}" target="_blank" rel="noopener">${url}</a>`
+    ).replace(/\n/g,'<br>');
+  } else {
+    html = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+  document.execCommand('insertHTML', false, html);
+  const el = document.getElementById('tnote-'+rowId);
+  toolRows[idx].note = el ? (el.innerText||'') : '';
+  fbPush();
+}
+
+function toolNoteInput(idx, rowId, el){
+  toolRows[idx].note = el.innerText||'';
+  fbPush();
+}
+
+function isUrl(s){ return /^https?:\/\//i.test(s||''); }
+
+function detectP1Links(text){
+  const wrap = document.getElementById('p1-links');
+  if(!wrap) return;
+  const urls = [...new Set((text.match(/https?:\/\/[^\s]+/g)||[]))];
+  if(!urls.length){ wrap.innerHTML=''; return; }
+  wrap.innerHTML = urls.map(url=>`
+    <a href="${escH(url)}" target="_blank" rel="noopener"
+      style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:20px;font-size:12px;color:#2563eb;text-decoration:none;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+      🔗 <span style="overflow:hidden;text-overflow:ellipsis">${escH(url.replace(/^https?:\/\//,'').substring(0,50))}${url.length>53?'...':''}</span>
+    </a>`).join('');
+}
+
+
+function updateLinkBtn(btnId, val){
+  const a = document.getElementById(btnId);
+  if(!a) return;
+  if(isUrl(val)){
+    a.href = val;
+    a.style.display = 'flex';
+  } else {
+    a.style.display = 'none';
+  }
 }
 
 function togglePw(id, btn){
@@ -2194,19 +2531,20 @@ function renderIdeaBoard(){
       ondragend="ideaDragEnd()">
       <div class="idea-card-drag-handle">⠿⠿</div>
       <button class="idea-card-pin${card.pinned?' pinned':''}" onclick="togglePin(${idx})" title="${card.pinned?'핀 해제':'핀 고정'}">📌</button>
+
       <div class="idea-card-toolbar">
         ${colorDots}
-        <div class="idea-card-tool-btn" onclick="deleteIdea(${idx})" title="삭제">🗑</div>
       </div>
       ${card.tag?`<div class="idea-tag-pill" style="background:${tag.bg};color:${tag.color}">${tag.label}</div>`:''}
       ${card.title?`<div class="idea-card-title">${card.title}</div>`:''}
-      ${card.body?`<div class="idea-card-body">${card.body}</div>`:''}
+      ${card.body?`<div class="idea-card-body">${cmSetContentStr(card.body)}</div>`:''}
       <div class="idea-card-footer">
         <span class="idea-card-date">${card.author||''}${card.author?' · ':''}${dateStr}</span>
       </div>
       <div class="idea-reactions">
         ${reactions}
         <div class="emoji-picker-wrap">
+          <button class="idea-reaction idea-del-inline" onclick="deleteIdea(${idx})" title="삭제">🗑</button>
           <button class="idea-reaction idea-reaction-add" onclick="toggleEmojiPicker(event,${idx})">＋</button>
           <div class="emoji-picker" id="ep-${idx}">${IDEA_EMOJIS.map(em=>`<button class="emoji-btn" onclick="addReaction(${idx},'${em}');closeAllEmojiPickers()">${em}</button>`).join('')}</div>
         </div>
@@ -2228,7 +2566,7 @@ function activateNewArea(){
   document.getElementById('idea-new-area').classList.add('active');
   document.getElementById('idea-new-placeholder').style.display='none';
   document.getElementById('idea-new-form').classList.add('show');
-  document.getElementById('if-body').focus();
+  const fb=document.getElementById('if-body'); if(fb){fb.focus();const r=document.createRange();r.selectNodeContents(fb);r.collapse(false);const s=window.getSelection();s.removeAllRanges();s.addRange(r);}
 }
 function deactivateNewArea(e){
   if(e) e.stopPropagation();
@@ -2295,12 +2633,12 @@ function ideaDragEnd(){
 
 function saveIdea(e){
   if(e) e.stopPropagation();
-  const body=document.getElementById('if-body').value.trim();
+  const body=(document.getElementById('if-body').innerText||'').trim();
   if(!body) return;
   const tag=document.getElementById('if-tag').value;
   const author=document.getElementById('if-author')?.value||'익명';
   ideaCards.unshift({id:Date.now(),title:'',body,tag,author,ts:Date.now(),reactions:{},comments:[],color:'#ffffff',pinned:false});
-  document.getElementById('if-body').value='';
+  document.getElementById('if-body').innerHTML='';
   deactivateNewArea(null);
   renderIdeaBoard();fbPush();
 }
@@ -2703,8 +3041,8 @@ function emptyCellClick(e,taskId,dateStr){
   document.getElementById('cm-sub').textContent='날짜를 확인하고 프로젝트를 선택해주세요';
   document.getElementById('cm-badge').textContent='📅 '+dateStr;
   document.getElementById('cm-rtitle').value='';
-  document.getElementById('cm-text').value='스토리보드 점검 : \n중간 점검 : ';
-  document.getElementById('cm-link').value='';
+  cmSetContent('cm-text','스토리보드 점검 : \n중간 점검 : ');
+  cmSetContent('cm-link','');
   document.getElementById('cm-status').value='plan';
   document.getElementById('cm-del').style.display='none';
   renderPsel(null);
@@ -2723,7 +3061,7 @@ document.addEventListener('mouseover',e=>{
   bub.innerHTML=`
     <div class="bd2t">${r.start}${r.start!==r.end?' → '+r.end:''} ${statusBadge(r.status)}</div>
     <div class="bpp" style="color:${proj.bar}">● ${proj.name}</div>
-    ${r.text?`<div class="bt2">${r.text}</div>`:''}
+    ${r.text?`<div class="bt2">${linkify(r.text)}</div>`:''}
     ${r.link?`<a class="blink" href="${r.link}" target="_blank">🔗 링크</a>`:''}
   `;
   bub.classList.add('vis');
@@ -2850,8 +3188,8 @@ function openScheduleAdd(){
   document.getElementById('cm-start').value = td;
   document.getElementById('cm-end').value = td;
   document.getElementById('cm-rtitle').value = '';
-  document.getElementById('cm-text').value = '스토리보드 점검 : \n중간 점검 : ';
-  document.getElementById('cm-link').value = '';
+  cmSetContent('cm-text','스토리보드 점검 : \n중간 점검 : ');
+  cmSetContent('cm-link','');
   document.getElementById('cm-status').value = 'plan';
   document.getElementById('cm-del').style.display = 'none';
   renderPsel(null);
@@ -2871,8 +3209,8 @@ function openModal(taskId,start,end,editIdx){
   document.getElementById('cm-sub').textContent=person?.role||'';
   document.getElementById('cm-badge').textContent=start===end?`📅 ${start}`:`📅 ${start}  →  ${end}`;
   document.getElementById('cm-rtitle').value=r?.rtitle||'';
-  document.getElementById('cm-text').value=r?.text||'스토리보드 점검 : \n중간 점검 : ';
-  document.getElementById('cm-link').value=r?.link||'';
+  cmSetContent('cm-text', r?.text||'스토리보드 점검 : \n중간 점검 : ');
+  cmSetContent('cm-link', r?.link||'');
   document.getElementById('cm-status').value=r?.status||'plan';
   document.getElementById('cm-del').style.display=editIdx!=null?'':'none';
   renderPsel(r?.projectId||null);
@@ -2908,7 +3246,7 @@ function saveComment(){
     vid: document.getElementById('wi-vid-chk').checked, vidCnt:   +document.getElementById('wi-vid-cnt').value, vidVarCnt: +document.getElementById('wi-vid-var-cnt').value,
   };
   const rtitle=document.getElementById('cm-rtitle').value.trim();
-  const entry={start,end,projectId:selProjId,rtitle,text:document.getElementById('cm-text').value,link:document.getElementById('cm-link').value,status:document.getElementById('cm-status').value,workItems};
+  const entry={start,end,projectId:selProjId,rtitle,text:cmGetText('cm-text'),link:cmGetLink(),status:document.getElementById('cm-status').value,workItems};
   if(editIdx!=null) ranges[taskId][editIdx]=entry;
   else{ranges[taskId]=ranges[taskId].filter(r=>dn(r.end)<dn(start)||dn(r.start)>dn(end));ranges[taskId].push(entry);}
 
@@ -3724,8 +4062,12 @@ function loadFromSbData(payload){
   if(payload.MS_TYPES)   MS_TYPES   = payload.MS_TYPES;
   if(payload.activityLog) activityLog = payload.activityLog;
   if(payload.votes)       votes       = payload.votes;
+  if(payload.p1Html !== undefined) p1SetHtml(payload.p1Html);
+  if(payload.p1Title){ const e=document.getElementById('p1-title'); if(e) e.value=payload.p1Title; }
+  if(payload.p1Sub){   const e=document.getElementById('p1-sub');   if(e) e.value=payload.p1Sub;   }
 
   renderLegend(); renderHeader(); renderTable(); renderStats();
+  setTimeout(applyAdminMode, 200);
   if(curSubTab===1) renderGRM();
   if(curSubTab===2) renderLeaveList();
   if(curPage===2) renderToolTable();
@@ -3740,6 +4082,7 @@ async function pushAllToSb(){
   const payload = {
     PROJECTS, GROUPS, ranges, leaves, milestones,
     avatarImgs, ideaCards, toolRows, MS_TYPES, activityLog, votes,
+    p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
     _updated: Date.now()
   };
   try{
