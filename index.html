@@ -52,6 +52,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2);font-weight:500;padding:3px 9px;border-radius:20px;border:1px solid var(--bd);background:var(--sur);white-space:nowrap;cursor:pointer;transition:.12s}
 .legend-item:hover{border-color:#aaa}
 .legend-active{font-weight:700!important}
+#wi-list label:has(input:checked){background:#f0f7ff!important;border-color:var(--acc)!important}
 .ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .legend-add{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--acc);font-weight:600;padding:3px 9px;border-radius:20px;border:1.5px dashed var(--acc);cursor:pointer;white-space:nowrap;background:rgba(79,140,255,.04);transition:.12s}
 .legend-add:hover{background:rgba(79,140,255,.1)}
@@ -564,6 +565,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
       <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원 관리</button>
       <button class="btn btn-p" onclick="openScheduleAdd()">➕ 일정 등록</button>
       <button class="btn btn-leave" onclick="openLeaveModal(null,null)">🏖️ 휴가 등록</button>
+      <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5" onclick="openBulkDelete()">🗑 일괄 삭제</button>
     </div>
     <div></div>
   </div>
@@ -729,7 +731,41 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
       <div class="fg" style="flex:1"><label>종료일</label><input type="date" id="cm-end"></div>
     </div>
     <div class="fg"><label>프로젝트</label><div class="psel" id="cm-psel"></div></div>
-    <div class="fg"><label>메모 / 설명</label><textarea id="cm-text" rows="5" placeholder="간단한 설명..." style="resize:vertical;min-height:110px"></textarea></div>
+
+    <!-- 작업 항목 -->
+    <div class="fg">
+      <label>작업 항목</label>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px" id="wi-list">
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--bd);border-radius:8px;background:#fafbfc">
+          <input type="checkbox" id="wi-da-chk" style="width:15px;height:15px;accent-color:var(--acc);flex-shrink:0">
+          <span style="font-size:12px;font-weight:600;color:var(--tx);min-width:40px">디자인</span>
+          <select id="wi-da-cnt" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;width:54px">
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>15</option><option>20</option>
+          </select>
+          <span style="font-size:11px;color:var(--tx3)">개</span>
+          <span style="font-size:11px;color:var(--tx2);white-space:nowrap;margin-left:4px">베리에이션</span>
+          <select id="wi-da-var-cnt" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;width:54px">
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>15</option><option>20</option>
+          </select>
+          <span style="font-size:11px;color:var(--tx3)">개</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--bd);border-radius:8px;background:#fafbfc">
+          <input type="checkbox" id="wi-vid-chk" style="width:15px;height:15px;accent-color:var(--acc);flex-shrink:0">
+          <span style="font-size:12px;font-weight:600;color:var(--tx);min-width:40px">영상</span>
+          <select id="wi-vid-cnt" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;width:54px">
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>15</option><option>20</option>
+          </select>
+          <span style="font-size:11px;color:var(--tx3)">개</span>
+          <span style="font-size:11px;color:var(--tx2);white-space:nowrap;margin-left:4px">베리에이션</span>
+          <select id="wi-vid-var-cnt" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;width:54px">
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>15</option><option>20</option>
+          </select>
+          <span style="font-size:11px;color:var(--tx3)">개</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fg"><label>메모 / 설명</label><textarea id="cm-text" rows="3" placeholder="간단한 설명..." style="resize:vertical;min-height:70px"></textarea></div>
     <div class="fg"><label>링크 (선택)</label><input type="url" id="cm-link" placeholder="https://..."></div>
     <div class="fg"><label>상태</label>
       <select id="cm-status">
@@ -767,6 +803,70 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
     <div class="ma" style="margin-top:14px">
       <button class="btn btn-g" onclick="closeMsmod()">취소</button>
       <button class="btn btn-p" onclick="saveMilestone()">저장</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Bulk Delete Modal -->
+<div class="mb" id="bdmod">
+  <div class="modal" style="width:500px">
+    <div class="mt">🗑 일정 일괄 삭제</div>
+    <div class="mss">조건을 선택해서 일정을 삭제해요. 복구는 불가능해요.</div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin:14px 0">
+
+      <!-- 프로젝트 -->
+      <div style="padding:12px 14px;border:1px solid var(--bd);border-radius:9px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--tx)">
+          <input type="checkbox" id="bd-proj-chk" onchange="toggleBdSection('proj')" style="width:15px;height:15px;accent-color:var(--acc)">
+          특정 프로젝트의 모든 일정
+        </label>
+        <div id="bd-proj-section" style="display:none;margin-top:10px">
+          <select id="bd-proj-sel" onchange="updateBdPreview()" style="width:100%;border:1px solid var(--bd2);border-radius:7px;padding:7px 10px;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none"></select>
+        </div>
+      </div>
+
+      <!-- 담당자 -->
+      <div style="padding:12px 14px;border:1px solid var(--bd);border-radius:9px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--tx)">
+          <input type="checkbox" id="bd-person-chk" onchange="toggleBdSection('person')" style="width:15px;height:15px;accent-color:var(--acc)">
+          특정 담당자의 모든 일정
+        </label>
+        <div id="bd-person-section" style="display:none;margin-top:10px">
+          <select id="bd-person-sel" onchange="updateBdPreview()" style="width:100%;border:1px solid var(--bd2);border-radius:7px;padding:7px 10px;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none"></select>
+        </div>
+      </div>
+
+      <!-- 날짜 범위 -->
+      <div style="padding:12px 14px;border:1px solid var(--bd);border-radius:9px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--tx)">
+          <input type="checkbox" id="bd-date-chk" onchange="toggleBdSection('date')" style="width:15px;height:15px;accent-color:var(--acc)">
+          날짜 범위 안의 일정
+        </label>
+        <div id="bd-date-section" style="display:none;margin-top:10px;display:none">
+          <div style="display:flex;gap:8px">
+            <div class="fg" style="flex:1;margin:0"><label>시작일</label><input type="date" id="bd-date-from" onchange="updateBdPreview()"></div>
+            <div class="fg" style="flex:1;margin:0"><label>종료일</label><input type="date" id="bd-date-to" onchange="updateBdPreview()"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 개별 선택 -->
+      <div style="padding:12px 14px;border:1px solid var(--bd);border-radius:9px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--tx)">
+          <input type="checkbox" id="bd-manual-chk" onchange="toggleBdSection('manual')" style="width:15px;height:15px;accent-color:var(--acc)">
+          개별 선택해서 삭제
+        </label>
+        <div id="bd-manual-section" style="display:none;margin-top:10px;max-height:220px;overflow-y:auto" id="bd-manual-list"></div>
+      </div>
+    </div>
+
+    <div id="bd-preview" style="background:#fff5f5;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:12px;color:#991b1b;display:none;margin-bottom:12px"></div>
+
+    <div class="ma">
+      <button class="btn btn-g" onclick="closeBdmod()">취소</button>
+      <button class="btn" style="background:#ef4444;color:#fff" onclick="execBulkDelete()">🗑 삭제 실행</button>
     </div>
   </div>
 </div>
@@ -1132,6 +1232,140 @@ function renderActivityLog(){
       <div style="font-size:10px;color:var(--tx3);white-space:nowrap;flex-shrink:0">${log.ts}</div>
     </div>`;
   }).join('');
+}
+
+// ════════════════════════════════════════════
+//  BULK DELETE
+// ════════════════════════════════════════════
+let _bdManualSel = new Set(); // 개별선택 모드에서 선택된 key들 "taskId:ri"
+
+function openBulkDelete(){
+  const people = getPeople();
+  // 프로젝트 목록
+  document.getElementById('bd-proj-sel').innerHTML =
+    PROJECTS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  // 담당자 목록
+  document.getElementById('bd-person-sel').innerHTML =
+    people.map(p=>`<option value="${p.id}">${p.name} (${p.role})</option>`).join('');
+  // 날짜 기본값: 이번달
+  const y=CY, m=String(CM+1).padStart(2,'0');
+  document.getElementById('bd-date-from').value=`${y}-${m}-01`;
+  const lastDay=new Date(y,CM+1,0).getDate();
+  document.getElementById('bd-date-to').value=`${y}-${m}-${String(lastDay).padStart(2,'0')}`;
+  // 체크박스 초기화
+  ['proj','person','date','manual'].forEach(k=>{
+    document.getElementById(`bd-${k}-chk`).checked=false;
+    const sec=document.getElementById(`bd-${k}-section`);
+    if(sec) sec.style.display='none';
+  });
+  _bdManualSel.clear();
+  document.getElementById('bd-preview').style.display='none';
+  document.getElementById('bdmod').classList.add('open');
+}
+function closeBdmod(){ document.getElementById('bdmod').classList.remove('open'); }
+
+function toggleBdSection(key){
+  const chk = document.getElementById(`bd-${key}-chk`).checked;
+  const sec = document.getElementById(`bd-${key}-section`);
+  if(sec) sec.style.display = chk ? '' : 'none';
+  if(key==='manual' && chk) renderBdManualList();
+  updateBdPreview();
+}
+
+function renderBdManualList(){
+  const people = getPeople();
+  let html = '';
+  people.forEach(person=>{
+    const tR = tasks.filter(t=>t.personId===person.id);
+    tR.forEach(task=>{
+      (ranges[task.id]||[]).forEach((r,ri)=>{
+        const proj = PROJECTS.find(p=>p.id===r.projectId);
+        const key = `${task.id}:${ri}`;
+        const chk = _bdManualSel.has(key);
+        html += `<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;cursor:pointer;background:${chk?'#f0f7ff':'transparent'};margin-bottom:2px">
+          <input type="checkbox" ${chk?'checked':''} onchange="toggleBdManual('${key}',this.checked)" style="width:14px;height:14px;accent-color:var(--acc);flex-shrink:0">
+          <div style="min-width:0">
+            <span style="font-size:12px;font-weight:600;color:var(--tx)">${person.name}</span>
+            <span style="font-size:11px;color:var(--tx3);margin:0 5px">${proj?.name||'프로젝트 없음'}</span>
+            <span style="font-size:11px;color:var(--tx2)">${r.start}${r.end!==r.start?' ~ '+r.end:''}</span>
+          </div>
+        </label>`;
+      });
+    });
+  });
+  const wrap = document.getElementById('bd-manual-section');
+  wrap.innerHTML = html || '<div style="color:var(--tx3);font-size:12px;padding:8px">등록된 일정이 없어요</div>';
+}
+
+function toggleBdManual(key, checked){
+  if(checked) _bdManualSel.add(key);
+  else _bdManualSel.delete(key);
+  updateBdPreview();
+}
+
+function getBdTargets(){
+  const targets = []; // [{taskId, ri}]
+  const useProj   = document.getElementById('bd-proj-chk').checked;
+  const usePerson = document.getElementById('bd-person-chk').checked;
+  const useDate   = document.getElementById('bd-date-chk').checked;
+  const useManual = document.getElementById('bd-manual-chk').checked;
+
+  const selProjId   = document.getElementById('bd-proj-sel')?.value;
+  const selPersonId = document.getElementById('bd-person-sel')?.value;
+  const fromDate    = document.getElementById('bd-date-from')?.value;
+  const toDate      = document.getElementById('bd-date-to')?.value;
+
+  if(useManual){
+    _bdManualSel.forEach(key=>{
+      const [taskId,ri] = key.split(':');
+      targets.push({taskId, ri:parseInt(ri)});
+    });
+    return targets;
+  }
+
+  if(!useProj && !usePerson && !useDate) return [];
+
+  tasks.forEach(task=>{
+    (ranges[task.id]||[]).forEach((r,ri)=>{
+      let match = true;
+      if(useProj   && r.projectId !== selProjId) match=false;
+      if(usePerson && task.personId !== selPersonId) match=false;
+      if(useDate   && (r.end < fromDate || r.start > toDate)) match=false;
+      if(match) targets.push({taskId:task.id, ri});
+    });
+  });
+  return targets;
+}
+
+function updateBdPreview(){
+  const targets = getBdTargets();
+  const preview = document.getElementById('bd-preview');
+  if(!targets.length){
+    preview.style.display='none'; return;
+  }
+  preview.style.display='';
+  preview.innerHTML=`⚠️ <b>${targets.length}개</b>의 일정이 삭제돼요. 이 작업은 되돌릴 수 없어요.`;
+}
+
+function execBulkDelete(){
+  const targets = getBdTargets();
+  if(!targets.length){ showToast('삭제할 일정을 선택해주세요','error'); return; }
+  if(!confirm(`${targets.length}개의 일정을 삭제할까요? 되돌릴 수 없어요.`)) return;
+
+  // ri 큰 것부터 삭제 (인덱스 밀림 방지)
+  const byTask = {};
+  targets.forEach(({taskId,ri})=>{
+    if(!byTask[taskId]) byTask[taskId]=[];
+    byTask[taskId].push(ri);
+  });
+  Object.entries(byTask).forEach(([taskId, ris])=>{
+    ris.sort((a,b)=>b-a).forEach(ri=>{ ranges[taskId]?.splice(ri,1); });
+  });
+
+  addLog('일괄삭제', `${targets.length}건`, '', '', '');
+  closeBdmod();
+  renderTable(); renderStats(); fbPush();
+  showToast(`🗑 ${targets.length}개 일정 삭제 완료`);
 }
 
 function clearActivityLog(){
@@ -1859,7 +2093,7 @@ function emptyCellClick(e,taskId,dateStr){
   document.getElementById('cm-title').textContent=people.find(p=>p.id===task.personId)?.name||'일정';
   document.getElementById('cm-sub').textContent='날짜를 확인하고 프로젝트를 선택해주세요';
   document.getElementById('cm-badge').textContent='📅 '+dateStr;
-  document.getElementById('cm-text').value='DA : \n영상 : \n스토리보드 점검 : \n중간 점검 : ';
+  document.getElementById('cm-text').value='스토리보드 점검 : \n중간 점검 : ';
   document.getElementById('cm-link').value='';
   document.getElementById('cm-status').value='plan';
   document.getElementById('cm-del').style.display='none';
@@ -2005,11 +2239,14 @@ function openScheduleAdd(){
   const td = todayStr();
   document.getElementById('cm-start').value = td;
   document.getElementById('cm-end').value = td;
-  document.getElementById('cm-text').value = 'DA : \n영상 : \n스토리보드 점검 : \n중간 점검 : ';
+  document.getElementById('cm-text').value = '스토리보드 점검 : \n중간 점검 : ';
   document.getElementById('cm-link').value = '';
   document.getElementById('cm-status').value = 'plan';
   document.getElementById('cm-del').style.display = 'none';
   renderPsel(null);
+  // 작업항목 초기화
+  ['wi-da-chk','wi-vid-chk'].forEach(id=>document.getElementById(id).checked=false);
+  ['wi-da-cnt','wi-da-var-cnt','wi-vid-cnt','wi-vid-var-cnt'].forEach(id=>document.getElementById(id).value=1);
   pending = {taskId:null, start:null, end:null, editIdx:null, isNew:true};
   document.getElementById('cmod').classList.add('open');
 }
@@ -2022,11 +2259,19 @@ function openModal(taskId,start,end,editIdx){
   document.getElementById('cm-title').textContent=person?.name||'일정';
   document.getElementById('cm-sub').textContent=person?.role||'';
   document.getElementById('cm-badge').textContent=start===end?`📅 ${start}`:`📅 ${start}  →  ${end}`;
-  document.getElementById('cm-text').value=r?.text||'DA : \n영상 : \n스토리보드 점검 : \n중간 점검 : ';
+  document.getElementById('cm-text').value=r?.text||'스토리보드 점검 : \n중간 점검 : ';
   document.getElementById('cm-link').value=r?.link||'';
   document.getElementById('cm-status').value=r?.status||'plan';
   document.getElementById('cm-del').style.display=editIdx!=null?'':'none';
   renderPsel(r?.projectId||null);
+  // 작업항목 불러오기
+  const wi = r?.workItems||{};
+  document.getElementById('wi-da-chk').checked      = !!wi.da;
+  document.getElementById('wi-da-cnt').value        = wi.daCnt||1;
+  document.getElementById('wi-da-var-cnt').value    = wi.daVarCnt||1;
+  document.getElementById('wi-vid-chk').checked     = !!wi.vid;
+  document.getElementById('wi-vid-cnt').value       = wi.vidCnt||1;
+  document.getElementById('wi-vid-var-cnt').value   = wi.vidVarCnt||1;
   document.getElementById('cmod').classList.add('open');
 }
 function closeCmod(){document.getElementById('cmod').classList.remove('open');pending=null}
@@ -2046,7 +2291,11 @@ function saveComment(){
   }
 
   if(!ranges[taskId]) ranges[taskId]=[];
-  const entry={start,end,projectId:selProjId,text:document.getElementById('cm-text').value,link:document.getElementById('cm-link').value,status:document.getElementById('cm-status').value};
+  const workItems={
+    da:  document.getElementById('wi-da-chk').checked,  daCnt:    +document.getElementById('wi-da-cnt').value,  daVarCnt:  +document.getElementById('wi-da-var-cnt').value,
+    vid: document.getElementById('wi-vid-chk').checked, vidCnt:   +document.getElementById('wi-vid-cnt').value, vidVarCnt: +document.getElementById('wi-vid-var-cnt').value,
+  };
+  const entry={start,end,projectId:selProjId,text:document.getElementById('cm-text').value,link:document.getElementById('cm-link').value,status:document.getElementById('cm-status').value,workItems};
   if(editIdx!=null) ranges[taskId][editIdx]=entry;
   else{ranges[taskId]=ranges[taskId].filter(r=>dn(r.end)<dn(start)||dn(r.start)>dn(end));ranges[taskId].push(entry);}
 
