@@ -340,7 +340,11 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 .tool-page{padding:28px 32px;max-width:1000px}
 .tool-page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px}
 .tool-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--bd);box-shadow:var(--sh)}
-.tool-table{width:100%;border-collapse:collapse;background:var(--sur)}
+.tool-table{width:100%;border-collapse:collapse;background:var(--sur);user-select:text}
+.tool-table td, .tool-table th{user-select:text}
+.tool-table a{pointer-events:auto!important}
+.free-editor{user-select:text}
+.free-editor a{pointer-events:auto!important}
 .tool-th{padding:10px 14px;font-size:11px;font-weight:700;color:var(--tx2);text-align:left;background:var(--sf2);border-bottom:2px solid var(--bd);white-space:nowrap}
 .tool-th-drag{width:32px;background:var(--sf2);border-bottom:2px solid var(--bd)}
 .tool-th-del{width:36px;background:var(--sf2);border-bottom:2px solid var(--bd)}
@@ -820,7 +824,10 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
     <div class="mt" id="cm-title"></div>
     <div class="mss" id="cm-sub"></div>
     <div class="rbadge" id="cm-badge"></div>
-    <div class="fg" id="cm-person-row" style="display:none"><label>담당자</label><select id="cm-person"></select></div>
+    <div class="fg" id="cm-person-row" style="display:none">
+      <label>담당자 <span style="font-size:10px;color:var(--tx3)">복수 선택 가능</span></label>
+      <div id="cm-person-list" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;border:1px solid var(--bd2);border-radius:8px;padding:6px 8px;background:#fafbfc"></div>
+    </div>
     <div style="display:flex;gap:8px" id="cm-date-row" style="display:none">
       <div class="fg" style="flex:1"><label>시작일</label><input type="date" id="cm-start"></div>
       <div class="fg" style="flex:1"><label>종료일</label><input type="date" id="cm-end"></div>
@@ -868,7 +875,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
         data-placeholder="스토리보드 점검 : &#10;중간 점검 : "
         onpaste="cmPaste(event,'cm-text')"
         oninput="cmTextInput()"
-        style="border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.7;min-height:70px;outline:none;white-space:pre-wrap;word-break:break-word;color:var(--tx);background:#fff"
+        style="border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.7;min-height:200px;outline:none;white-space:pre-wrap;word-break:break-word;color:var(--tx);background:#fff"
       ></div>
     </div>
     <div class="fg"><label>링크 (선택)</label>
@@ -1261,29 +1268,43 @@ function setAdminEditable(on){
   // schedule 헤더 버튼들
   const adminOnlyBtns = document.querySelectorAll('.admin-only');
   adminOnlyBtns.forEach(el=>{ el.style.display = on ? '' : 'none'; });
-  // page-header 전체 (일정/휴가 등록 버튼)
+  // page-header 버튼 (편집 불가, 단 텍스트 선택은 허용)
   const ph = document.querySelector('.page-header .hright');
   if(ph) ph.style.pointerEvents = on ? '' : 'none', ph.style.opacity = on ? '' : '0.4';
-  // process 편집
+  // process - 비관리자는 읽기전용 (드래그 복사 + URL 클릭은 허용)
   const p1 = document.getElementById('p1-body');
-  if(p1) p1.contentEditable = on ? 'true' : 'false';
+  if(p1){
+    p1.contentEditable = on ? 'true' : 'false';
+    p1.style.userSelect = 'text'; // 항상 텍스트 선택 허용
+    p1.style.cursor = on ? 'text' : 'default';
+    // 비관리자도 링크 클릭 가능하도록 a 태그 pointer-events 보장
+    p1.querySelectorAll('a').forEach(a=>a.style.pointerEvents='auto');
+  }
   const p1t = document.getElementById('p1-title');
   if(p1t) p1t.readOnly = !on;
   const p1s = document.getElementById('p1-sub');
   if(p1s) p1s.readOnly = !on;
-  // tool 편집 막기
+  // tool - 비관리자는 input 비활성화, 단 텍스트 선택+링크 클릭 허용
   document.querySelectorAll('.tool-cell-input, .tool-drag-cell, .tool-del-btn, #tool-add-btn').forEach(el=>{
-    el.disabled = !on; el.style.pointerEvents = on ? '' : 'none';
+    el.disabled = !on;
+    el.style.pointerEvents = on ? '' : 'none';
   });
   document.querySelectorAll('#tool-tbody [contenteditable]').forEach(el=>{
     el.contentEditable = on ? 'true' : 'false';
+    el.style.userSelect = 'text';
+    el.style.cursor = on ? 'text' : 'default';
+    // 링크는 항상 클릭 가능
+    el.querySelectorAll('a').forEach(a=>a.style.pointerEvents='auto');
   });
   // tool 추가/삭제 버튼
   const toolAddBtn = document.querySelector('[onclick="addToolRow()"]');
   if(toolAddBtn) toolAddBtn.style.display = on ? '' : 'none';
-  // gantt 드래그/클릭 잠금
+  // gantt - 비관리자는 드래그/클릭 잠금, 단 텍스트 선택 허용
   const gs = document.querySelector('.gs');
-  if(gs) gs.style.pointerEvents = on ? '' : (curPage===0 ? 'none' : '');
+  if(gs){
+    gs.style.pointerEvents = on ? '' : (curPage===0 ? 'none' : '');
+    gs.style.userSelect = 'text';
+  }
 }
 
 function toggleAdmin(){
@@ -3032,7 +3053,7 @@ function emptyCellClick(e,taskId,dateStr){
   const task=tasks.find(t=>t.id===taskId);
   if(!task) return;
   const people=getPeople();
-  document.getElementById('cm-person').innerHTML=people.map(p=>`<option value="${p.id}"${p.id===task.personId?' selected':''}>${p.name} (${p.role})</option>`).join('');
+  renderPersonCheckboxes(people, [task.personId]);
   document.getElementById('cm-person-row').style.display='none'; // 담당자는 행에서 이미 앎
   document.getElementById('cm-date-row').style.display='';
   document.getElementById('cm-start').value=dateStr;
@@ -3175,10 +3196,36 @@ function renderPsel(pid){
 }
 function selP(id){selProjId=id;renderPsel(id)}
 
+
+function renderPersonCheckboxes(people, selectedIds){
+  const wrap = document.getElementById('cm-person-list');
+  if(!wrap) return;
+  // 파트별 그룹핑
+  let html = '';
+  GROUPS.forEach(g=>{
+    const members = g.members.filter(m=>people.find(p=>p.id===m.id));
+    if(!members.length) return;
+    html += `<div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;padding:2px 2px 4px;margin-top:4px;border-top:1px solid var(--bd)">${g.label}</div>`;
+    members.forEach(p=>{
+      const chk = selectedIds.includes(p.id);
+      html += `<label style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;cursor:pointer;font-size:13px;${chk?'background:#f0f7ff;':''}">
+        <input type="checkbox" value="${p.id}" ${chk?'checked':''} style="width:14px;height:14px;accent-color:var(--acc)">
+        <span style="font-weight:600;color:var(--tx)">${p.name}</span>
+        <span style="font-size:11px;color:var(--tx3)">${p.role}</span>
+      </label>`;
+    });
+  });
+  wrap.innerHTML = html;
+}
+
+function getCheckedPersonIds(){
+  return [...document.querySelectorAll('#cm-person-list input[type=checkbox]:checked')].map(el=>el.value);
+}
+
 function openScheduleAdd(){
   const people = getPeople();
-  // 담당자 셀렉트 채우기
-  document.getElementById('cm-person').innerHTML = people.map(p=>`<option value="${p.id}">${p.name} (${p.role})</option>`).join('');
+  // 담당자 체크박스 채우기
+  renderPersonCheckboxes(people, []);
   document.getElementById('cm-person-row').style.display = '';
   document.getElementById('cm-date-row').style.display = '';
   document.getElementById('cm-title').textContent = '➕ 일정 등록';
@@ -3229,24 +3276,36 @@ function saveComment(){
   if(!pending) return;
   let {taskId, start, end, editIdx, isNew} = pending;
 
-  if(isNew){
-    const personId = document.getElementById('cm-person').value;
-    start = document.getElementById('cm-start').value;
-    end   = document.getElementById('cm-end').value;
-    if(!personId || !start || !end){ showToast('담당자와 날짜를 입력해주세요','error'); return; }
-    if(end < start) end = start;
-    taskId = tasks.find(t=>t.personId===personId)?.id;
-    if(!taskId){ showToast('담당자 태스크를 찾을 수 없어요','error'); return; }
-    editIdx = null;
-  }
-
-  if(!ranges[taskId]) ranges[taskId]=[];
   const workItems={
     da:  document.getElementById('wi-da-chk').checked,  daCnt:    +document.getElementById('wi-da-cnt').value,  daVarCnt:  +document.getElementById('wi-da-var-cnt').value,
     vid: document.getElementById('wi-vid-chk').checked, vidCnt:   +document.getElementById('wi-vid-cnt').value, vidVarCnt: +document.getElementById('wi-vid-var-cnt').value,
   };
   const rtitle=document.getElementById('cm-rtitle').value.trim();
   const entry={start,end,projectId:selProjId,rtitle,text:cmGetText('cm-text'),link:cmGetLink(),status:document.getElementById('cm-status').value,workItems};
+
+  if(isNew){
+    start = document.getElementById('cm-start').value;
+    end   = document.getElementById('cm-end').value;
+    if(!start || !end){ showToast('날짜를 입력해주세요','error'); return; }
+    if(end < start) end = start;
+    const personIds = getCheckedPersonIds();
+    if(!personIds.length){ showToast('담당자를 한 명 이상 선택해주세요','error'); return; }
+    // 복수 담당자 모두에게 등록
+    personIds.forEach(personId=>{
+      const tid = tasks.find(t=>t.personId===personId)?.id;
+      if(!tid) return;
+      if(!ranges[tid]) ranges[tid]=[];
+      const e2={...entry,start,end};
+      ranges[tid]=ranges[tid].filter(r=>dn(r.end)<dn(start)||dn(r.start)>dn(end));
+      ranges[tid].push(e2);
+      addLog('등록', getPeople().find(p=>p.id===personId)?.name||'', getProj(selProjId)?.name||'', start, end);
+    });
+    closeCmod(); renderTable(); renderStats(); fbPush();
+    showToast(`✅ ${personIds.length}명에게 일정 등록 완료`);
+    return;
+  }
+
+  if(!ranges[taskId]) ranges[taskId]=[];
   if(editIdx!=null) ranges[taskId][editIdx]=entry;
   else{ranges[taskId]=ranges[taskId].filter(r=>dn(r.end)<dn(start)||dn(r.start)>dn(end));ranges[taskId].push(entry);}
 
