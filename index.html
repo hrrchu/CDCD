@@ -88,6 +88,7 @@ th.cd.holiday .dl{color:#e53e3e}
 th.cd.holiday{position:relative}
 .hd-name{display:block;font-size:8px;color:#e53e3e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:36px;margin:0 auto;line-height:1.2}
 td.cell.holiday-cell{background:rgba(229,62,62,.04)}
+td.cell.holiday-cell.empty{cursor:not-allowed!important}
 tbody tr{border-bottom:1px solid var(--bd)}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:#f8f9fb}
@@ -1679,6 +1680,9 @@ function rowLeave(tr){tr.classList.remove('drop-target')}
 
 function createMD(e,taskId,idx){
   if(e.button!==0)return;
+  const td=e.currentTarget||e.target.closest('td');
+  const ds=td?.dataset?.ds;
+  if(ds && getHoliday(ds)){ showToast('공휴일에는 일정을 등록할 수 없어요 🚫','error'); return; }
   e.preventDefault();
   _dragStarted=false;
   iMode='create'; iSt={taskId,anchor:idx,current:idx};
@@ -1826,6 +1830,7 @@ function finishResize(){
 function barTdClick(e, taskId, ri, dateStr){
   if(didMove) return;
   if(e.target.closest('.bf')) return;
+  if(getHoliday(dateStr)){ showToast('공휴일에는 등록할 수 없어요 🚫','error'); return; }
   openMsModal(e, taskId, dateStr);
 }
 
@@ -1838,10 +1843,29 @@ function barBfClick(e, taskId, ri){
   openModal(taskId, r.start, r.end, ri);
 }
 
-// ── EMPTY CELL CLICK → open milestone modal ──
+// ── EMPTY CELL CLICK → 일정 등록 모달 ──
 function emptyCellClick(e,taskId,dateStr){
   if(_dragStarted) return;
-  openMsModal(e, taskId, dateStr);
+  if(getHoliday(dateStr)){ showToast('공휴일에는 일정을 등록할 수 없어요 🚫','error'); return; }
+  // 담당자/날짜 미리 채워서 모달 열기
+  const task=tasks.find(t=>t.id===taskId);
+  if(!task) return;
+  const people=getPeople();
+  document.getElementById('cm-person').innerHTML=people.map(p=>`<option value="${p.id}"${p.id===task.personId?' selected':''}>${p.name} (${p.role})</option>`).join('');
+  document.getElementById('cm-person-row').style.display='none'; // 담당자는 행에서 이미 앎
+  document.getElementById('cm-date-row').style.display='';
+  document.getElementById('cm-start').value=dateStr;
+  document.getElementById('cm-end').value=dateStr;
+  document.getElementById('cm-title').textContent=people.find(p=>p.id===task.personId)?.name||'일정';
+  document.getElementById('cm-sub').textContent='날짜를 확인하고 프로젝트를 선택해주세요';
+  document.getElementById('cm-badge').textContent='📅 '+dateStr;
+  document.getElementById('cm-text').value='DA : \n영상 : \n스토리보드 점검 : \n중간 점검 : ';
+  document.getElementById('cm-link').value='';
+  document.getElementById('cm-status').value='plan';
+  document.getElementById('cm-del').style.display='none';
+  renderPsel(null);
+  pending={taskId, start:dateStr, end:dateStr, editIdx:null, isNew:false};
+  document.getElementById('cmod').classList.add('open');
 }
 
 // ── TOOLTIP ──
