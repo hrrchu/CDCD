@@ -87,6 +87,7 @@ th.cn{position:relative}
 .cn-resizer:hover,.cn-resizer.dragging{background:var(--acc);opacity:.5}
 th.ct{display:none}
 th.cd{width:var(--cell);min-width:var(--cell);text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:var(--tx3);padding:4px 0 2px;vertical-align:bottom}
+th.week-start, td.week-start{border-left:2px solid #cbd5e1!important}
 th.cd .dn{display:block;font-size:12px;color:var(--tx2);padding-bottom:2px;font-weight:600}
 th.cd .dl{display:block;font-size:9px;color:var(--tx3)}
 th.cd.today .dn{color:var(--acc);background:rgba(79,140,255,.12);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 2px}
@@ -2789,7 +2790,8 @@ function renderTable(){
   wds.forEach(({d,ds,dow})=>{
     const hname=getHoliday(ds);
     const isHol=!!hname;
-    h+=`<th class="cd${ds===td0?' today':''}${isHol?' holiday':''}" title="${hname||''}">
+    const isWeekStart = dow===1;
+    h+=`<th class="cd${ds===td0?' today':''}${isHol?' holiday':''}${isWeekStart?' week-start':''}" title="${hname||''}">
       <span class="dn">${d}</span>
       <span class="dl">${DAY[dow]}</span>
       ${isHol?`<span class="hd-name">${hname}</span>`:''}
@@ -2827,8 +2829,9 @@ function renderTable(){
         </div></td>`;
         
 
-        wds.forEach(({ds:dateStr},idx)=>{
+        wds.forEach(({ds:dateStr, dow},idx)=>{
           const isToday=dateStr===td0, n=dn(dateStr), isHolCell=!!getHoliday(dateStr);
+          const isWeekStart = dow===1;
           const r=tR.find(r=>n>=dn(r.start)&&n<=dn(r.end));
           const lv=(leaves[person.id]||[]).find(l=>n>=dn(l.start)&&n<=dn(l.end));
           const msHtml=msBarsHtml(task.id, dateStr);
@@ -2839,7 +2842,7 @@ function renderTable(){
             const li=(leaves[person.id]||[]).indexOf(lv);
             const lt=LEAVE_TYPES[lv.type]||LEAVE_TYPES.off;
             const lvS=n===dn(lv.start),lvE=n===dn(lv.end);
-            b+=`<td class="cell leave${isToday?' today':''}${isHolCell?' holiday-cell':''}${lvS?' lv-s':''}${lvE?' lv-e':''}" data-task="${task.id}" data-idx="${idx}" data-ds="${dateStr}"
+            b+=`<td class="cell leave${isToday?' today':''}${isHolCell?' holiday-cell':''}${lvS?' lv-s':''}${lvE?' lv-e':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-idx="${idx}" data-ds="${dateStr}"
               draggable="true"
               ondragstart="lvGanttDragStart(event,'${person.id}',${li})"
               ondragover="event.preventDefault()"
@@ -2861,7 +2864,7 @@ function renderTable(){
             const isS=n===dn(r.start),isE=n===dn(r.end);
             const hasCmt=!!(r.text||r.link);
             const dimmed = _filterProjId && r.projectId !== _filterProjId;
-            const cls=`cell bar${isToday?' today':''}${isHolCell?' holiday-cell':''}${isS?' bs':''}${isE?' be':''} status-${r.status||'plan'}${dimmed?' bar-dimmed':''}`;
+            const cls=`cell bar${isToday?' today':''}${isHolCell?' holiday-cell':''}${isS?' bs':''}${isE?' be':''} status-${r.status||'plan'}${dimmed?' bar-dimmed':''}${isWeekStart?' week-start':''}`;
             b+=`<td class="${cls}" data-task="${task.id}" data-person="${person.id}" data-ri="${ri}" data-idx="${idx}" data-ds="${dateStr}"
               onclick="barTdClick(event,'${task.id}',${ri},'${dateStr}')"
               onmouseleave="hideBub()">
@@ -2879,7 +2882,7 @@ function renderTable(){
             </td>`;
           } else {
             // 빈 셀
-            b+=`<td class="cell empty${isToday?' today':''}${isHolCell?' holiday-cell':''}${hasMs?' has-ms':''}" data-task="${task.id}" data-person="${person.id}" data-idx="${idx}" data-ds="${dateStr}"
+            b+=`<td class="cell empty${isToday?' today':''}${isHolCell?' holiday-cell':''}${hasMs?' has-ms':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-person="${person.id}" data-idx="${idx}" data-ds="${dateStr}"
                 onmousedown="createMD(event,'${task.id}',${idx})"
                 onclick="emptyCellClick(event,'${task.id}','${dateStr}')"
                 ondragover="event.preventDefault()"
