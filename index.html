@@ -1328,9 +1328,9 @@ function applyAdminMode(){
     if(label) label.textContent='관리자';
   }
   // admin-only 버튼 토글 (없음 - 버튼은 항상 보임, 동작에서 체크)
-  // gantt 드래그/클릭
+  // gantt: 비관리자는 드래그 막되 클릭/버블은 허용
   const gs = document.querySelector('.gs');
-  if(gs){ gs.style.pointerEvents = _isAdmin ? '' : 'none'; gs.style.userSelect = 'text'; }
+  if(gs){ gs.style.pointerEvents = ''; gs.style.userSelect = 'text'; }
   // process
   const p1 = document.getElementById('p1-body');
   if(p1){ p1.contentEditable=_isAdmin?'true':'false'; p1.style.userSelect='text'; p1.querySelectorAll('a').forEach(a=>a.style.pointerEvents='auto'); }
@@ -2900,7 +2900,7 @@ let _dragStarted=false; // track if actual drag happened vs click
 function rowEnter(tr){if(iMode==='move-cross')tr.classList.add('drop-target')}
 function rowLeave(tr){tr.classList.remove('drop-target')}
 
-function createMD(e,taskId,idx){
+function createMD(e,taskId,idx){ if(!_isAdmin) return;
   if(e.button!==0)return;
   const td=e.currentTarget||e.target.closest('td');
   const ds=td?.dataset?.ds;
@@ -2919,7 +2919,7 @@ function paintCreate(){
 }
 function clearCreate(){document.querySelectorAll('.creating,.creating-anchor').forEach(t=>t.classList.remove('creating','creating-anchor'))}
 
-function barMD(e,taskId,personId,ri,idx){
+function barMD(e,taskId,personId,ri,idx){ if(!_isAdmin) return;
   if(e.button!==0)return;
   e.preventDefault();
   e.stopPropagation();
@@ -2955,7 +2955,7 @@ function clearMovePreview(){
   document.querySelectorAll('.drop-target').forEach(t=>t.classList.remove('drop-target'));
 }
 
-function resizeMD(e,taskId,ri,side,idx){
+function resizeMD(e,taskId,ri,side,idx){ if(!_isAdmin) return;
   e.preventDefault();e.stopPropagation();
   iMode='resize'; didMove=false;
   iSt={taskId,ri,side,startIdx:idx,curIdx:idx};
@@ -3052,7 +3052,7 @@ function finishResize(){
 function barTdClick(e, taskId, ri, dateStr){
   if(didMove) return;
   if(e.target.closest('.bf')) return;
-  if(getHoliday(dateStr)){ showToast('공휴일에는 등록할 수 없어요 🚫','error'); return; }
+  if(!_isAdmin && getHoliday(dateStr)) return;
   openMsModal(e, taskId, dateStr);
 }
 
@@ -3068,6 +3068,7 @@ function barBfClick(e, taskId, ri){
 // ── EMPTY CELL CLICK → 일정 등록 모달 ──
 function emptyCellClick(e,taskId,dateStr){
   if(_dragStarted) return;
+  if(!_isAdmin) return; // 비관리자는 빈셀 클릭 불가
   if(getHoliday(dateStr)){ showToast('공휴일에는 일정을 등록할 수 없어요 🚫','error'); return; }
   // 담당자/날짜 미리 채워서 모달 열기
   const task=tasks.find(t=>t.id===taskId);
@@ -3303,6 +3304,19 @@ function openScheduleAdd(){ if(!_isAdmin){showToast('관리자만 사용할 수 
 function openModal(taskId,start,end,editIdx){
   document.getElementById('cm-person-row').style.display = 'none';
   document.getElementById('cm-date-row').style.display = 'none';
+  // 관리자/열람 모드 적용
+  const readOnly = !_isAdmin;
+  document.getElementById('cm-del').style.pointerEvents = readOnly ? 'none' : '';
+  document.getElementById('cm-del').style.opacity = readOnly ? '0' : '';
+  const saveBtn = document.querySelector('#cmod .btn-p');
+  if(saveBtn){ saveBtn.style.display = readOnly ? 'none' : ''; }
+  ['cm-rtitle','cm-status'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.disabled=readOnly;
+  });
+  const cmText=document.getElementById('cm-text');
+  if(cmText){ cmText.contentEditable=readOnly?'false':'true'; }
+  const cmLink=document.getElementById('cm-link');
+  if(cmLink){ cmLink.contentEditable=readOnly?'false':'true'; }
   const task=tasks.find(t=>t.id===taskId);
   const person=getPeople().find(p=>p.id===task?.personId);
   const r=editIdx!=null?(ranges[taskId]||[])[editIdx]:null;
