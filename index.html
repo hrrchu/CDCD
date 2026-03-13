@@ -585,10 +585,10 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center" id="schedule-btn-row">
       <button id="admin-btn" onclick="toggleAdmin()" style="font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bd2);background:#f8fafc;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:4px">🔒 <span id="admin-label">관리자</span></button>
-      <button class="btn btn-g" onclick="openProjMgr()">🎨 프로젝트 관리</button>
-      <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원 관리</button>
       <button class="btn btn-leave" onclick="openScheduleAdd()">➕ 일정 등록</button>
       <button class="btn btn-leave" onclick="openLeaveModal(null,null)">🏖️ 휴가 등록</button>
+      <button class="btn btn-g" onclick="openProjMgr()">🎨 프로젝트 관리</button>
+      <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원 관리</button>
       <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5;padding:4px 8px" onclick="openBulkDelete()" title="일괄 삭제">🗑</button>
     </div>
   </div>
@@ -1862,9 +1862,11 @@ const TOOL_CATS = [
   {value:'3D',     label:'3D',     bg:'#fff7ed', color:'#c2410c'},
   {value:'2D',     label:'2D',     bg:'#ecfdf5', color:'#065f46'},
   {value:'Motion', label:'Motion', bg:'#eff6ff', color:'#1d4ed8'},
+  {value:'AI',     label:'AI',     bg:'#f0fdf4', color:'#15803d'},
+  {value:'CD',     label:'CD',     bg:'#fefce8', color:'#a16207'},
   {value:'기타',   label:'기타',   bg:'#f1f5f9', color:'#475569'},
 ];
-function getToolCat(val){ return TOOL_CATS.find(c=>c.value===val)||TOOL_CATS[5]; }
+function getToolCat(val){ return TOOL_CATS.find(c=>c.value===val)||TOOL_CATS[TOOL_CATS.length-1]; }
 
 function renderToolTable(){
   const tbody = document.getElementById('tool-tbody');
