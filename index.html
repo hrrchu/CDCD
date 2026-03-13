@@ -195,6 +195,8 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 .bub.vis{display:block;animation:pop .12s ease;pointer-events:auto}
 @keyframes pop{from{opacity:0;transform:translateX(-50%) translateY(-4px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .bub::before{content:'';position:absolute;top:-5px;left:50%;width:8px;height:8px;background:#fff;border-top:1px solid var(--bd2);border-left:1px solid var(--bd2);transform:translateX(-50%) rotate(45deg)}
+#g-bub{position:fixed;background:#fff;border:1px solid var(--bd2);border-radius:9px;padding:10px 12px;min-width:185px;max-width:260px;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.14);display:none;pointer-events:auto}
+#g-bub.vis{display:block;animation:pop .12s ease}
 .bd2t{font-family:'Space Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:4px}
 .bpp{font-size:11px;font-weight:700;margin-bottom:3px}
 .bt2{font-size:12px;color:var(--tx);line-height:1.5;margin-bottom:6px}
@@ -556,6 +558,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 </style>
 </head>
 <body>
+<div id="g-bub"></div>
 
 <!-- ── NAVIGATION ── -->
 <div class="nav-tabs" id="nav-tabs">
@@ -1988,7 +1991,9 @@ function p1Paste(e){
 // ────────────────────────────────────────────
 function cmPaste(e, elId){
   e.preventDefault();
-  const text = e.clipboardData.getData('text/plain');
+  const raw = e.clipboardData.getData('text/plain');
+  // 연속 줄바꿈 3개 이상 → 2개로 압축, 앞뒤 공백 제거
+  const text = raw.replace(/\n{3,}/g, '\n\n').trim();
   const urlReg = /(https?:\/\/[^\s]+)/g;
   if(urlReg.test(text)){
     const html = text
@@ -3088,22 +3093,45 @@ function emptyCellClick(e,taskId,dateStr){
 
 // ── TOOLTIP ──
 document.addEventListener('mouseover',e=>{
+  if(e.target.closest('#g-bub')){ clearTimeout(bTimeout); return; }
   const td=e.target.closest('td.bar');if(!td||iMode)return;
   const {task:taskId,ri}=td.dataset;
   const r=(ranges[taskId]||[])[+ri];if(!r)return;
   clearTimeout(bTimeout);
-  const bub=td.querySelector('.bub');if(!bub)return;
   const proj=getProj(r.projectId);
-  bub.innerHTML=`
+  const gbub=document.getElementById('g-bub');
+  gbub.innerHTML=`
     <div class="bd2t">${r.start}${r.start!==r.end?' → '+r.end:''} ${statusBadge(r.status)}</div>
     <div class="bpp" style="color:${proj.bar}">● ${proj.name}</div>
     ${r.text?`<div class="bt2">${linkify(r.text)}</div>`:''}
-    ${r.link?`<a class="blink" href="${r.link}" target="_blank">🔗 링크</a>`:''}
+    ${r.link?`<div style="display:flex;align-items:center;gap:5px;margin-top:4px">
+      <a class="blink" href="${r.link}" target="_blank" style="flex:1;min-width:0">🔗 링크</a>
+      <button onclick="navigator.clipboard.writeText('${r.link.replace(/'/g,"\'")}').then(()=>showToast('URL 복사됨 ✓'))" title="URL 복사" style="flex-shrink:0;border:1px solid var(--bd2);background:#f8fafc;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:11px;color:var(--tx2)">📋</button>
+    </div>`:''}
   `;
-  bub.classList.add('vis');
+  // 위치 계산 (마우스 기준 fixed)
+  const rect=td.getBoundingClientRect();
+  const gw=gbub.offsetWidth||220;
+  let left=rect.left+rect.width/2-gw/2;
+  let top=rect.bottom+8;
+  if(left+gw>window.innerWidth-10) left=window.innerWidth-gw-10;
+  if(left<10) left=10;
+  if(top+200>window.innerHeight) top=rect.top-8-gbub.offsetHeight;
+  gbub.style.left=left+'px';
+  gbub.style.top=top+'px';
+  gbub.classList.add('vis');
 });
-document.addEventListener('mouseout',e=>{if(e.target.closest('td.bar'))hideBub()});
-function hideBub(){bTimeout=setTimeout(()=>document.querySelectorAll('.bub.vis').forEach(b=>b.classList.remove('vis')),80)}
+document.addEventListener('mouseout',e=>{
+  if(e.target.closest('td.bar')){
+    if(e.relatedTarget && e.relatedTarget.closest('#g-bub')) return;
+    hideBub();
+  }
+});
+function hideBub(){bTimeout=setTimeout(()=>{ const g=document.getElementById('g-bub'); if(g) g.classList.remove('vis'); },120)}
+document.addEventListener('mouseout',e=>{
+  if(e.target.closest('#g-bub') && !e.relatedTarget?.closest('#g-bub') && !e.relatedTarget?.closest('td.bar'))
+    document.getElementById('g-bub')?.classList.remove('vis');
+});
 function showLeaveBub(td,personId,li){
   const lv=(leaves[personId]||[])[li];if(!lv)return;
   clearTimeout(bTimeout);
