@@ -20,12 +20,12 @@
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
 
 /* ── NAV TABS ── */
-.nav-tabs{display:flex;align-items:center;background:var(--sur);border-bottom:2px solid var(--bd);padding:0 22px;gap:2px;position:sticky;top:0;z-index:200;box-shadow:var(--sh)}
-.nav-tab{padding:12px 16px;font-size:13px;font-weight:600;color:var(--tx3);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap;user-select:none}
+.nav-tabs{display:flex;align-items:center;background:var(--sur);border-bottom:2px solid var(--bd);padding:0;gap:0;position:sticky;top:0;z-index:200;box-shadow:var(--sh)}
+.nav-tab{padding:4px 6px;font-size:9px;font-weight:600;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap;user-select:none}
 .nav-tab:hover{color:var(--tx2)}
 .nav-tab.active{color:var(--acc);border-bottom-color:var(--acc)}
-.nav-title-input{background:none;border:none;outline:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;color:inherit;width:auto;cursor:pointer;padding:0}
-.nav-title-input:focus{cursor:text;background:#f0f7ff;border-radius:4px;padding:1px 5px}
+.nav-title-input{background:none;border:none;outline:none;font-family:'Noto Sans KR',sans-serif;font-size:9px;font-weight:600;color:inherit;width:auto;cursor:pointer;padding:0}
+.nav-title-input:focus{cursor:text;background:#f0f7ff;border-radius:3px;padding:1px 3px}
 .nav-logo{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#333;margin-left:8px;flex-shrink:0}
 .nav-logo span{color:var(--tx3);font-weight:400}
 
@@ -459,10 +459,10 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 @media(max-width:768px){
 
   /* ── NAV ── */
-  .nav-tabs{padding:0 8px;gap:0;overflow-x:auto;scrollbar-width:none}
+  .nav-tabs{padding:0;gap:0;overflow-x:auto;scrollbar-width:none}
   .nav-tabs::-webkit-scrollbar{display:none}
-  .nav-logo{font-size:12px;margin-right:8px;flex-shrink:0}
-  .nav-tab{padding:10px 10px;font-size:11px}
+  .nav-logo{font-size:12px;margin-right:4px;flex-shrink:0}
+  .nav-tab{padding:10px 9px;font-size:11px}
   #fb-indicator{font-size:10px;padding:3px 7px}
   #fb-indicator span:last-child{display:none} /* hide label, show dot only */
   #fb-dot{width:8px;height:8px}
@@ -555,20 +555,20 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 
 <!-- ── NAVIGATION ── -->
 <div class="nav-tabs" id="nav-tabs">
+  <button id="admin-btn" onclick="toggleAdmin()" title="관리자 모드"
+    style="font-size:9px;font-weight:600;padding:2px 7px;border:none;border-right:1px solid var(--bd);border-bottom:none;background:#f8fafc;color:var(--tx2);cursor:pointer;transition:.15s;display:flex;align-items:center;gap:3px;flex-shrink:0;height:100%;border-radius:0">
+    🔒 <span id="admin-btn-label">관리자</span>
+  </button>
   <div class="nav-tab active" onclick="switchPage(0)" id="tab-0"><input class="nav-title-input" value="📅 schedule" id="tab-title-0" onchange="saveTabTitle(0,this.value)" onclick="e=>e.stopPropagation()"></div>
   <div class="nav-tab" onclick="switchPage(1)" id="tab-1"><input class="nav-title-input" value="📋 process" id="tab-title-1" onchange="saveTabTitle(1,this.value)" onclick="e=>e.stopPropagation()"></div>
   <div class="nav-tab" onclick="switchPage(2)" id="tab-2"><input class="nav-title-input" value="🛠 tool" id="tab-title-2" onchange="saveTabTitle(2,this.value)" onclick="e=>e.stopPropagation()"></div>
   <div class="nav-tab" onclick="switchPage(3)" id="tab-3"><input class="nav-title-input" value="💡 idea" id="tab-title-3" onchange="saveTabTitle(3,this.value)" onclick="e=>e.stopPropagation()"></div>
   <div class="nav-tab" onclick="switchPage(4)" id="tab-4"><input class="nav-title-input" value="🗳 vote" id="tab-title-4" onchange="saveTabTitle(4,this.value)" onclick="e=>e.stopPropagation()"></div>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:12px;padding-right:4px;flex-shrink:0">
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding-right:8px;flex-shrink:0">
     <div id="fb-indicator" onclick="openFbSetup()" title="Supabase 연결 상태" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:11px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none">
       <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
       <span id="fb-label">⚪ 오프라인</span>
     </div>
-    <button id="admin-btn" onclick="toggleAdmin()" title="관리자 모드"
-      style="font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid var(--bd2);background:#f8fafc;color:var(--tx2);cursor:pointer;transition:.15s;display:flex;align-items:center;gap:5px">
-      🔒 <span id="admin-btn-label">관리자</span>
-    </button>
     <div class="nav-logo">CD<span>.schedule</span></div>
   </div>
 </div>
@@ -594,19 +594,19 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 <!-- ══ PAGE 0: SCHEDULE ══ -->
 <div class="page active" id="page-0">
 
-  <div class="page-header">
-    <div class="hright">
-      <div class="mnav">
-        <button onclick="chM(-1)">‹</button>
-        <span id="cur-month"></span>
-        <button onclick="chM(1)">›</button>
-      </div>
+  <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:6px;padding:8px 14px">
+    <div class="mnav">
+      <button onclick="chM(-1)">‹</button>
+      <span id="cur-month"></span>
+      <button onclick="chM(1)">›</button>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center">
       <button class="btn btn-g" onclick="openProjMgr()">🎨 프로젝트 관리</button>
       <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원 관리</button>
       <button class="btn btn-leave" onclick="openScheduleAdd()">➕ 일정 등록</button>
       <button class="btn btn-leave" onclick="openLeaveModal(null,null)">🏖️ 휴가 등록</button>
+      <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5" onclick="openBulkDelete()">🗑 일괄 삭제</button>
     </div>
-    <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5" onclick="openBulkDelete()">🗑 일괄 삭제</button>
   </div>
 
   <div class="legend" id="legend"></div>
@@ -644,6 +644,17 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
   <!-- SUB 1: GRM -->
   <div class="sub-content" id="scontent-1">
     <div class="grm-wrap">
+      <div style="margin-bottom:16px;border:1px solid var(--bd2);border-radius:10px;background:#fafbfc;padding:12px 14px">
+        <div style="font-size:11px;font-weight:700;color:var(--tx3);margin-bottom:6px;letter-spacing:.4px">📝 GRM 노트</div>
+        <div id="grm-note"
+          contenteditable="true"
+          spellcheck="false"
+          data-placeholder="공수 관련 메모를 자유롭게 작성하세요..."
+          onpaste="cmPaste(event,'grm-note')"
+          oninput="saveGrmNote()"
+          style="font-size:13px;font-family:'Noto Sans KR',sans-serif;line-height:1.7;min-height:60px;outline:none;white-space:pre-wrap;word-break:break-word;color:var(--tx)"
+        ></div>
+      </div>
       <div class="grm-title">📊 GRM 공수 계산 <span style="font-size:11px;font-weight:400;color:var(--tx3)" id="grm-month-label"></span></div>
       <div class="grm-sub">현재 표시 월의 영업일 기준으로 사람별·프로젝트별 공수를 계산합니다.</div>
       <div class="grm-grid" id="grm-grid"></div>
@@ -826,7 +837,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
     <div class="rbadge" id="cm-badge"></div>
     <div class="fg" id="cm-person-row" style="display:none">
       <label>담당자 <span style="font-size:10px;color:var(--tx3)">복수 선택 가능</span></label>
-      <div id="cm-person-list" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;border:1px solid var(--bd2);border-radius:8px;padding:6px 8px;background:#fafbfc"></div>
+      <div id="cm-person-list" style="display:flex;flex-direction:column;gap:4px;max-height:90px;overflow-y:auto;border:1px solid var(--bd2);border-radius:8px;padding:6px 8px;background:#fafbfc"></div>
     </div>
     <div style="display:flex;gap:8px" id="cm-date-row" style="display:none">
       <div class="fg" style="flex:1"><label>시작일</label><input type="date" id="cm-start"></div>
@@ -1237,6 +1248,8 @@ function switchPage(idx){
   if(idx===1){ /* process page */ }
 }
 function saveTabTitle(idx,val){}
+function saveGrmNote(){ fbPush(); }
+
 
 // ════════════════════════════════════════════
 //  ADMIN AUTH
@@ -1272,6 +1285,8 @@ function setAdminEditable(on){
   const ph = document.querySelector('.page-header .hright');
   if(ph) ph.style.pointerEvents = on ? '' : 'none', ph.style.opacity = on ? '' : '0.4';
   // process - 비관리자는 읽기전용 (드래그 복사 + URL 클릭은 허용)
+  const gn = document.getElementById('grm-note');
+  if(gn){ gn.contentEditable = on ? 'true' : 'false'; gn.style.cursor = on ? 'text' : 'default'; }
   const p1 = document.getElementById('p1-body');
   if(p1){
     p1.contentEditable = on ? 'true' : 'false';
@@ -3200,22 +3215,33 @@ function selP(id){selProjId=id;renderPsel(id)}
 function renderPersonCheckboxes(people, selectedIds){
   const wrap = document.getElementById('cm-person-list');
   if(!wrap) return;
-  // 파트별 그룹핑
   let html = '';
   GROUPS.forEach(g=>{
     const members = g.members.filter(m=>people.find(p=>p.id===m.id));
     if(!members.length) return;
-    html += `<div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;padding:2px 2px 4px;margin-top:4px;border-top:1px solid var(--bd)">${g.label}</div>`;
+    html += `<div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.5px;padding:4px 2px 2px;margin-top:2px">${g.label}</div>`;
     members.forEach(p=>{
       const chk = selectedIds.includes(p.id);
-      html += `<label style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;cursor:pointer;font-size:13px;${chk?'background:#f0f7ff;':''}">
-        <input type="checkbox" value="${p.id}" ${chk?'checked':''} style="width:14px;height:14px;accent-color:var(--acc)">
-        <span style="font-weight:600;color:var(--tx)">${p.name}</span>
-        <span style="font-size:11px;color:var(--tx3)">${p.role}</span>
-      </label>`;
+      html += `
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid ${chk?'var(--acc)':'var(--bd)'};border-radius:8px;background:${chk?'#f0f7ff':'#fafbfc'};cursor:pointer;margin-bottom:4px"
+          onclick="togglePersonChk('${p.id}',this)">
+          <input type="checkbox" id="pchk-${p.id}" value="${p.id}" ${chk?'checked':''}
+            style="width:15px;height:15px;accent-color:var(--acc);flex-shrink:0;pointer-events:none">
+          <span style="font-size:13px;font-weight:600;color:var(--tx);flex:1">${p.name}</span>
+          <span style="font-size:11px;color:var(--tx3)">${p.role}</span>
+        </div>`;
     });
   });
   wrap.innerHTML = html;
+}
+
+function togglePersonChk(personId, row){
+  const chk = document.getElementById('pchk-'+personId);
+  if(!chk) return;
+  chk.checked = !chk.checked;
+  const on = chk.checked;
+  row.style.background = on ? '#f0f7ff' : '#fafbfc';
+  row.style.borderColor = on ? 'var(--acc)' : 'var(--bd)';
 }
 
 function getCheckedPersonIds(){
@@ -3584,70 +3610,54 @@ function renderGRM(){
 
   // render
   const grid=document.getElementById('grm-grid');
+  const people=getPeople();
 
-  // CARD 1: person breakdown
-  let personHTML=`<div class="grm-card">
-    <div class="grm-card-title">👤 사람별 공수</div>`;
-
-  getPeople().forEach(person=>{
+  let html='';
+  people.forEach(person=>{
     const pd=personDays[person.id]||{};
     const totalPersonDays=Object.values(pd).reduce((a,b)=>a+b,0);
-    const pct=totalWD>0?Math.round(totalPersonDays/totalWD*100):0;
     const projEntries=Object.entries(pd).sort((a,b)=>b[1]-a[1]);
+    const freeDays=Math.max(0,totalWD-totalPersonDays);
+    const usedPct=totalWD>0?Math.round(totalPersonDays/totalWD*100):0;
 
-    // stacked breakdown bar
+    // stacked bar segments
     const segments=projEntries.map(([projId,d])=>{
       const proj=getProj(projId);
       const w=totalWD>0?(d/totalWD*100).toFixed(1):0;
       return `<div class="grm-seg" title="${proj.name}: ${d}일 (${w}%)" style="width:${w}%;background:${proj.bar}"></div>`;
     }).join('');
-    const freeDays=totalWD-totalPersonDays;
     const freeW=totalWD>0?(freeDays/totalWD*100).toFixed(1):100;
-    const freeBar=freeDays>0?`<div class="grm-seg" style="width:${freeW}%;background:#e2e4ea"></div>`:'';
+    const freeBar=freeDays>0?`<div class="grm-seg" style="width:${freeW}%;background:#e8eaf0"></div>`:'';
 
-    personHTML+=`
-      <div class="grm-row">
-        <div class="grm-name">${person.name}</div>
-        <div style="flex:1">
-          <div class="grm-breakdown">${segments}${freeBar}</div>
-        </div>
-        <div class="grm-pct">${pct}%</div>
+    // project contribution tags
+    const tags=projEntries.map(([projId,d])=>{
+      const proj=getProj(projId);
+      const pct=totalWD>0?Math.round(d/totalWD*100):0;
+      return `<div style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
+        <span style="width:7px;height:7px;border-radius:50%;background:${proj.bar};flex-shrink:0;display:inline-block"></span>
+        ${proj.name} <span style="font-family:'Space Mono',monospace;font-weight:700">${pct}%</span>
       </div>`;
-  });
-  personHTML+='</div>';
+    }).join('');
 
-  // CARD 2: project breakdown
-  let projHTML=`<div class="grm-card">
-    <div class="grm-card-title">📦 프로젝트별 공수 (팀 합산)</div>`;
+    const emptyMsg=projEntries.length===0
+      ? `<span style="font-size:11px;color:var(--tx3)">이번 달 등록된 일정 없음</span>`
+      : '';
 
-  const totalTeamDays=getPeople().length*totalWD;
-  const projWithDays=PROJECTS.map(p=>({...p,days:projDays[p.id]||0})).filter(p=>p.days>0).sort((a,b)=>b.days-a.days);
-  const maxDays=projWithDays[0]?.days||1;
-
-  projWithDays.forEach(proj=>{
-    const pct=totalTeamDays>0?Math.round(proj.days/totalTeamDays*100):0;
-    const barW=Math.round(proj.days/maxDays*100);
-    projHTML+=`
-      <div class="grm-row">
-        <div class="grm-name">${proj.name}</div>
-        <div class="grm-bar-wrap" style="flex:1">
-          <div class="grm-bar-fill" style="width:${barW}%;background:${proj.bar}"></div>
-        </div>
-        <div class="grm-pct">${pct}%</div>
+    html+=`
+    <div class="grm-card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-size:14px;font-weight:700;color:var(--tx)">${person.name}</div>
+        <div style="font-size:11px;color:var(--tx3)">${person.role}</div>
+        <div style="margin-left:auto;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:${usedPct>=80?'#e53e3e':usedPct>=50?'#d97706':'#059669'}">${usedPct}%</div>
       </div>
-      <div style="font-size:10px;color:var(--tx3);margin:-6px 0 8px 88px">${proj.days}인·일</div>`;
+      <div class="grm-breakdown" style="height:10px;margin-bottom:10px">${segments}${freeBar}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:2px">${tags}${emptyMsg}</div>
+    </div>`;
   });
 
-  if(projWithDays.length===0){
-    projHTML+=`<div style="color:var(--tx3);font-size:13px;padding:20px 0;text-align:center">이번 달 등록된 일정이 없어요</div>`;
-  }
+  if(!people.length) html=`<div style="color:var(--tx3);font-size:13px;padding:20px;text-align:center">팀원 정보가 없어요</div>`;
 
-  // legend
-  projHTML+=`<div class="grm-legend">`;
-  projWithDays.forEach(p=>{projHTML+=`<div class="grm-legend-item"><div class="grm-ldot" style="background:${p.bar}"></div>${p.name}</div>`});
-  projHTML+=`</div></div>`;
-
-  grid.innerHTML=personHTML+projHTML;
+  grid.innerHTML=`<div style="grid-column:1/-1">${html}</div>`;
 }
 
 // ════════════════════════════════════════════
@@ -4122,6 +4132,7 @@ function loadFromSbData(payload){
   if(payload.activityLog) activityLog = payload.activityLog;
   if(payload.votes)       votes       = payload.votes;
   if(payload.p1Html !== undefined) p1SetHtml(payload.p1Html);
+  if(payload.grmNote){ const e=document.getElementById('grm-note'); if(e) cmSetContent('grm-note', payload.grmNote); }
   if(payload.p1Title){ const e=document.getElementById('p1-title'); if(e) e.value=payload.p1Title; }
   if(payload.p1Sub){   const e=document.getElementById('p1-sub');   if(e) e.value=payload.p1Sub;   }
 
@@ -4142,6 +4153,7 @@ async function pushAllToSb(){
     PROJECTS, GROUPS, ranges, leaves, milestones,
     avatarImgs, ideaCards, toolRows, MS_TYPES, activityLog, votes,
     p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
+    grmNote: document.getElementById('grm-note')?.innerText||'',
     _updated: Date.now()
   };
   try{
