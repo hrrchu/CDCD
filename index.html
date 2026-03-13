@@ -66,6 +66,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);
 .sc{background:var(--sur);border:1px solid var(--bd);border-radius:9px;padding:5px 14px;box-shadow:var(--sh);display:flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0}
 .bar-dimmed .bf{opacity:.15!important}
 .bar-dimmed .bl{opacity:.15!important}
+.admin-only{display:none}
 .sl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px}
 .sv{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--tx)}
 
@@ -583,7 +584,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
       <button onclick="chM(1)">›</button>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center" id="schedule-btn-row">
-
+      <button id="admin-btn" onclick="toggleAdmin()" style="font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bd2);background:#f8fafc;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:4px">🔒 <span id="admin-label">관리자</span></button>
       <button class="btn btn-g" onclick="openProjMgr()">🎨 프로젝트 관리</button>
       <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원 관리</button>
       <button class="btn btn-leave" onclick="openScheduleAdd()">➕ 일정 등록</button>
@@ -821,6 +822,28 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 <!-- ══ MODALS ══ -->
 
 
+
+
+<!-- Admin Auth Modal -->
+<div class="mb" id="admin-modal">
+  <div class="modal" style="max-width:320px">
+    <div class="modal-header">
+      <div class="modal-title">🔒 관리자 로그인</div>
+      <button class="modal-close" onclick="closeAdminModal()">✕</button>
+    </div>
+    <div style="padding:20px">
+      <div style="font-size:13px;color:var(--tx2);margin-bottom:12px">비밀번호를 입력해주세요</div>
+      <input type="password" id="admin-pw-input" placeholder="비밀번호"
+        style="width:100%;border:1px solid var(--bd2);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;box-sizing:border-box"
+        onkeydown="if(event.key==='Enter')submitAdminPw()">
+      <div id="admin-pw-err" style="color:#e53e3e;font-size:11px;margin-top:6px;display:none">비밀번호가 틀렸어요</div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn" style="flex:1" onclick="closeAdminModal()">취소</button>
+        <button class="btn btn-p" style="flex:1" onclick="submitAdminPw()">확인</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Schedule Edit Modal -->
 <div class="mb" id="cmod">
@@ -1268,6 +1291,69 @@ function switchP3Tab(i){
   if(i===2){ renderLadderMemberBtns(); }
 }
 function switchP4Tab(i){ switchP3Tab(i===0?1:2); }
+
+
+// ════════════════════════════════════════════
+//  ADMIN AUTH
+// ════════════════════════════════════════════
+const ADMIN_PW = 'cdcdcd';
+let _isAdmin = false;
+
+function toggleAdmin(){
+  if(_isAdmin){
+    _isAdmin = false;
+    applyAdminMode();
+    showToast('관리자 모드 해제');
+  } else {
+    document.getElementById('admin-pw-input').value='';
+    document.getElementById('admin-pw-err').style.display='none';
+    document.getElementById('admin-modal').classList.add('open');
+    setTimeout(()=>document.getElementById('admin-pw-input').focus(),100);
+  }
+}
+function closeAdminModal(){ document.getElementById('admin-modal').classList.remove('open'); }
+function submitAdminPw(){
+  const pw = document.getElementById('admin-pw-input').value;
+  if(pw === ADMIN_PW){
+    _isAdmin = true;
+    closeAdminModal();
+    applyAdminMode();
+    showToast('✅ 관리자 모드 활성화');
+  } else {
+    document.getElementById('admin-pw-err').style.display='';
+  }
+}
+function applyAdminMode(){
+  const btn = document.getElementById('admin-btn');
+  const label = document.getElementById('admin-label');
+  if(_isAdmin){
+    if(btn){ btn.style.background='#1a1d27'; btn.style.color='#fff'; btn.style.borderColor='#1a1d27'; }
+    if(label) label.textContent='관리자 ✓';
+  } else {
+    if(btn){ btn.style.background='#f8fafc'; btn.style.color='var(--tx2)'; btn.style.borderColor='var(--bd2)'; }
+    if(label) label.textContent='관리자';
+  }
+  // admin-only 버튼 토글 (없음 - 버튼은 항상 보임, 동작에서 체크)
+  // gantt 드래그/클릭
+  const gs = document.querySelector('.gs');
+  if(gs){ gs.style.pointerEvents = _isAdmin ? '' : 'none'; gs.style.userSelect = 'text'; }
+  // process
+  const p1 = document.getElementById('p1-body');
+  if(p1){ p1.contentEditable=_isAdmin?'true':'false'; p1.style.userSelect='text'; p1.querySelectorAll('a').forEach(a=>a.style.pointerEvents='auto'); }
+  const p1t = document.getElementById('p1-title'); if(p1t) p1t.readOnly=!_isAdmin;
+  const p1s = document.getElementById('p1-sub');   if(p1s) p1s.readOnly=!_isAdmin;
+  const gn  = document.getElementById('grm-note'); if(gn){ gn.contentEditable=_isAdmin?'true':'false'; }
+  // tool
+  document.querySelectorAll('.tool-cell-input,.tool-drag-cell,.tool-del-btn,#tool-add-btn').forEach(el=>{
+    el.disabled=!_isAdmin; el.style.pointerEvents=_isAdmin?'':'none';
+  });
+  document.querySelectorAll('#tool-tbody [contenteditable]').forEach(el=>{
+    el.contentEditable=_isAdmin?'true':'false'; el.style.userSelect='text';
+    el.querySelectorAll('a').forEach(a=>a.style.pointerEvents='auto');
+  });
+  const toolAddBtn=document.querySelector('[onclick="addToolRow()"]');
+  if(toolAddBtn) toolAddBtn.style.display=_isAdmin?'':'none';
+}
 
 // ════════════════════════════════════════════
 //  LADDER GAME
@@ -2123,7 +2209,7 @@ function renderActivityLog(){
 // ════════════════════════════════════════════
 let _bdManualSel = new Set(); // 개별선택 모드에서 선택된 key들 "taskId:ri"
 
-function openBulkDelete(){
+function openBulkDelete(){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;}
   const allChk=document.getElementById('bd-all-chk'); if(allChk) allChk.checked=false;
   ['bd-proj-chk','bd-person-chk','bd-date-chk','bd-manual-chk'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.disabled=false;
@@ -2645,10 +2731,8 @@ function statusBadge(s){return{plan:'📋',wip:'🔄',done:'✅',blocked:'⛔'}[
 //  RENDER
 // ════════════════════════════════════════════
 function init(){
-  // 혹시 남아있을 수 있는 잠금 해제
-  const gs = document.querySelector('.gs');
-  if(gs){ gs.style.pointerEvents=''; gs.style.userSelect=''; }
   renderLegend();renderHeader();renderTable();renderStats();renderGRM();
+  applyAdminMode();
 }
 
 function renderLegend(){
@@ -3176,7 +3260,7 @@ function getCheckedPersonIds(){
   return [...document.querySelectorAll('#cm-person-list input[type=checkbox]:checked')].map(el=>el.value);
 }
 
-function openScheduleAdd(){
+function openScheduleAdd(){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;}
   const people = getPeople();
   // 담당자 체크박스 채우기
   renderPersonCheckboxes(people, []);
@@ -3285,7 +3369,7 @@ function deleteRange(){
 // ════════════════════════════════════════════
 //  ADD TASK
 // ════════════════════════════════════════════
-function openAddTask(){
+function openAddTask(){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;}
   document.getElementById('t-person').innerHTML=getPeople().map(p=>`<option value="${p.id}">${p.name} (${p.role})</option>`).join('');
   document.getElementById('t-name').value='';
   document.getElementById('tmod').classList.add('open');
@@ -3307,7 +3391,7 @@ function selLvType(type){
   selLv=type;
   document.querySelectorAll('.lv-pill').forEach(p=>{const t=p.dataset.type,lt=LEAVE_TYPES[t];p.style.borderColor=t===type?lt.color:'transparent';p.style.fontWeight=t===type?'700':'600'});
 }
-function openLeaveModal(personId,editIdx,dateStr){
+function openLeaveModal(personId,editIdx,dateStr){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;}
   document.getElementById('lm-person').innerHTML=getPeople().map(p=>`<option value="${p.id}"${p.id===personId?' selected':''}>${p.name} (${p.role})</option>`).join('');
   const lv=editIdx!=null?(leaves[personId]||[])[editIdx]:null;
   document.getElementById('lm-start').value=lv?.start||dateStr||'';
@@ -3446,7 +3530,7 @@ function msDragEnd(){_msDrag={taskId:null,dateStr:null}}
 // ════════════════════════════════════════════
 //  PROJECT MANAGER
 // ════════════════════════════════════════════
-function openProjMgr(){renderProjList();document.getElementById('projmod').classList.add('open')}
+function openProjMgr(){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;} renderProjList();document.getElementById('projmod').classList.add('open')}
 function closeProjMgr(){document.getElementById('projmod').classList.remove('open');renderLegend();renderTable();renderStats();fbPush()}
 function renderProjList(){
   const rows=PROJECTS.map((p,i)=>`
@@ -3739,7 +3823,7 @@ function rowDragEnd(){
 // ════════════════════════════════════════════
 //  TEAM MANAGER
 // ════════════════════════════════════════════
-function openTeamMgr(){renderTeamList();document.getElementById('teammod').classList.add('open')}
+function openTeamMgr(){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;} renderTeamList();document.getElementById('teammod').classList.add('open')}
 function closeTeamMgr(){
   document.getElementById('teammod').classList.remove('open');
   // sync tasks: add tasks for new members, keep existing
@@ -4137,9 +4221,7 @@ function loadFromSbData(payload){
   if(payload.p1Sub){   const e=document.getElementById('p1-sub');   if(e) e.value=payload.p1Sub;   }
 
   renderLegend(); renderHeader(); renderTable(); renderStats();
-  // 혹시 남아있을 수 있는 잠금 해제
-  const gs = document.querySelector('.gs');
-  if(gs){ gs.style.pointerEvents=''; gs.style.userSelect=''; }
+  applyAdminMode();
   if(curSubTab===1) renderGRM();
   if(curSubTab===2) renderLeaveList();
   if(curPage===2) renderToolTable();
