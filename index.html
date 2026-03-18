@@ -65,6 +65,16 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);
 .month-chip:hover:not(.selected){background:var(--sf2)}
 .multi-month-header{font-size:11px;font-weight:700;color:var(--tx3);padding:4px 22px;background:var(--sf2);border-bottom:1px solid var(--bd);letter-spacing:.3px}
 
+
+/* ── DATE SPINNER ── */
+.date-spinner{display:flex;align-items:center;gap:4px;border:1px solid var(--bd2);border-radius:8px;overflow:hidden;background:#fff}
+.date-spinner input[type=number]{border:none;outline:none;font-size:13px;font-family:'Space Mono',monospace;font-weight:600;color:var(--tx);text-align:center;width:36px;padding:6px 0;-moz-appearance:textfield;background:transparent}
+.date-spinner input[type=number]::-webkit-inner-spin-button,.date-spinner input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.date-spinner .ds-sep{font-size:12px;color:var(--tx3);font-weight:600;padding:0 1px}
+.date-spinner .ds-arrow{display:flex;flex-direction:column;border-left:1px solid var(--bd);padding:0 5px;cursor:pointer;background:#fafbfc}
+.date-spinner .ds-arrow span{font-size:9px;color:var(--tx3);line-height:1.6;user-select:none;transition:color .1s}
+.date-spinner .ds-arrow span:hover{color:var(--acc)}
+
 /* ── HINT ── */
 .hint{font-size:11px;color:var(--tx3);padding:4px 22px;display:flex;gap:10px;flex-wrap:wrap;background:var(--sf2);border-bottom:1px solid var(--bd)}
 .hint b{color:var(--tx2)}.hint .sep{color:var(--bd2)}
@@ -501,6 +511,16 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 .month-chip:hover:not(.selected){background:var(--sf2)}
 .multi-month-header{font-size:11px;font-weight:700;color:var(--tx3);padding:4px 22px;background:var(--sf2);border-bottom:1px solid var(--bd);letter-spacing:.3px}
 
+
+/* ── DATE SPINNER ── */
+.date-spinner{display:flex;align-items:center;gap:4px;border:1px solid var(--bd2);border-radius:8px;overflow:hidden;background:#fff}
+.date-spinner input[type=number]{border:none;outline:none;font-size:13px;font-family:'Space Mono',monospace;font-weight:600;color:var(--tx);text-align:center;width:36px;padding:6px 0;-moz-appearance:textfield;background:transparent}
+.date-spinner input[type=number]::-webkit-inner-spin-button,.date-spinner input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.date-spinner .ds-sep{font-size:12px;color:var(--tx3);font-weight:600;padding:0 1px}
+.date-spinner .ds-arrow{display:flex;flex-direction:column;border-left:1px solid var(--bd);padding:0 5px;cursor:pointer;background:#fafbfc}
+.date-spinner .ds-arrow span{font-size:9px;color:var(--tx3);line-height:1.6;user-select:none;transition:color .1s}
+.date-spinner .ds-arrow span:hover{color:var(--acc)}
+
 /* ── HINT ── */
   .hint{display:none}
 
@@ -880,47 +900,55 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
       <label>담당자 <span style="font-size:10px;color:var(--tx3)">복수 선택 가능</span></label>
       <div id="cm-person-list" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;border:1px solid var(--bd2);border-radius:8px;padding:6px 8px;background:#fafbfc"></div>
     </div>
-    <div style="display:flex;gap:8px" id="cm-date-row" style="display:none">
-      <div class="fg" style="flex:1"><label>시작일</label><input type="date" id="cm-start"></div>
-      <div class="fg" style="flex:1"><label>종료일</label><input type="date" id="cm-end"></div>
+    <div class="fg" id="cm-date-row" style="display:none">
+      <label>기간</label>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="date-spinner">
+          <input type="number" id="cm-sy" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('cm')">
+          <span class="ds-sep">-</span>
+          <input type="number" id="cm-sm" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('cm')">
+          <span class="ds-sep">-</span>
+          <input type="number" id="cm-sd" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('cm')">
+          <div class="ds-arrow" onclick="shiftSpinnerDate('cm-start',1)"><span>▲</span><span>▼</span></div>
+        </div>
+        <span style="font-size:12px;color:var(--tx3);font-weight:600">→</span>
+        <div class="date-spinner">
+          <input type="number" id="cm-ey" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('cm')">
+          <span class="ds-sep">-</span>
+          <input type="number" id="cm-em" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('cm')">
+          <span class="ds-sep">-</span>
+          <input type="number" id="cm-ed" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('cm')">
+          <div class="ds-arrow" onclick="shiftSpinnerDate('cm-end',1)"><span>▲</span><span>▼</span></div>
+        </div>
+        <input type="hidden" id="cm-start">
+        <input type="hidden" id="cm-end">
+      </div>
     </div>
     <div class="fg"><label>일정 제목 <span style="font-size:10px;color:var(--tx3)">(없으면 프로젝트명 표시)</span></label><input type="text" id="cm-rtitle" placeholder="예: 러프 시안 작업"></div>
     <div class="fg"><label>프로젝트</label><div class="psel" id="cm-psel"></div></div>
 
-    <!-- 작업 항목 -->
-    <div class="fg">
-      <label>작업 항목</label>
-      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px" id="wi-list">
-        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--bd);border-radius:8px;background:#fafbfc">
-          <input type="checkbox" id="wi-da-chk" style="width:15px;height:15px;accent-color:var(--acc);flex-shrink:0">
+    <div class="fg"><label>메모 / 설명</label>
+      <!-- 작업 항목 (메모칸 안) -->
+      <div id="wi-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--bd);border-radius:8px;background:#fafbfc">
+          <input type="checkbox" id="wi-da-chk" style="width:15px;height:15px;accent-color:var(--acc);flex-shrink:0;pointer-events:auto">
           <span style="font-size:12px;font-weight:600;color:var(--tx);min-width:40px">디자인</span>
-          <select id="wi-da-cnt" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;width:54px">
-            <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>15</option><option>20</option>
-          </select>
+          <input type="number" id="wi-da-cnt" min="0" max="99" value="1" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Space Mono',monospace;outline:none;width:54px;text-align:center">
           <span style="font-size:11px;color:var(--tx3)">개</span>
           <span style="font-size:11px;color:var(--tx2);white-space:nowrap;margin-left:4px">베리에이션</span>
-          <select id="wi-da-var-cnt" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;width:54px">
-            <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>15</option><option>20</option>
-          </select>
+          <input type="number" id="wi-da-var-cnt" min="0" max="99" value="1" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Space Mono',monospace;outline:none;width:54px;text-align:center">
           <span style="font-size:11px;color:var(--tx3)">개</span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--bd);border-radius:8px;background:#fafbfc">
-          <input type="checkbox" id="wi-vid-chk" style="width:15px;height:15px;accent-color:var(--acc);flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--bd);border-radius:8px;background:#fafbfc">
+          <input type="checkbox" id="wi-vid-chk" style="width:15px;height:15px;accent-color:var(--acc);flex-shrink:0;pointer-events:auto">
           <span style="font-size:12px;font-weight:600;color:var(--tx);min-width:40px">영상</span>
-          <select id="wi-vid-cnt" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;width:54px">
-            <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>15</option><option>20</option>
-          </select>
+          <input type="number" id="wi-vid-cnt" min="0" max="99" value="1" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Space Mono',monospace;outline:none;width:54px;text-align:center">
           <span style="font-size:11px;color:var(--tx3)">개</span>
           <span style="font-size:11px;color:var(--tx2);white-space:nowrap;margin-left:4px">베리에이션</span>
-          <select id="wi-vid-var-cnt" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;width:54px">
-            <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>15</option><option>20</option>
-          </select>
+          <input type="number" id="wi-vid-var-cnt" min="0" max="99" value="1" style="border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:'Space Mono',monospace;outline:none;width:54px;text-align:center">
           <span style="font-size:11px;color:var(--tx3)">개</span>
         </div>
       </div>
-    </div>
-
-    <div class="fg"><label>메모 / 설명</label>
       <div id="cm-text"
         contenteditable="true"
         spellcheck="false"
@@ -1085,8 +1113,30 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
     <div class="mss">담당자와 기간을 선택하세요</div>
     <div class="fg"><label>담당자</label><select id="lm-person"></select></div>
     <div class="fg" style="display:flex;gap:10px">
-      <div style="flex:1"><label>시작일</label><input type="date" id="lm-start" onchange="autoFillLeaveEnd(this.value)"></div>
-      <div style="flex:1"><label>종료일</label><input type="date" id="lm-end"></div>
+      <div style="flex:1">
+        <label>기간</label>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="date-spinner">
+            <input type="number" id="lm-sy" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('lm')">
+            <span class="ds-sep">-</span>
+            <input type="number" id="lm-sm" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('lm')">
+            <span class="ds-sep">-</span>
+            <input type="number" id="lm-sd" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('lm')">
+            <div class="ds-arrow" onclick="shiftSpinnerDate('lm-start',1)"><span>▲</span><span>▼</span></div>
+          </div>
+          <span style="font-size:12px;color:var(--tx3);font-weight:600">→</span>
+          <div class="date-spinner">
+            <input type="number" id="lm-ey" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('lm')">
+            <span class="ds-sep">-</span>
+            <input type="number" id="lm-em" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('lm')">
+            <span class="ds-sep">-</span>
+            <input type="number" id="lm-ed" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('lm')">
+            <div class="ds-arrow" onclick="shiftSpinnerDate('lm-end',1)"><span>▲</span><span>▼</span></div>
+          </div>
+          <input type="hidden" id="lm-start">
+          <input type="hidden" id="lm-end">
+        </div>
+      </div>
     </div>
     <div class="fg"><label>휴가 종류</label>
       <div style="display:flex;gap:7px;margin-top:3px" id="lm-type-sel">
@@ -1351,6 +1401,69 @@ function clearMultiMonth(){
   renderMonthPicker();
   renderTable();
   renderStats();
+}
+
+
+// ════════════════════════════════════════════
+//  DATE SPINNER HELPERS
+// ════════════════════════════════════════════
+function setSpinnerDate(prefix, dateStr){
+  // prefix: 'cm-start' | 'cm-end' | 'lm-start' | 'lm-end'
+  const p = prefix.replace('-start','').replace('-end','');
+  const side = prefix.includes('end') ? 'e' : 's';
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const yEl = document.getElementById(`${p}-${side}y`);
+  const mEl = document.getElementById(`${p}-${side}m`);
+  const dEl = document.getElementById(`${p}-${side}d`);
+  const hEl = document.getElementById(prefix);
+  if(yEl) yEl.value = y;
+  if(mEl) mEl.value = m;
+  if(dEl) dEl.value = d;
+  if(hEl) hEl.value = dateStr;
+}
+
+function syncSpinnerDate(prefix){
+  // prefix: 'cm' | 'lm'
+  ['start','end'].forEach(side=>{
+    const s = side==='start'?'s':'e';
+    const y = +document.getElementById(`${prefix}-${s}y`)?.value||0;
+    const m = +document.getElementById(`${prefix}-${s}m`)?.value||0;
+    const d = +document.getElementById(`${prefix}-${s}d`)?.value||0;
+    if(!y||!m||!d) return;
+    // 날짜 유효성 보정
+    const dt = new Date(y, m-1, d);
+    const yy = dt.getFullYear(), mm = dt.getMonth()+1, dd = dt.getDate();
+    const ds = `${yy}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+    document.getElementById(`${prefix}-${s}y`).value = yy;
+    document.getElementById(`${prefix}-${s}m`).value = mm;
+    document.getElementById(`${prefix}-${s}d`).value = dd;
+    const hEl = document.getElementById(`${prefix}-${side}`);
+    if(hEl) hEl.value = ds;
+  });
+  // 휴가: 시작일 바뀌면 종료일도 자동세팅
+  if(prefix==='lm') autoFillLeaveEnd(document.getElementById('lm-start')?.value||'');
+}
+
+function shiftSpinnerDate(fieldId, delta){
+  const hEl = document.getElementById(fieldId);
+  if(!hEl) return;
+  const cur = hEl.value || todayStr();
+  const dt = new Date(cur);
+  dt.setDate(dt.getDate() + delta);
+  const ds = dt.toISOString().slice(0,10);
+  hEl.value = ds;
+  const prefix = fieldId.replace('-start','').replace('-end','');
+  const side = fieldId.includes('end')?'e':'s';
+  const [y,m,d] = ds.split('-').map(Number);
+  document.getElementById(`${prefix}-${side}y`).value = y;
+  document.getElementById(`${prefix}-${side}m`).value = m;
+  document.getElementById(`${prefix}-${side}d`).value = d;
+  if(prefix==='lm') autoFillLeaveEnd(document.getElementById('lm-start')?.value||'');
+}
+
+function initSpinner(prefix, dateStr){
+  setSpinnerDate(`${prefix}-start`, dateStr);
+  setSpinnerDate(`${prefix}-end`, dateStr);
 }
 
 // ════════════════════════════════════════════
@@ -3093,10 +3206,9 @@ function finishMove(){
   ranges[taskId]=ranges[taskId].filter((_,i)=>i!==ri);
   if(crossPersonId&&crossPersonId!==personId){
     const tgt=tasks.find(t=>t.personId===crossPersonId);
-    if(tgt){if(!ranges[tgt.id])ranges[tgt.id]=[];ranges[tgt.id]=ranges[tgt.id].filter(x=>dn(x.end)<dn(newStart)||dn(x.start)>dn(newEnd));ranges[tgt.id].push(entry)}
+    if(tgt){if(!ranges[tgt.id])ranges[tgt.id]=[];ranges[tgt.id].push(entry);}
   } else {
-    if(delta!==0){ranges[taskId]=ranges[taskId].filter(x=>dn(x.end)<dn(newStart)||dn(x.start)>dn(newEnd));ranges[taskId].push(entry)}
-    else ranges[taskId].push(r);
+    ranges[taskId].push(entry);
   }
   renderTable();renderStats();fbPush();
 }
@@ -3164,8 +3276,7 @@ function emptyCellClick(e,taskId,dateStr){
   renderPersonCheckboxes(people, [task.personId]);
   document.getElementById('cm-person-row').style.display='none'; // 담당자는 행에서 이미 앎
   document.getElementById('cm-date-row').style.display='';
-  document.getElementById('cm-start').value=dateStr;
-  document.getElementById('cm-end').value=dateStr;
+  initSpinner('cm', dateStr);
   document.getElementById('cm-title').textContent=people.find(p=>p.id===task.personId)?.name||'일정';
   document.getElementById('cm-sub').textContent='날짜를 확인하고 프로젝트를 선택해주세요';
   document.getElementById('cm-badge').textContent='📅 '+dateStr;
@@ -3374,8 +3485,7 @@ function openScheduleAdd(){ if(!_isAdmin){showToast('관리자만 사용할 수 
   document.getElementById('cm-sub').textContent = '담당자와 기간을 선택해주세요';
   document.getElementById('cm-badge').textContent = '';
   const td = todayStr();
-  document.getElementById('cm-start').value = td;
-  document.getElementById('cm-end').value = td;
+  initSpinner('cm', td);
   document.getElementById('cm-rtitle').value = '';
   cmSetContent('cm-text','스토리보드 점검 : \n중간 점검 : ');
   cmSetContent('cm-link','');
@@ -3511,8 +3621,12 @@ function selLvType(type){
 function openLeaveModal(personId,editIdx,dateStr){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;}
   document.getElementById('lm-person').innerHTML=getPeople().map(p=>`<option value="${p.id}"${p.id===personId?' selected':''}>${p.name} (${p.role})</option>`).join('');
   const lv=editIdx!=null?(leaves[personId]||[])[editIdx]:null;
-  document.getElementById('lm-start').value=lv?.start||dateStr||'';
-  document.getElementById('lm-end').value=lv?.end||dateStr||'';
+  const _lvStart=lv?.start||dateStr||todayStr();
+  const _lvEnd=lv?.end||dateStr||todayStr();
+  setSpinnerDate('lm-start',_lvStart);
+  setSpinnerDate('lm-end',_lvEnd);
+  document.getElementById('lm-start').value=_lvStart;
+  document.getElementById('lm-end').value=_lvEnd;
   document.getElementById('lm-note').value=lv?.note||'';
   document.getElementById('lm-del').style.display=editIdx!=null?'':'none';
   pendingLv={personId:personId||getPeople()[0]?.id,editIdx};
@@ -3537,7 +3651,10 @@ function deleteLeave(){
 function leaveClick(e,personId,li){e.stopPropagation();openLeaveModal(personId,li)}
 function autoFillLeaveEnd(val){
   const end=document.getElementById('lm-end');
-  if(!end.value||end.value<val) end.value=val;
+  if(!end.value||end.value<val){
+    end.value=val;
+    setSpinnerDate('lm-end',val);
+  }
 }
 
 // ── Leave drag in gantt chart ──
