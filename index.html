@@ -3334,7 +3334,7 @@ document.addEventListener('mouseout',e=>{
 });
 function hideBub(){
   clearTimeout(bTimeout);
-  bTimeout=setTimeout(()=>{ document.getElementById('g-bub')?.classList.remove('vis'); },150);
+  bTimeout=setTimeout(()=>{ document.getElementById('g-bub')?.classList.remove('vis'); },5000);
 }
 function showLeaveBub(td,personId,li){
   const lv=(leaves[personId]||[])[li];if(!lv)return;
