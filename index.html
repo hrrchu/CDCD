@@ -3030,7 +3030,7 @@ function renderTable(){
               ondrop="lvGanttDrop(event,'${person.id}','${dateStr}')"
               ondragend="lvGanttDragEnd()"
               onclick="leaveClick(event,'${person.id}',${li})"
-              onmouseenter="showLeaveBub(this,'${person.id}',${li})"
+
               <div class="lv-fill" style="background:${lt.bg};color:${lt.color}">
                 ${lvS?`<span class="lv-icon">${lt.icon}</span><span class="lv-lbl">${lt.label}</span>`:''}
               </div>
@@ -3336,14 +3336,7 @@ function hideBub(){
   clearTimeout(bTimeout);
   bTimeout=setTimeout(()=>{ document.getElementById('g-bub')?.classList.remove('vis'); },5000);
 }
-function showLeaveBub(td,personId,li){
-  const lv=(leaves[personId]||[])[li];if(!lv)return;
-  clearTimeout(bTimeout);
-  const bub=td.querySelector('.bub');if(!bub)return;
-  const lt=LEAVE_TYPES[lv.type]||LEAVE_TYPES.off;
-  bub.innerHTML=`<div class="bd2t" style="color:${lt.color}">${lt.icon} ${lt.label}</div><div class="bd2t">${lv.start}${lv.start!==lv.end?' → '+lv.end:''}</div>${lv.note?`<div class="bt2">${lv.note}</div>`:''}`;
-  bub.classList.add('vis');
-}
+
 
 // ════════════════════════════════════════════
 //  MILESTONE MODAL
