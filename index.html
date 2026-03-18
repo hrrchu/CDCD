@@ -57,6 +57,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);
 .legend-add{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--acc);font-weight:600;padding:3px 9px;border-radius:20px;border:1.5px dashed var(--acc);cursor:pointer;white-space:nowrap;background:rgba(79,140,255,.04);transition:.12s}
 .legend-add:hover{background:rgba(79,140,255,.1)}
 
+
+/* ── MULTI-MONTH ── */
+.month-picker{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.month-chip{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1.5px solid var(--bd2);background:var(--sur);color:var(--tx2);cursor:pointer;transition:.12s;white-space:nowrap;font-family:'Space Mono',monospace}
+.month-chip.selected{background:var(--acc);color:#fff;border-color:var(--acc)}
+.month-chip:hover:not(.selected){background:var(--sf2)}
+.multi-month-header{font-size:11px;font-weight:700;color:var(--tx3);padding:4px 22px;background:var(--sf2);border-bottom:1px solid var(--bd);letter-spacing:.3px}
+
 /* ── HINT ── */
 .hint{font-size:11px;color:var(--tx3);padding:4px 22px;display:flex;gap:10px;flex-wrap:wrap;background:var(--sf2);border-bottom:1px solid var(--bd)}
 .hint b{color:var(--tx2)}.hint .sep{color:var(--bd2)}
@@ -88,6 +96,7 @@ th.cn{position:relative}
 th.ct{display:none}
 th.cd{width:var(--cell);min-width:var(--cell);text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:var(--tx3);padding:4px 0 2px;vertical-align:bottom}
 th.week-start, td.week-start{border-left:2px solid #cbd5e1!important}
+th.month-start, td.month-start{border-left:2.5px solid var(--acc)!important}
 th.cd .dn{display:block;font-size:12px;color:var(--tx2);padding-bottom:2px;font-weight:600}
 th.cd .dl{display:block;font-size:9px;color:var(--tx3)}
 th.cd.today .dn{color:var(--acc);background:rgba(79,140,255,.12);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 2px}
@@ -484,7 +493,15 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
   .legend{padding:5px 10px;gap:4px}
   .legend-item{font-size:10px;padding:2px 7px}
 
-  /* ── HINT ── */
+  
+/* ── MULTI-MONTH ── */
+.month-picker{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.month-chip{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1.5px solid var(--bd2);background:var(--sur);color:var(--tx2);cursor:pointer;transition:.12s;white-space:nowrap;font-family:'Space Mono',monospace}
+.month-chip.selected{background:var(--acc);color:#fff;border-color:var(--acc)}
+.month-chip:hover:not(.selected){background:var(--sf2)}
+.multi-month-header{font-size:11px;font-weight:700;color:var(--tx3);padding:4px 22px;background:var(--sf2);border-bottom:1px solid var(--bd);letter-spacing:.3px}
+
+/* ── HINT ── */
   .hint{display:none}
 
   /* ── STATS ── */
@@ -582,10 +599,14 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 <div class="page active" id="page-0">
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:6px;padding:8px 14px">
-    <div class="mnav">
-      <button onclick="chM(-1)">‹</button>
-      <span id="cur-month"></span>
-      <button onclick="chM(1)">›</button>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="mnav">
+        <button onclick="chM(-1)">‹</button>
+        <span id="cur-month"></span>
+        <button onclick="chM(1)">›</button>
+      </div>
+      <div class="month-picker" id="month-picker"></div>
+      <button id="multi-month-clear" onclick="clearMultiMonth()" style="display:none;font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid #fca5a5;background:#fff5f5;color:#e53e3e;cursor:pointer">✕ 모아보기 해제</button>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center" id="schedule-btn-row">
       <button id="admin-btn" onclick="toggleAdmin()" style="font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bd2);background:#f8fafc;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:4px">🔒 <span id="admin-label">관리자</span></button>
@@ -1286,6 +1307,51 @@ function switchP3Tab(i){
 }
 function switchP4Tab(i){ switchP3Tab(i===0?1:2); }
 
+
+
+// ════════════════════════════════════════════
+//  MULTI-MONTH VIEW
+// ════════════════════════════════════════════
+let _multiMonths = []; // [{y,m}] 선택된 달 목록 (CY,CM 포함)
+
+function renderMonthPicker(){
+  const picker = document.getElementById('month-picker');
+  if(!picker) return;
+  // 현재 달 기준 ±5달
+  const chips = [];
+  for(let delta=-2; delta<=5; delta++){
+    let y=CY, m=CM+delta;
+    if(m<0){y--;m+=12} if(m>11){y++;m-=12}
+    const key=`${y}-${m}`;
+    const label=`${['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'][m]} ${y}`;
+    const isCur = delta===0;
+    const isSelected = _multiMonths.some(x=>x.y===y&&x.m===m);
+    chips.push(`<div class="month-chip${isCur?' selected':''}${isSelected&&!isCur?' selected':''}" onclick="toggleMultiMonth(${y},${m})">${label}</div>`);
+  }
+  picker.innerHTML = chips.join('');
+  const clearBtn = document.getElementById('multi-month-clear');
+  if(clearBtn) clearBtn.style.display = _multiMonths.length>0 ? '' : 'none';
+}
+
+function toggleMultiMonth(y,m){
+  // 현재 달 클릭 → 무시
+  if(y===CY&&m===CM){ return; }
+  const idx = _multiMonths.findIndex(x=>x.y===y&&x.m===m);
+  if(idx>=0) _multiMonths.splice(idx,1);
+  else _multiMonths.push({y,m});
+  // 날짜순 정렬
+  _multiMonths.sort((a,b)=>a.y!==b.y?a.y-b.y:a.m-b.m);
+  renderMonthPicker();
+  renderTable();
+  renderStats();
+}
+
+function clearMultiMonth(){
+  _multiMonths=[];
+  renderMonthPicker();
+  renderTable();
+  renderStats();
+}
 
 // ════════════════════════════════════════════
 //  ADMIN AUTH
@@ -2746,6 +2812,7 @@ function filterByProj(projId){
 function renderHeader(){
   const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('cur-month').textContent=`${M[CM]} ${CY}`;
+  renderMonthPicker();
 }
 function chM(d){CM+=d;if(CM>11){CM=0;CY++}if(CM<0){CM=11;CY--}renderHeader();renderTable();renderStats();if(curSubTab===1)renderGRM()}
 
@@ -2771,15 +2838,25 @@ function msBarsHtml(taskId, dateStr){
 }
 
 function renderTable(){
-  const wds=getWeekdays(CY,CM),td0=todayStr();
+  // 멀티 월: 현재 달 + 선택 달을 날짜 순서로 합산
+  const allMonths = [{y:CY,m:CM}, ..._multiMonths].sort((a,b)=>a.y!==b.y?a.y-b.y:a.m-b.m);
+  // 중복 제거
+  const seenM=new Set();
+  const months=allMonths.filter(({y,m})=>{ const k=y+'-'+m; if(seenM.has(k))return false; seenM.add(k); return true; });
+  // 전체 날짜 배열
+  const wds=months.flatMap(({y,m})=>getWeekdays(y,m));
+  const td0=todayStr();
   const DAY=['일','월','화','수','목','금','토'];
 
   let h=`<tr><th class="cn">이름<div class="cn-resizer" id="cn-resizer" onmousedown="cnResizeMD(event)" title="드래그로 너비 조절"></div></th>`;
+  const M2=['1','2','3','4','5','6','7','8','9','10','11','12'];
   wds.forEach(({d,ds,dow})=>{
     const hname=getHoliday(ds);
     const isHol=!!hname;
     const isWeekStart = dow===1;
-    h+=`<th class="cd${ds===td0?' today':''}${isHol?' holiday':''}${isWeekStart?' week-start':''}" title="${hname||''}">
+    const isMonthStart = d===1;
+    h+=`<th class="cd${ds===td0?' today':''}${isHol?' holiday':''}${isWeekStart?' week-start':''}${isMonthStart?' month-start':''}" title="${hname||ds}">
+      ${isMonthStart?`<span style="font-size:8px;color:var(--acc);font-weight:700;display:block;line-height:1">${M2[+ds.slice(5,7)-1]}월</span>`:''}
       <span class="dn">${d}</span>
       <span class="dl">${DAY[dow]}</span>
       ${isHol?`<span class="hd-name">${hname}</span>`:''}
@@ -3021,7 +3098,7 @@ function finishMove(){
     if(delta!==0){ranges[taskId]=ranges[taskId].filter(x=>dn(x.end)<dn(newStart)||dn(x.start)>dn(newEnd));ranges[taskId].push(entry)}
     else ranges[taskId].push(r);
   }
-  renderTable();renderStats();
+  renderTable();renderStats();fbPush();
 }
 
 function paintResize(curIdx){
@@ -3039,13 +3116,23 @@ function paintResize(curIdx){
 
 function finishResize(){
   clearMovePreview();
-  const {taskId,ri,side,curIdx}=iSt;iSt=null;
+  const {taskId,ri,side,curIdx,anchorIdx}=iSt;iSt=null;
   const r=(ranges[taskId]||[])[ri];if(!r)return;
-  const wds=getWeekdays(CY,CM);let ns=r.start,ne=r.end;
-  if(side==='left'){const ei=wds.findIndex(x=>dn(x.ds)>=dn(r.end));ns=wds[Math.min(curIdx,ei)]?.ds||r.start}
-  else{const si=wds.findIndex(x=>dn(x.ds)>=dn(r.start));ne=wds[Math.max(curIdx,si)]?.ds||r.end}
-  ranges[taskId][ri]={...r,start:ns,end:ne};
-  renderTable();renderStats();
+  const wds=getWeekdays(CY,CM);
+  if(side==='left'){
+    // 왼쪽 핸들: end 고정, start를 curIdx 날짜로
+    const ei=wds.findIndex(x=>dn(x.ds)>=dn(r.end));
+    const safeIdx=Math.min(curIdx, ei);
+    const ns=wds[safeIdx]?.ds;
+    if(ns) ranges[taskId][ri]={...r,start:ns};
+  } else {
+    // 오른쪽 핸들: start 고정, end를 delta로 계산 (달 경계 넘기)
+    const si=wds.findIndex(x=>dn(x.ds)>=dn(r.start));
+    const delta=Math.max(curIdx,si)-si;
+    const ne=addWeekdays(r.start, delta);
+    ranges[taskId][ri]={...r,end:ne};
+  }
+  renderTable();renderStats();fbPush();
 }
 
 // ── BAR TD CLICK → milestone modal (clicking anywhere on bar cell except the bf bar itself) ──
@@ -3595,6 +3682,7 @@ function hslToHex(h,s,l){s/=100;l/=100;const a=s*Math.min(l,1-l);const f=n=>{con
 //  STATS
 // ════════════════════════════════════════════
 function renderStats(){
+  const _statMonths=[{y:CY,m:CM},..._multiMonths];
   let total=0,days=0,notes=0;const pc={};
   Object.values(ranges).forEach(arr=>arr.forEach(r=>{
     total++;pc[r.projectId]=(pc[r.projectId]||0)+1;
