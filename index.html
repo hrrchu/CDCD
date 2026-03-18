@@ -147,8 +147,8 @@ tbody tr.drop-target{background:#f0f5ff!important;outline:2px solid var(--acc)}
 /* ── BAR ── */
 td.cell.bar{cursor:crosshair;padding:0}
 td.cell.bar:active{cursor:crosshair}
-.bt{width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative;cursor:crosshair}
-.bf{height:22px;width:100%;position:relative;display:flex;align-items:center;transition:filter .1s;cursor:grab;flex-shrink:0}
+.bt{width:100%;height:100%;position:relative;cursor:crosshair}
+.bf{height:22px;width:100%;position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;transition:filter .1s;cursor:grab}
 .bf:active{cursor:grabbing}
 td.cell.bs .bf{border-radius:11px 0 0 11px;margin-left:3px}
 td.cell.be .bf{border-radius:0 11px 11px 0;margin-right:3px}
@@ -166,8 +166,8 @@ td.cell.move-preview .bf{opacity:.68;filter:brightness(1.08)}
 /* ── BAR ── */
 td.cell.bar{cursor:crosshair;padding:0}
 td.cell.bar:active{cursor:crosshair}
-.bt{width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative;cursor:crosshair}
-.bf{height:28px;width:100%;position:relative;display:flex;align-items:center;transition:filter .1s;cursor:grab;flex-shrink:0}
+.bt{width:100%;height:100%;position:relative;cursor:crosshair}
+.bf{height:28px;width:100%;position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;transition:filter .1s;cursor:grab}
 .bf:active{cursor:grabbing}
 td.cell.bs .bf{border-radius:11px 0 0 11px;margin-left:3px}
 td.cell.be .bf{border-radius:0 11px 11px 0;margin-right:3px}
@@ -183,8 +183,8 @@ td.cell.move-preview{background:rgba(79,140,255,.08)!important}
 td.cell.move-preview .bf{opacity:.68;filter:brightness(1.08)}
 
 /* ── MILESTONE BARS ── */
-.ms-wrap{width:100%;display:flex;flex-direction:column;gap:2px;z-index:4;flex-shrink:0;padding:2px 3px 1px;min-height:0}
-.ms-bar{height:6px;width:100%;border-radius:3px;cursor:grab;pointer-events:all;transition:opacity .12s,height .12s;position:relative}
+.ms-wrap{position:absolute;top:2px;left:2px;right:2px;display:flex;flex-direction:column;gap:2px;z-index:4;pointer-events:auto}
+.ms-bar{height:6px;width:100%;border-radius:3px;cursor:grab;pointer-events:auto;transition:opacity .12s,height .12s;position:relative}
 .ms-bar:active{cursor:grabbing}
 .ms-bar:hover{opacity:.8;height:8px}
 .ms-bar:hover .ms-tip{display:block}
@@ -3022,6 +3022,8 @@ function renderTable(){
             const lt=LEAVE_TYPES[lv.type]||LEAVE_TYPES.off;
             const lvS=n===dn(lv.start),lvE=n===dn(lv.end);
             b+=`<td class="cell leave${isToday?' today':''}${isHolCell?' holiday-cell':''}${lvS?' lv-s':''}${lvE?' lv-e':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-idx="${idx}" data-ds="${dateStr}"
+              ondragover="if(_msDrag.taskId)event.preventDefault()"
+              ondrop="if(_msDrag.taskId)msDrop(event,'${task.id}','${dateStr}')"
               draggable="true"
               ondragstart="lvGanttDragStart(event,'${person.id}',${li})"
               ondragover="event.preventDefault()"
@@ -3045,6 +3047,8 @@ function renderTable(){
             const cls=`cell bar${isToday?' today':''}${isHolCell?' holiday-cell':''}${isS?' bs':''}${isE?' be':''} status-${r.status||'plan'}${dimmed?' bar-dimmed':''}${isWeekStart?' week-start':''}`;
             b+=`<td class="${cls}" data-task="${task.id}" data-person="${person.id}" data-ri="${ri}" data-idx="${idx}" data-ds="${dateStr}"
               onclick="barTdClick(event,'${task.id}',${ri},'${dateStr}')"
+              ondragover="if(_msDrag.taskId)event.preventDefault()"
+              ondrop="if(_msDrag.taskId)msDrop(event,'${task.id}','${dateStr}')"
               <div class="bt">
                 <div class="ms-wrap">${msHtml}</div>
                 <div class="bf" style="background:${bs.bg};${bs.op?'opacity:'+bs.op+';':''}${bs.shadow!=='none'?'box-shadow:'+bs.shadow+';':''}"
@@ -3501,7 +3505,11 @@ function openScheduleAdd(){ if(!_isAdmin){showToast('관리자만 사용할 수 
 }
 function openModal(taskId,start,end,editIdx){
   document.getElementById('cm-person-row').style.display = 'none';
-  document.getElementById('cm-date-row').style.display = 'none';
+  // 날짜 행 표시 + 스피너 세팅
+  document.getElementById('cm-date-row').style.display = '';
+  initSpinner('cm', start);
+  // 종료일은 별도로
+  setSpinnerDate('cm-end', end);
   // 관리자/열람 모드 적용
   const readOnly = !_isAdmin;
   document.getElementById('cm-del').style.pointerEvents = readOnly ? 'none' : '';
@@ -3511,6 +3519,8 @@ function openModal(taskId,start,end,editIdx){
   ['cm-rtitle','cm-status'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.disabled=readOnly;
   });
+  // 날짜 스피너 활성화 여부
+  document.querySelectorAll('#cm-date-row input[type=number]').forEach(el=>{ el.disabled=readOnly; });
   const cmText=document.getElementById('cm-text');
   if(cmText){ cmText.contentEditable=readOnly?'false':'true'; }
   const cmLink=document.getElementById('cm-link');
@@ -3520,7 +3530,7 @@ function openModal(taskId,start,end,editIdx){
   const r=editIdx!=null?(ranges[taskId]||[])[editIdx]:null;
   document.getElementById('cm-title').textContent=person?.name||'일정';
   document.getElementById('cm-sub').textContent=person?.role||'';
-  document.getElementById('cm-badge').textContent=start===end?`📅 ${start}`:`📅 ${start}  →  ${end}`;
+  document.getElementById('cm-badge').textContent='';
   document.getElementById('cm-rtitle').value=r?.rtitle||'';
   cmSetContent('cm-text', r?.text||'스토리보드 점검 : \n중간 점검 : ');
   cmSetContent('cm-link', r?.link||'');
@@ -3535,12 +3545,21 @@ function openModal(taskId,start,end,editIdx){
   document.getElementById('wi-vid-chk').checked     = !!wi.vid;
   document.getElementById('wi-vid-cnt').value       = wi.vidCnt||1;
   document.getElementById('wi-vid-var-cnt').value   = wi.vidVarCnt||1;
+  // pending에 날짜 정보 저장 (saveComment에서 스피너 값 읽어서 업데이트)
+  pending = {taskId, start, end, editIdx, isNew:false};
   document.getElementById('cmod').classList.add('open');
 }
 function closeCmod(){document.getElementById('cmod').classList.remove('open');pending=null}
 function saveComment(){
   if(!pending) return;
   let {taskId, start, end, editIdx, isNew} = pending;
+
+  // 항상 스피너에서 날짜 읽기
+  const spinStart = document.getElementById('cm-start').value;
+  const spinEnd   = document.getElementById('cm-end').value;
+  if(spinStart) start = spinStart;
+  if(spinEnd)   end   = spinEnd;
+  if(end < start) end = start;
 
   const workItems={
     da:  document.getElementById('wi-da-chk').checked,  daCnt:    +document.getElementById('wi-da-cnt').value,  daVarCnt:  +document.getElementById('wi-da-var-cnt').value,
@@ -3741,6 +3760,7 @@ function lvDragEnd(){
 let _msDrag={taskId:null,dateStr:null};
 function msDragStart(e,taskId,dateStr){
   e.stopPropagation();
+  if(!_isAdmin){ e.preventDefault(); return; }
   _msDrag={taskId,dateStr};
   e.dataTransfer.effectAllowed='move';
   e.dataTransfer.setData('text/plain','ms');
