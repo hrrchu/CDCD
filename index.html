@@ -3321,11 +3321,17 @@ document.addEventListener('mouseover',e=>{
 document.addEventListener('mouseout',e=>{
   const fromBar = e.target.closest('td.bar');
   const fromBub = e.target.closest('#g-bub');
-  const toBar   = e.relatedTarget?.closest('td.bar');
-  const toBub   = e.relatedTarget?.closest('#g-bub');
-  if((fromBar||fromBub) && !toBar && !toBub) hideBub();
+  if(!fromBar && !fromBub) return;
+  const toBub = e.relatedTarget?.closest('#g-bub');
+  const toBar = e.relatedTarget?.closest('td.bar');
+  // 버블→셀, 셀→버블 이동은 유지. 둘 다 벗어나면 닫기
+  if(!toBub && !toBar) hideBub();
+  else clearTimeout(bTimeout);
 });
-function hideBub(){bTimeout=setTimeout(()=>{ const g=document.getElementById('g-bub'); if(g) g.classList.remove('vis'); },300)}
+function hideBub(){
+  clearTimeout(bTimeout);
+  bTimeout=setTimeout(()=>{ document.getElementById('g-bub')?.classList.remove('vis'); },150);
+}
 function showLeaveBub(td,personId,li){
   const lv=(leaves[personId]||[])[li];if(!lv)return;
   clearTimeout(bTimeout);
