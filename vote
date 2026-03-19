@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🍻 회식 날짜 투표</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Noto Sans KR', sans-serif; background: #f7f7f5; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
@@ -68,6 +69,7 @@
     border-radius: 99px; padding: 3px 12px;
     font-size: 12px; font-weight: 600;
   }
+  .loading { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
   .toast {
     position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
     background: #222; color: #fff;
@@ -92,12 +94,11 @@
 
     <div class="name-row">
       <input type="text" id="nameInput" placeholder="이름 입력" />
-      <button class="vote-btn" id="submitBtn" onclick="submitVote()">투표하기</button>
+      <button class="vote-btn" id="submitBtn" onclick="submitVote()" disabled>투표하기</button>
     </div>
 
     <div class="sel-count" id="selCount"></div>
-
-    <div class="dates-grid" id="datesGrid"></div>
+    <div class="dates-grid" id="datesGrid"><div class="loading">불러오는 중...</div></div>
 
     <div class="divider"></div>
     <div class="result-row">
@@ -109,6 +110,12 @@
 <div class="toast" id="toast"></div>
 
 <script>
+const SUPABASE_URL = 'https://xudbvniahvlemelpopbm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1ZGJ2bmlhaHZsZW1lbHBvcGJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4OTY2OTksImV4cCI6MjA4OTQ3MjY5OX0.lIwAM_qWxug2iRSTIIGPvoLRqKPiXUii-UjM_eH3FnY';
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const dates = [
   { label: '3월 23일', day: '일요일' },
   { label: '3월 24일', day: '월요일' },
@@ -119,36 +126,33 @@ const dates = [
   { label: '3월 31일', day: '월요일' },
 ];
 
-const STORAGE_KEY = 'hoesik_vote_data';
-
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-  return dates.map(() => ({ count: 0, voters: [] }));
-}
-
-function saveData(votes) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(votes)); } catch(e) {}
-}
-
-function checkVoted() {
-  return localStorage.getItem('hoesik_voted') === 'yes';
-}
-
-let votes = loadData();
+let voteCounts = dates.map(() => ({ count: 0, voters: [] }));
 let selected = [];
-let hasVoted = checkVoted();
+let hasVoted = localStorage.getItem('hoesik_voted_v2') === 'yes';
+
+async function loadVotes() {
+  const { data, error } = await db.from('votes').select('date_index, voter_name');
+  if (error) { showToast('데이터 불러오기 실패'); return; }
+
+  voteCounts = dates.map(() => ({ count: 0, voters: [] }));
+  data.forEach(row => {
+    const i = row.date_index;
+    if (i >= 0 && i < dates.length) {
+      voteCounts[i].count++;
+      voteCounts[i].voters.push(row.voter_name);
+    }
+  });
+  render();
+}
 
 function render() {
   const grid = document.getElementById('datesGrid');
-  const maxVote = Math.max(...votes.map(v => v.count), 1);
-  const totalVoters = new Set(votes.flatMap(v => v.voters)).size;
+  const maxVote = Math.max(...voteCounts.map(v => v.count), 1);
+  const totalVoters = new Set(voteCounts.flatMap(v => v.voters)).size;
 
   grid.innerHTML = dates.map((d, i) => {
     const isSel = selected.includes(i);
-    const pct = votes[i].count > 0 ? Math.round((votes[i].count / maxVote) * 100) : 0;
+    const pct = voteCounts[i].count > 0 ? Math.round((voteCounts[i].count / maxVote) * 100) : 0;
     return `
       <div class="date-card ${isSel ? 'selected' : ''} ${hasVoted ? 'voted' : ''}" onclick="toggle(${i})">
         <div class="date-check">
@@ -158,14 +162,14 @@ function render() {
         </div>
         <div class="date-info">
           <div class="date-main">${d.label}<span class="date-day">${d.day}</span></div>
-          ${votes[i].count > 0 ? `<div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div>` : ''}
+          ${voteCounts[i].count > 0 ? `<div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div>` : ''}
         </div>
         <div class="vote-count">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
             <circle cx="8" cy="5" r="3" stroke="#999" stroke-width="1.3"/>
             <path d="M2 13c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#999" stroke-width="1.3" stroke-linecap="round"/>
           </svg>
-          ${votes[i].count}
+          ${voteCounts[i].count}
         </div>
       </div>
     `;
@@ -183,41 +187,48 @@ function render() {
 
 function toggle(i) {
   if (hasVoted) { showToast('이미 투표했어요'); return; }
-  if (selected.includes(i)) {
-    selected = selected.filter(x => x !== i);
-  } else {
-    selected.push(i);
-  }
+  selected = selected.includes(i) ? selected.filter(x => x !== i) : [...selected, i];
   render();
 }
 
-function submitVote() {
+async function submitVote() {
   const name = document.getElementById('nameInput').value.trim();
   if (!name) { showToast('이름을 입력해주세요'); return; }
   if (selected.length === 0) { showToast('날짜를 선택해주세요'); return; }
   if (hasVoted) { showToast('이미 투표했어요'); return; }
 
-  selected.forEach(i => {
-    votes[i].count++;
-    if (!votes[i].voters) votes[i].voters = [];
-    votes[i].voters.push(name);
-  });
+  document.getElementById('submitBtn').disabled = true;
 
-  saveData(votes);
-  localStorage.setItem('hoesik_voted', 'yes');
+  const rows = selected.map(i => ({ date_index: i, voter_name: name }));
+  const { error } = await db.from('votes').insert(rows);
+
+  if (error) {
+    showToast('오류가 발생했어요. 다시 시도해주세요');
+    document.getElementById('submitBtn').disabled = false;
+    return;
+  }
+
+  localStorage.setItem('hoesik_voted_v2', 'yes');
   hasVoted = true;
   showToast('투표 완료! 감사합니다 🎉');
-  render();
+  await loadVotes();
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+  setTimeout(() => t.classList.remove('show'), 2400);
 }
 
-render();
+// 실시간 구독 — 다른 사람이 투표하면 자동 갱신
+db.channel('votes-channel')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'votes' }, () => {
+    loadVotes();
+  })
+  .subscribe();
+
+loadVotes();
 </script>
 </body>
 </html>
