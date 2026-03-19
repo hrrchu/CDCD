@@ -817,11 +817,13 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <!-- 색상 -->
       <div style="display:flex;align-items:center;gap:4px">
         <span style="font-size:13px;color:var(--tx3)">글자</span>
-        <input type="color" class="tb-color" value="#1a1d27" title="글자색" onchange="tbExec('foreColor',this.value)">
+        <input type="color" class="tb-color" id="tb-fore-color" value="#1a1d27" title="글자색">
+        <button class="tb-btn" onclick="tbExec('foreColor',document.getElementById('tb-fore-color').value)" style="font-size:12px;padding:3px 7px">적용</button>
       </div>
       <div style="display:flex;align-items:center;gap:4px">
         <span style="font-size:13px;color:var(--tx3)">배경</span>
-        <input type="color" class="tb-color" value="#ffff00" title="배경색" onchange="tbExec('hiliteColor',this.value)">
+        <input type="color" class="tb-color" id="tb-hili-color" value="#ffff00" title="배경색">
+        <button class="tb-btn" onclick="tbExec('hiliteColor',document.getElementById('tb-hili-color').value)" style="font-size:12px;padding:3px 7px">적용</button>
       </div>
       <div class="tb-sep"></div>
       <!-- 정렬 -->
