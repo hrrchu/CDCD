@@ -111,8 +111,8 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 /* ── STATS ── */
 .stats{display:flex;gap:6px;padding:8px 22px 0;flex-wrap:nowrap;overflow-x:auto}
 .sc{background:var(--sur);border:1px solid var(--bd);border-radius:9px;padding:5px 14px;box-shadow:var(--sh);display:flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0}
-.bar-dimmed .bf{opacity:.15!important}
-.bar-dimmed .bl{opacity:.15!important}
+.bar-dimmed .bf{opacity:0!important}
+.bar-dimmed .bl{opacity:0!important}
 .admin-only{display:none}
 .sl{font-size:15px;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px}
 .sv{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--tx)}
@@ -702,7 +702,9 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원 관리</button>
       <button class="btn btn-leave" onclick="openLeaveModal(null,null)">🏖️ 휴가 등록</button>
       <button class="btn btn-leave" onclick="openScheduleAdd()">➕ 일정 등록</button>
-      <button id="wip-filter-btn" onclick="toggleWipFilter()" class="btn btn-g">🔄 진행중</button>
+      <button id="sf-wip"  onclick="toggleStatusFilter('wip')"  class="btn btn-g">🔄 진행중</button>
+      <button id="sf-plan" onclick="toggleStatusFilter('plan')" class="btn btn-g">📋 예정</button>
+      <button id="sf-done" onclick="toggleStatusFilter('done')" class="btn btn-g">✅ 완료</button>
       <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5;padding:4px 8px" onclick="openBulkDelete()" title="일괄 삭제">🗑</button>
     </div>
   </div>
@@ -1355,7 +1357,7 @@ function getPeople(){ return GROUPS.flatMap(g=>g.members); }
 let tasks = getPeople().map(p=>({id:'tk_'+p.id, personId:p.id, name:'일정'}));
 let _filterProjId = null; // 레전드 프로젝트 필터
 let _filterPersonId = null; // 담당자 필터
-let _filterWip = false; // 진행중만 보기
+let _filterStatus = null; // 상태 필터: null | 'wip' | 'plan' | 'done'
 
 // ════════════════════════════════════════════
 //  한국 공휴일 (2024~2027 내장)
@@ -3210,7 +3212,7 @@ function renderLegend(){
       </div>`;
     }).join('')+
     `<div class="legend-add" onclick="openProjMgr()">＋ 추가</div>`+
-    (_filterProjId||_filterPersonId||_filterWip?`<div class="legend-item" onclick="_filterProjId=null;_filterPersonId=null;_filterWip=false;applyWipBtn();renderLegend();renderTable()" style="background:#fee2e2;border-color:#fca5a5;color:#dc2626;font-weight:700">✕ 필터 해제</div>`:'');
+    (_filterProjId||_filterPersonId||_filterStatus?`<div class="legend-item" onclick="_filterProjId=null;_filterPersonId=null;_filterStatus=null;applyStatusBtns();renderLegend();renderTable()" style="background:#fee2e2;border-color:#fca5a5;color:#dc2626;font-weight:700">✕ 필터 해제</div>`:'');
 }
 
 function filterByProj(projId){
@@ -3219,18 +3221,22 @@ function filterByProj(projId){
   renderTable();
 }
 
-function toggleWipFilter(){
-  _filterWip = !_filterWip;
-  applyWipBtn();
+function toggleStatusFilter(status){
+  _filterStatus = (_filterStatus === status) ? null : status;
+  applyStatusBtns();
   renderLegend();
   renderTable();
 }
-function applyWipBtn(){
-  const btn = document.getElementById('wip-filter-btn');
-  if(!btn) return;
-  btn.style.background = _filterWip ? 'var(--acc)' : '';
-  btn.style.color = _filterWip ? '#fff' : '';
-  btn.style.borderColor = _filterWip ? 'var(--acc)' : '';
+function applyStatusBtns(){
+  ['wip','plan','done'].forEach(s=>{
+    const btn = document.getElementById('sf-'+s);
+    if(!btn) return;
+    const on = _filterStatus === s;
+    const colors = {wip:'#4f8cff', plan:'#6366f1', done:'#64748b'};
+    btn.style.background   = on ? colors[s] : '';
+    btn.style.color        = on ? '#fff' : '';
+    btn.style.borderColor  = on ? colors[s] : '';
+  });
 }
 function filterByPerson(personId){
   _filterPersonId = (_filterPersonId === personId) ? null : personId;
@@ -3362,7 +3368,7 @@ function renderTable(){
             const bs=getBarStyle(proj,r.status);
             const isS=n===dn(r.start),isE=n===dn(r.end);
             const hasCmt=!!(r.text||r.link);
-            const dimmed = (_filterProjId && r.projectId !== _filterProjId) || (_filterWip && r.status !== 'wip');
+            const dimmed = (_filterProjId && r.projectId !== _filterProjId) || (_filterStatus && r.status !== _filterStatus);
             const cls=`cell bar${isToday?' today':''}${isHolCell?' holiday-cell':''}${isS?' bs':''}${isE?' be':''} status-${r.status||'plan'}${dimmed?' bar-dimmed':''}${isWeekStart?' week-start':''}`;
             b+=`<td class="${cls}" data-task="${task.id}" data-person="${person.id}" data-ri="${ri}" data-idx="${idx}" data-ds="${dateStr}"
               onclick="barTdClick(event,'${task.id}',${ri},'${dateStr}')"
