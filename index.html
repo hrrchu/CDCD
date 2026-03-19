@@ -3187,9 +3187,9 @@ function getBarStyle(proj,status){
   const tc=textFor(hex);
   if(status==='wip')     return {bg:hex, tc, op:1,    shadow:'none'};
   if(status==='done')    return {bg:hex, tc, op:0.3,  shadow:'none'};
-  if(status==='blocked') return {bg:hex, tc, op:0.25, shadow:'none'};
+  if(status==='blocked') return {bg:hex, tc, op:0.2,  shadow:'none'};
   // plan (예정)
-  return {bg:hex, tc, op:0.6, shadow:'none'};
+  return {bg:hex, tc, op:0.5, shadow:'none'};
 }
 function statusBadge(s){return{plan:'📋',wip:'🔄',done:'✅',blocked:'⛔'}[s]||'📋'}
 
