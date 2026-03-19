@@ -1461,6 +1461,7 @@ let CY=today.getFullYear(), CM=today.getMonth();
 // ════════════════════════════════════════════
 let curPage=0;
 function switchPage(idx){
+  hideBubNow();
   curPage=idx;
   document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('active',i===idx));
   document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
@@ -2623,6 +2624,7 @@ function toolRowDragEnd(){
 
 let curSubTab=0;
 function switchSubTab(idx){
+  hideBubNow();
   curSubTab=idx;
   document.querySelectorAll('.sub-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
   document.querySelectorAll('.sub-content').forEach((c,i)=>c.classList.toggle('active',i===idx));
