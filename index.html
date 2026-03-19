@@ -5030,6 +5030,20 @@ document.querySelectorAll('.mb').forEach(el=>
   _mbObserver.observe(el, {attributes:true, attributeFilter:['class']})
 );
 
+// ESC 키로 팝업 닫기
+document.addEventListener('keydown', e=>{
+  if(e.key !== 'Escape') return;
+  // 열린 모달 닫기
+  const openModal = document.querySelector('.mb.open');
+  if(openModal){
+    openModal.classList.remove('open');
+    pending = null; pendingLv = null; msPending = null; _dmDate = null;
+    return;
+  }
+  // 버블 닫기
+  hideBubNow();
+});
+
 // 커서 위치에 따라 표 편집 툴 자동 표시
 document.addEventListener('selectionchange', tbUpdateTableTools);
 
