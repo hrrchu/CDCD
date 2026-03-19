@@ -4826,6 +4826,8 @@ function loadFromSbData(payload){
   if(payload.grmNote){ const e=document.getElementById('grm-note'); if(e) cmSetContent('grm-note', payload.grmNote); }
   if(payload.p1Title){ const e=document.getElementById('p1-title'); if(e) e.value=payload.p1Title; }
   if(payload.p1Sub){   const e=document.getElementById('p1-sub');   if(e) e.value=payload.p1Sub;   }
+  if(payload.grmAdj)   grmAdj   = payload.grmAdj;
+  if(payload.dateMemos) dateMemos = payload.dateMemos;
 
   renderLegend(); renderHeader(); renderTable(); renderStats();
   applyAdminMode();
