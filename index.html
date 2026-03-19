@@ -93,6 +93,17 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 .ms-dot{flex:1;height:100%;border-radius:2px;flex-shrink:0;transition:opacity .1s;cursor:pointer;min-width:6px;max-width:none}
 .ms-dot:hover{opacity:.75}
 
+
+/* ── EDITOR TOOLBAR ── */
+.editor-toolbar{display:flex;align-items:center;gap:3px;flex-wrap:wrap;padding:6px 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px 10px 0 0;border-bottom:none;position:sticky;top:0;z-index:10}
+.tb-btn{padding:4px 8px;border:1px solid transparent;border-radius:5px;background:none;cursor:pointer;font-size:14px;color:var(--tx2);font-family:'Pretendard',sans-serif;transition:.1s;display:flex;align-items:center;gap:3px}
+.tb-btn:hover{background:var(--bd);color:var(--tx)}
+.tb-btn.active{background:var(--acc);color:#fff;border-color:var(--acc)}
+.tb-sep{width:1px;height:20px;background:var(--bd2);margin:0 3px;flex-shrink:0}
+.tb-select{border:1px solid var(--bd2);border-radius:5px;padding:3px 6px;font-size:13px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx);cursor:pointer}
+.tb-color{width:26px;height:26px;border:1px solid var(--bd2);border-radius:5px;padding:2px;cursor:pointer}
+.free-editor{border-radius:0 0 12px 12px!important}
+
 /* ── HINT ── */
 .hint{font-size:15px;color:var(--tx3);padding:4px 22px;display:flex;gap:10px;flex-wrap:wrap;background:var(--sf2);border-bottom:1px solid var(--bd)}
 .hint b{color:var(--tx2)}.hint .sep{color:var(--bd2)}
@@ -557,6 +568,17 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 .ms-dot{flex:1;height:100%;border-radius:2px;flex-shrink:0;transition:opacity .1s;cursor:pointer;min-width:6px;max-width:none}
 .ms-dot:hover{opacity:.75}
 
+
+/* ── EDITOR TOOLBAR ── */
+.editor-toolbar{display:flex;align-items:center;gap:3px;flex-wrap:wrap;padding:6px 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px 10px 0 0;border-bottom:none;position:sticky;top:0;z-index:10}
+.tb-btn{padding:4px 8px;border:1px solid transparent;border-radius:5px;background:none;cursor:pointer;font-size:14px;color:var(--tx2);font-family:'Pretendard',sans-serif;transition:.1s;display:flex;align-items:center;gap:3px}
+.tb-btn:hover{background:var(--bd);color:var(--tx)}
+.tb-btn.active{background:var(--acc);color:#fff;border-color:var(--acc)}
+.tb-sep{width:1px;height:20px;background:var(--bd2);margin:0 3px;flex-shrink:0}
+.tb-select{border:1px solid var(--bd2);border-radius:5px;padding:3px 6px;font-size:13px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx);cursor:pointer}
+.tb-color{width:26px;height:26px;border:1px solid var(--bd2);border-radius:5px;padding:2px;cursor:pointer}
+.free-editor{border-radius:0 0 12px 12px!important}
+
 /* ── HINT ── */
   .hint{display:none}
 
@@ -772,6 +794,62 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   <div class="free-page">
     <input class="free-page-title" id="p1-title" value="제작 프로세스 백서" placeholder="페이지 제목">
     <input class="free-page-subtitle" id="p1-sub" value="팀 내 제작 프로세스 및 가이드라인을 기록합니다." placeholder="부제목 / 설명">
+
+    <!-- 에디터 툴바 -->
+    <div class="editor-toolbar" id="p1-toolbar">
+      <!-- 텍스트 크기 -->
+      <select class="tb-select" onchange="tbExec('fontSize',this.value);this.value=''" title="텍스트 크기">
+        <option value="">크기</option>
+        <option value="1">매우 작게</option>
+        <option value="2">작게</option>
+        <option value="3">보통</option>
+        <option value="4">크게</option>
+        <option value="5">매우 크게</option>
+        <option value="6">제목</option>
+      </select>
+      <div class="tb-sep"></div>
+      <!-- 굵기/기울기/밑줄/취소선 -->
+      <button class="tb-btn" onclick="tbExec('bold')" title="굵게"><b>B</b></button>
+      <button class="tb-btn" onclick="tbExec('italic')" title="기울임"><i>I</i></button>
+      <button class="tb-btn" onclick="tbExec('underline')" title="밑줄"><u>U</u></button>
+      <button class="tb-btn" onclick="tbExec('strikeThrough')" title="취소선"><s>S</s></button>
+      <div class="tb-sep"></div>
+      <!-- 색상 -->
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:13px;color:var(--tx3)">글자</span>
+        <input type="color" class="tb-color" value="#1a1d27" title="글자색" onchange="tbExec('foreColor',this.value)">
+      </div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:13px;color:var(--tx3)">배경</span>
+        <input type="color" class="tb-color" value="#ffff00" title="배경색" onchange="tbExec('hiliteColor',this.value)">
+      </div>
+      <div class="tb-sep"></div>
+      <!-- 정렬 -->
+      <button class="tb-btn" onclick="tbExec('justifyLeft')" title="왼쪽 정렬">≡</button>
+      <button class="tb-btn" onclick="tbExec('justifyCenter')" title="가운데 정렬">≡</button>
+      <button class="tb-btn" onclick="tbExec('justifyRight')" title="오른쪽 정렬">≡</button>
+      <div class="tb-sep"></div>
+      <!-- 목록 -->
+      <button class="tb-btn" onclick="tbExec('insertUnorderedList')" title="글머리 목록">• 목록</button>
+      <button class="tb-btn" onclick="tbExec('insertOrderedList')" title="번호 목록">1. 목록</button>
+      <div class="tb-sep"></div>
+      <!-- 링크 / 초기화 -->
+      <button class="tb-btn" onclick="tbInsertLink()" title="링크 삽입">🔗</button>
+      <button class="tb-btn" onclick="tbInsertTable()" title="표 삽입">⊞ 표</button>
+      <div class="tb-sep"></div>
+      <!-- 표 편집 (표 안에 커서 있을 때 활성화) -->
+      <span id="tb-table-group" style="display:none;align-items:center;gap:3px">
+        <span style="font-size:12px;color:var(--tx3);padding:0 4px">표 편집:</span>
+        <button class="tb-btn" onclick="tbTableAddRow()" title="행 추가">행+ </button>
+        <button class="tb-btn" onclick="tbTableDelRow()" title="행 삭제">행−</button>
+        <button class="tb-btn" onclick="tbTableAddCol()" title="열 추가">열+</button>
+        <button class="tb-btn" onclick="tbTableDelCol()" title="열 삭제">열−</button>
+        <button class="tb-btn" onclick="tbTableDelTable()" title="표 삭제" style="color:#e53e3e">표 삭제</button>
+      </span>
+      <div class="tb-sep"></div>
+      <button class="tb-btn" onclick="tbExec('removeFormat')" title="서식 초기화" style="color:#e53e3e">✕서식</button>
+    </div>
+
     <div
       class="free-editor"
       id="p1-body"
@@ -1570,11 +1648,116 @@ function hideDateMemoBub(){
 
 
 
+
+// ════════════════════════════════════════════
+//  PROCESS EDITOR TOOLBAR
+// ════════════════════════════════════════════
+function tbExec(cmd, val){
+  document.getElementById('p1-body').focus();
+  document.execCommand(cmd, false, val||null);
+  p1BodyInput();
+  tbUpdateTableTools();
+}
+function tbInsertLink(){
+  const url = prompt('링크 URL을 입력하세요:');
+  if(!url) return;
+  document.getElementById('p1-body').focus();
+  document.execCommand('createLink', false, url);
+  const sel = window.getSelection();
+  if(sel && sel.anchorNode){
+    const a = sel.anchorNode.parentElement?.closest('a') || sel.anchorNode.parentElement?.querySelector('a');
+    if(a) a.target = '_blank';
+  }
+  p1BodyInput();
+}
+function tbInsertTable(){
+  const rows = parseInt(prompt('행 수:', '3'))||3;
+  const cols = parseInt(prompt('열 수:', '3'))||3;
+  if(rows<1||cols<1) return;
+  const cellStyle = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:80px;text-align:left;font-size:15px';
+  const thStyle = cellStyle + ';background:#f1f5f9;font-weight:700';
+  let html = `<table style="border-collapse:collapse;width:100%;margin:10px 0"><thead><tr>`;
+  for(let c=0;c<cols;c++) html += `<th style="${thStyle}" contenteditable="true">제목 ${c+1}</th>`;
+  html += `</tr></thead><tbody>`;
+  for(let r=0;r<rows;r++){
+    html += `<tr>`;
+    for(let c=0;c<cols;c++) html += `<td style="${cellStyle}" contenteditable="true"></td>`;
+    html += `</tr>`;
+  }
+  html += `</tbody></table><p><br></p>`;
+  document.getElementById('p1-body').focus();
+  document.execCommand('insertHTML', false, html);
+  p1BodyInput();
+}
+
+// 현재 커서가 있는 셀/행/표 찾기
+function tbGetCell(){ return window.getSelection()?.anchorNode?.parentElement?.closest('td,th'); }
+function tbGetRow(){ return tbGetCell()?.closest('tr'); }
+function tbGetTable(){ return tbGetCell()?.closest('table'); }
+const CELL_STYLE = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:80px;text-align:left;font-size:15px';
+
+function tbTableAddRow(){
+  const row = tbGetRow(); if(!row) return;
+  const cols = row.cells.length;
+  const newRow = document.createElement('tr');
+  for(let c=0;c<cols;c++){
+    const td = document.createElement('td');
+    td.setAttribute('style', CELL_STYLE);
+    td.contentEditable = 'true';
+    newRow.appendChild(td);
+  }
+  row.parentElement.insertBefore(newRow, row.nextSibling);
+  p1BodyInput();
+}
+function tbTableDelRow(){
+  const row = tbGetRow(); if(!row) return;
+  const table = tbGetTable();
+  if(table && table.rows.length <= 1){ tbTableDelTable(); return; }
+  row.remove();
+  p1BodyInput();
+}
+function tbTableAddCol(){
+  const table = tbGetTable(); if(!table) return;
+  const cell = tbGetCell();
+  const colIdx = cell ? cell.cellIndex : 0;
+  Array.from(table.rows).forEach((row,ri)=>{
+    const newCell = document.createElement(ri===0?'th':'td');
+    newCell.setAttribute('style', ri===0 ? CELL_STYLE+';background:#f1f5f9;font-weight:700' : CELL_STYLE);
+    newCell.contentEditable = 'true';
+    const ref = row.cells[colIdx+1]||null;
+    row.insertBefore(newCell, ref);
+  });
+  p1BodyInput();
+}
+function tbTableDelCol(){
+  const table = tbGetTable(); if(!table) return;
+  const cell = tbGetCell(); if(!cell) return;
+  const colIdx = cell.cellIndex;
+  if(table.rows[0]?.cells.length <= 1){ tbTableDelTable(); return; }
+  Array.from(table.rows).forEach(row=>{
+    if(row.cells[colIdx]) row.cells[colIdx].remove();
+  });
+  p1BodyInput();
+}
+function tbTableDelTable(){
+  const table = tbGetTable(); if(!table) return;
+  if(!confirm('표를 삭제할까요?')) return;
+  table.remove();
+  p1BodyInput();
+}
+
+// 커서가 표 안에 있으면 표 편집 툴바 표시
+function tbUpdateTableTools(){
+  const inTable = !!tbGetCell();
+  const group = document.getElementById('tb-table-group');
+  if(group) group.style.display = inTable ? 'flex' : 'none';
+}
+
 // ════════════════════════════════════════════
 //  ADMIN AUTH
 // ════════════════════════════════════════════
-const ADMIN_PW = 'cd2026!!';
-let _isAdmin = true; // 임시 권한 해제
+const ADMIN_PW = 'cd2026';
+let _isAdmin = false;
 
 function toggleAdmin(){
   if(_isAdmin){
@@ -1615,6 +1798,8 @@ function applyAdminMode(){
   const gs = document.querySelector('.gs');
   if(gs){ gs.style.pointerEvents = ''; gs.style.userSelect = 'text'; }
   // process
+  const tb = document.getElementById('p1-toolbar');
+  if(tb) tb.style.display = _isAdmin ? '' : 'none';
   const p1 = document.getElementById('p1-body');
   if(p1){ p1.contentEditable=_isAdmin?'true':'false'; p1.style.userSelect='text'; p1.querySelectorAll('a').forEach(a=>a.style.pointerEvents='auto'); }
   const p1t = document.getElementById('p1-title'); if(p1t) p1t.readOnly=!_isAdmin;
@@ -3169,7 +3354,7 @@ function renderTable(){
                 <div class="bf" style="background:${bs.bg};${bs.op?'opacity:'+bs.op+';':''}${bs.shadow!=='none'?'box-shadow:'+bs.shadow+';':''}"
                   onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
                   onclick="barBfClick(event,'${task.id}',${ri})">
-                  ${isS?(()=>{const span=dn(r.end)-dn(r.start)+1;const cellPx=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cell"))||40;return `<span class="bl" style="color:${bs.tc};width:${span*cellPx-8}px;overflow:hidden">${statusBadge(r.status)} ${r.rtitle||proj.name}</span>`;})():''}
+                  ${isS?(()=>{const span=dn(r.end)-dn(r.start)+1;const cellPx=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cell"))||40;const w=Math.max(span*cellPx-8, 45);return `<span class="bl" style="color:${bs.tc};width:${w}px;overflow:hidden;text-overflow:ellipsis">${r.rtitle||proj.name}</span>`;})():''}
                   ${isS?`<div class="rh rh-l" onmousedown="resizeMD(event,'${task.id}',${ri},'left',${idx})"></div>`:''}
                   ${isE?`<div class="rh rh-r" onmousedown="resizeMD(event,'${task.id}',${ri},'right',${idx})"></div>`:''}
                 </div>
@@ -4756,6 +4941,9 @@ function addTouchSupport(){
   // ── lv-row 드래그 시작은 핸들 ⠿ 터치시만 ──
   // (위에서 처리됨)
 }
+
+// 커서 위치에 따라 표 편집 툴 자동 표시
+document.addEventListener('selectionchange', tbUpdateTableTools);
 
 init();
 addTouchSupport();
