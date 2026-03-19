@@ -1422,6 +1422,7 @@ let ranges = {};
 // leaves[personId] = [{start,end,type,note}]
 let leaves = {};
 let dateMemos = {};
+let grmAdj = {}; // grmAdj[ym][personId][projId] = 보정% (수기)
 let activityLog = []; // [{ts, type, personName, projName, start, end, action}]
 // milestones[taskId][dateStr] = {report:bool, variation:bool, storyboard:bool, note:string}
 // dateMemos[dateStr] = string
@@ -4210,9 +4211,20 @@ function renderGRM(){
       const tags=memberEntries.map(([personId,d])=>{
         const person=people.find(p=>p.id===personId);
         const pct=totalWD>0?Math.round(d/totalWD*100):0;
+        const adjVal=getAdj(personId,proj.id);
+        const adjHtml=`<span style="display:inline-flex;align-items:center;gap:2px;margin-left:4px">
+          <span style="font-size:11px;color:${proj.bar};opacity:.7">보정</span>
+          <input type="number" min="0" max="200" placeholder="-"
+            value="${adjVal??''}"
+            onchange="setAdj('${personId}','${proj.id}',this.value);renderGRM()"
+            onclick="event.stopPropagation()"
+            style="width:44px;border:1px solid ${proj.bar}66;border-radius:5px;padding:1px 4px;font-size:12px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
+          <span style="font-size:11px;color:${proj.bar};opacity:.7">%</span>
+        </span>`;
         return `<div style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:15px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
           <span style="width:7px;height:7px;border-radius:50%;background:${proj.bar};flex-shrink:0;display:inline-block"></span>
           ${person?.name||personId} <span style="font-family:'Space Mono',monospace;font-weight:700">${pct}%</span>
+          ${adjHtml}
         </div>`;
       }).join('');
       // 누적 바 (영업일 기준)
@@ -4225,13 +4237,18 @@ function renderGRM(){
       const teamPct=totalWD>0?Math.round(totalProjDays/(people.length*totalWD)*100):0;
       // 합산 퍼센트 (영업일 기준 개인별 합산)
       const pctSum = memberEntries.reduce((s,[,d])=>s+(totalWD>0?Math.round(d/totalWD*100):0),0);
+      const adjSum = getProjAdj(proj.id);
+      const adjBadge = adjSum!=null
+        ? `<div style="font-size:15px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:#fef3c7;color:#b45309;border:1px solid #fcd34d">보정 ${adjSum}%</div>`
+        : '';
       html+=`<div class="grm-card" style="margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
           <div style="width:10px;height:10px;border-radius:3px;background:${proj.bar};flex-shrink:0"></div>
           <div style="font-size:15px;font-weight:700;color:var(--tx)">${proj.name}</div>
           <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
             <div style="font-size:15px;font-family:'Space Mono',monospace;color:var(--tx3)">${totalProjDays}인·일</div>
-            <div style="font-size:15px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44">합계 ${pctSum}%</div>
+            <div style="font-size:15px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44">실공수 ${pctSum}%</div>
+            ${adjBadge}
           </div>
         </div>
         <div class="grm-breakdown" style="height:10px;margin-bottom:10px">${segments}</div>
@@ -4264,9 +4281,20 @@ function renderGRM(){
     const tags=projEntries.map(([projId,d])=>{
       const proj=getProj(projId);
       const pct=totalWD>0?Math.round(d/totalWD*100):0;
+      const adjVal=getAdj(person.id,projId);
+      const adjHtml=`<span style="display:inline-flex;align-items:center;gap:2px;margin-left:4px">
+        <span style="font-size:11px;color:${proj.bar};opacity:.7">보정</span>
+        <input type="number" min="0" max="200" placeholder="-"
+          value="${adjVal??''}"
+          onchange="setAdj('${person.id}','${projId}',this.value);renderGRM()"
+          onclick="event.stopPropagation()"
+          style="width:44px;border:1px solid ${proj.bar}66;border-radius:5px;padding:1px 4px;font-size:12px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
+        <span style="font-size:11px;color:${proj.bar};opacity:.7">%</span>
+      </span>`;
       return `<div style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:15px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
         <span style="width:7px;height:7px;border-radius:50%;background:${proj.bar};flex-shrink:0;display:inline-block"></span>
         ${proj.name} <span style="font-family:'Space Mono',monospace;font-weight:700">${pct}%</span>
+        ${adjHtml}
       </div>`;
     }).join('');
 
@@ -4289,6 +4317,35 @@ function renderGRM(){
   if(!people.length) html=`<div style="color:var(--tx3);font-size:15px;padding:20px;text-align:center">팀원 정보가 없어요</div>`;
 
   grid.innerHTML=`<div style="grid-column:1/-1">${html}</div>`;
+}
+
+
+// ════════════════════════════════════════════
+//  GRM 보정 공수
+// ════════════════════════════════════════════
+function grmYM(){ return `${CY}-${String(CM+1).padStart(2,'0')}`; }
+function getAdj(personId, projId){
+  const ym=grmYM();
+  return grmAdj?.[ym]?.[personId]?.[projId] ?? null;
+}
+function setAdj(personId, projId, val){
+  const ym=grmYM();
+  if(!grmAdj[ym]) grmAdj[ym]={};
+  if(!grmAdj[ym][personId]) grmAdj[ym][personId]={};
+  if(val===''||val===null) delete grmAdj[ym][personId][projId];
+  else grmAdj[ym][personId][projId] = Number(val);
+  fbPush();
+}
+function getProjAdj(projId){
+  // 프로젝트별 보정 합계
+  const ym=grmYM();
+  const people=getPeople();
+  let sum=0, hasAny=false;
+  people.forEach(p=>{
+    const v=grmAdj?.[ym]?.[p.id]?.[projId];
+    if(v!=null){ sum+=v; hasAny=true; }
+  });
+  return hasAny ? sum : null;
 }
 
 // ════════════════════════════════════════════
@@ -4769,7 +4826,7 @@ async function pushAllToSb(){
     ideaCards, toolRows, MS_TYPES, activityLog, votes,
     p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
     grmNote: document.getElementById('grm-note')?.innerText||'',
-    dateMemos,
+    dateMemos, grmAdj,
     _updated: Date.now()
   };
   try{
