@@ -4213,13 +4213,13 @@ function renderGRM(){
         const pct=totalWD>0?Math.round(d/totalWD*100):0;
         const adjVal=getAdj(personId,proj.id);
         const adjHtml=`<span style="display:inline-flex;align-items:center;gap:3px;margin-left:6px">
-          <span style="font-size:13px;color:${proj.bar};>보정</span>
+          <span style="font-size:13px;color:${proj.bar}">보정</span>
           <input type="number" min="0" max="200" placeholder="-"
             value="${adjVal??''}"
             onchange="setAdj('${personId}','${proj.id}',this.value);renderGRM()"
             onclick="event.stopPropagation()"
             style="width:52px;border:1px solid ${proj.bar}66;border-radius:5px;padding:2px 6px;font-size:14px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
-          <span style="font-size:13px;color:${proj.bar};>%</span>
+          <span style="font-size:13px;color:${proj.bar}">%</span>
         </span>`;
         return `<div style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:15px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
           <span style="width:7px;height:7px;border-radius:50%;background:${proj.bar};flex-shrink:0;display:inline-block"></span>
@@ -4283,13 +4283,13 @@ function renderGRM(){
       const pct=totalWD>0?Math.round(d/totalWD*100):0;
       const adjVal=getAdj(person.id,projId);
       const adjHtml=`<span style="display:inline-flex;align-items:center;gap:3px;margin-left:6px">
-        <span style="font-size:13px;color:${proj.bar};>보정</span>
+        <span style="font-size:13px;color:${proj.bar}">보정</span>
         <input type="number" min="0" max="200" placeholder="-"
           value="${adjVal??''}"
           onchange="setAdj('${person.id}','${projId}',this.value);renderGRM()"
           onclick="event.stopPropagation()"
           style="width:52px;border:1px solid ${proj.bar}66;border-radius:5px;padding:2px 6px;font-size:14px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
-        <span style="font-size:13px;color:${proj.bar};>%</span>
+        <span style="font-size:13px;color:${proj.bar}">%</span>
       </span>`;
       return `<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:15px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
         <span style="width:7px;height:7px;border-radius:50%;background:${proj.bar};flex-shrink:0;display:inline-block"></span>
