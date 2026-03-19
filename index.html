@@ -713,6 +713,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     <div class="sub-tab active" id="stab-0" onclick="switchSubTab(0)">📅 스케줄 차트</div>
     <div class="sub-tab" id="stab-1" onclick="switchSubTab(1)">📊 GRM 공수</div>
     <div class="sub-tab" id="stab-2" onclick="switchSubTab(2)">🏖️ 휴가 목록</div>
+    <div class="sub-tab" id="stab-4" onclick="switchSubTab(4)">⏰ 연장근로</div>
     <div class="sub-tab" id="stab-3" onclick="switchSubTab(3)">📋 활동 기록</div>
   </div>
 
@@ -770,6 +771,16 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <div class="grm-title">🏖️ 휴가 목록 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="leave-list-label"></span></div>
       <div class="grm-sub">등록된 모든 휴가를 날짜 순으로 확인하고 관리할 수 있어요.</div>
       <div id="leave-list-wrap"></div>
+    </div>
+  </div>
+
+
+  <!-- SUB 4: OVERTIME -->
+  <div class="sub-content" id="scontent-4">
+    <div class="grm-wrap">
+      <div class="grm-title">⏰ 연장근로 <span style="font-size:15px;font-weight:400;color:var(--tx2)" id="overtime-month-label"></span></div>
+      <div class="grm-sub">월별 연장근로 시간을 수기로 입력해요.</div>
+      <div id="overtime-wrap"></div>
     </div>
   </div>
 
@@ -1423,6 +1434,7 @@ let ranges = {};
 let leaves = {};
 let dateMemos = {};
 let grmAdj = {}; // grmAdj[ym][personId][projId] = 보정% (수기)
+let overtime = {}; // overtime[ym][personId] = 시간 (수기)
 let activityLog = []; // [{ts, type, personName, projName, start, end, action}]
 // milestones[taskId][dateStr] = {report:bool, variation:bool, storyboard:bool, note:string}
 // dateMemos[dateStr] = string
@@ -2623,6 +2635,7 @@ function switchSubTab(idx){
   document.querySelectorAll('.sub-content').forEach((c,i)=>c.classList.toggle('active',i===idx));
   if(idx===1) renderGRM();
   if(idx===2) renderLeaveList();
+  if(idx===4) renderOvertime();
   if(idx===3) renderActivityLog();
 }
 
@@ -3637,6 +3650,10 @@ function hideBub(){
   clearTimeout(bTimeout);
   bTimeout=setTimeout(()=>{ document.getElementById('g-bub')?.classList.remove('vis'); },5000);
 }
+function hideBubNow(){
+  clearTimeout(bTimeout);
+  document.getElementById('g-bub')?.classList.remove('vis');
+}
 
 
 // ════════════════════════════════════════════
@@ -4216,7 +4233,7 @@ function renderGRM(){
           <span style="font-size:13px;color:${proj.bar}">보정</span>
           <input type="number" min="0" max="200" placeholder="-"
             value="${adjVal??''}"
-            onchange="setAdj('${personId}','${proj.id}',this.value);renderGRM()"
+            onblur="setAdj('${personId}','${proj.id}',this.value);renderGRM()"
             onclick="event.stopPropagation()"
             style="width:52px;border:1px solid ${proj.bar}66;border-radius:5px;padding:2px 6px;font-size:14px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
           <span style="font-size:13px;color:${proj.bar}">%</span>
@@ -4286,7 +4303,7 @@ function renderGRM(){
         <span style="font-size:13px;color:${proj.bar}">보정</span>
         <input type="number" min="0" max="200" placeholder="-"
           value="${adjVal??''}"
-          onchange="setAdj('${person.id}','${projId}',this.value);renderGRM()"
+          onblur="setAdj('${person.id}','${projId}',this.value);renderGRM()"
           onclick="event.stopPropagation()"
           style="width:52px;border:1px solid ${proj.bar}66;border-radius:5px;padding:2px 6px;font-size:14px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
         <span style="font-size:13px;color:${proj.bar}">%</span>
@@ -4359,6 +4376,63 @@ function getProjAdj(projId){
     if(v!=null){ sum+=v; hasAny=true; }
   });
   return hasAny ? sum : null;
+}
+
+
+// ════════════════════════════════════════════
+//  OVERTIME (연장근로)
+// ════════════════════════════════════════════
+function otYM(){ return `${CY}-${String(CM+1).padStart(2,'0')}`; }
+function setOvertime(personId, val){
+  const ym=otYM();
+  if(!overtime[ym]) overtime[ym]={};
+  if(val===''||val===null||isNaN(val)) delete overtime[ym][personId];
+  else overtime[ym][personId] = Number(val);
+  fbPush();
+  // 합계 업데이트
+  document.getElementById('overtime-total').textContent = getOvertimeTotal() + '시간';
+}
+function getOvertimeTotal(){
+  const ym=otYM();
+  return Object.values(overtime[ym]||{}).reduce((s,v)=>s+v,0);
+}
+function renderOvertime(){
+  const ym=otYM();
+  const M=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const label = document.getElementById('overtime-month-label');
+  if(label) label.textContent = `${CY}년 ${M[CM]}`;
+  const wrap = document.getElementById('overtime-wrap');
+  if(!wrap) return;
+  const people = getPeople();
+  const total = getOvertimeTotal();
+
+  let html = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--sf2);border-radius:10px;border:1px solid var(--bd)">
+    <span style="font-weight:700;color:var(--tx)">이번 달 총 연장근로</span>
+    <span id="overtime-total" style="font-family:'Space Mono',monospace;font-weight:700;font-size:18px;color:#e53e3e;margin-left:auto">${total}시간</span>
+  </div>`;
+
+  html += `<div style="display:flex;flex-direction:column;gap:8px">`;
+  people.forEach(p=>{
+    const val = overtime[ym]?.[p.id] ?? '';
+    const g = GROUPS.find(g=>g.members.find(m=>m.id===p.id));
+    const ac = p.ac || g?.gc || '#4f8cff';
+    html += `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--sur);border:1px solid var(--bd);border-radius:10px">
+      <div style="width:32px;height:32px;border-radius:50%;background:${ac}22;color:${ac};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0">${p.name.charAt(0)}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;color:var(--tx);font-size:15px">${p.name}</div>
+        <div style="color:var(--tx2);font-size:13px">${p.role}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="number" min="0" max="999" step="0.5" placeholder="0"
+          value="${val}"
+          onblur="setOvertime('${p.id}',this.value)"
+          style="width:72px;border:1px solid var(--bd2);border-radius:7px;padding:6px 10px;font-size:16px;font-family:'Space Mono',monospace;font-weight:700;color:var(--tx);outline:none;text-align:center">
+        <span style="font-size:15px;color:var(--tx2);font-weight:600">시간</span>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  wrap.innerHTML = html;
 }
 
 // ════════════════════════════════════════════
@@ -4839,7 +4913,7 @@ async function pushAllToSb(){
     ideaCards, toolRows, MS_TYPES, activityLog, votes,
     p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
     grmNote: document.getElementById('grm-note')?.innerText||'',
-    dateMemos, grmAdj,
+    dateMemos, grmAdj, overtime,
     _updated: Date.now()
   };
   try{
@@ -5013,6 +5087,14 @@ function addTouchSupport(){
   // ── lv-row 드래그 시작은 핸들 ⠿ 터치시만 ──
   // (위에서 처리됨)
 }
+
+// 팝업 열릴 때 버블 즉시 숨기기 (MutationObserver)
+const _mbObserver = new MutationObserver(()=>{
+  if(document.querySelector('.mb.open')) hideBubNow();
+});
+document.querySelectorAll('.mb').forEach(el=>
+  _mbObserver.observe(el, {attributes:true, attributeFilter:['class']})
+);
 
 // 커서 위치에 따라 표 편집 툴 자동 표시
 document.addEventListener('selectionchange', tbUpdateTableTools);
