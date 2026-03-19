@@ -13,7 +13,7 @@
 :root{
   --bg:#f5f6f8;--sur:#fff;--sf2:#f0f1f4;
   --bd:#e2e4ea;--bd2:#d0d3dd;
-  --acc:#4f8cff;--tx:#1a1d27;--tx2:#5a6072;--tx3:#9aa0b4;
+  --acc:#4f8cff;--tx:#1a1d27;--tx2:#2d3348;--tx3:#5a6072;
   --cell:40px;--nc:110px;
   --sh:0 1px 4px rgba(0,0,0,.07);
 }
@@ -340,7 +340,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 /* ── GRM SECTION ── */
 .grm-wrap{padding:20px 22px 28px}
 .grm-title{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.grm-sub{font-size:15px;color:var(--tx3);margin-bottom:18px}
+.grm-sub{font-size:15px;color:var(--tx2);margin-bottom:18px}
 .grm-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:700px){.grm-grid{grid-template-columns:1fr}}
 .grm-card{background:var(--sur);border:1px solid var(--bd);border-radius:11px;padding:16px;box-shadow:var(--sh)}
@@ -751,7 +751,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         ></div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div class="grm-title">📊 GRM 공수 계산 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="grm-month-label"></span></div>
+        <div class="grm-title">📊 GRM 공수 계산 <span style="font-size:15px;font-weight:600;color:var(--tx2)" id="grm-month-label"></span></div>
         <div style="display:flex;gap:4px">
           <button id="grm-view-person" onclick="setGrmView('person')"
             style="font-size:15px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer;transition:.15s">👤 작업자별</button>
@@ -4201,7 +4201,7 @@ function renderGRM(){
     const activeProjs = PROJECTS.filter(p=>Object.keys(projDays[p.id]||{}).length>0);
     let html='';
     if(!activeProjs.length){
-      html='<div style="color:var(--tx3);font-size:15px;padding:20px;text-align:center">이번 달 등록된 일정이 없어요</div>';
+      html='<div style="color:var(--tx2);font-size:15px;padding:20px;text-align:center">이번 달 등록된 일정이 없어요</div>';
     }
     activeProjs.forEach(proj=>{
       const pd=projDays[proj.id]||{};
@@ -4212,14 +4212,14 @@ function renderGRM(){
         const person=people.find(p=>p.id===personId);
         const pct=totalWD>0?Math.round(d/totalWD*100):0;
         const adjVal=getAdj(personId,proj.id);
-        const adjHtml=`<span style="display:inline-flex;align-items:center;gap:2px;margin-left:4px">
-          <span style="font-size:11px;color:${proj.bar};opacity:.7">보정</span>
+        const adjHtml=`<span style="display:inline-flex;align-items:center;gap:3px;margin-left:6px">
+          <span style="font-size:13px;color:${proj.bar};>보정</span>
           <input type="number" min="0" max="200" placeholder="-"
             value="${adjVal??''}"
             onchange="setAdj('${personId}','${proj.id}',this.value);renderGRM()"
             onclick="event.stopPropagation()"
-            style="width:44px;border:1px solid ${proj.bar}66;border-radius:5px;padding:1px 4px;font-size:12px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
-          <span style="font-size:11px;color:${proj.bar};opacity:.7">%</span>
+            style="width:52px;border:1px solid ${proj.bar}66;border-radius:5px;padding:2px 6px;font-size:14px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
+          <span style="font-size:13px;color:${proj.bar};>%</span>
         </span>`;
         return `<div style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:15px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
           <span style="width:7px;height:7px;border-radius:50%;background:${proj.bar};flex-shrink:0;display:inline-block"></span>
@@ -4246,7 +4246,7 @@ function renderGRM(){
           <div style="width:10px;height:10px;border-radius:3px;background:${proj.bar};flex-shrink:0"></div>
           <div style="font-size:15px;font-weight:700;color:var(--tx)">${proj.name}</div>
           <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-            <div style="font-size:15px;font-family:'Space Mono',monospace;color:var(--tx3)">${totalProjDays}인·일</div>
+            <div style="font-size:15px;font-family:'Space Mono',monospace;color:var(--tx2);font-weight:600">${totalProjDays}인·일</div>
             <div style="font-size:15px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44">실공수 ${pctSum}%</div>
             ${adjBadge}
           </div>
@@ -4282,32 +4282,45 @@ function renderGRM(){
       const proj=getProj(projId);
       const pct=totalWD>0?Math.round(d/totalWD*100):0;
       const adjVal=getAdj(person.id,projId);
-      const adjHtml=`<span style="display:inline-flex;align-items:center;gap:2px;margin-left:4px">
-        <span style="font-size:11px;color:${proj.bar};opacity:.7">보정</span>
+      const adjHtml=`<span style="display:inline-flex;align-items:center;gap:3px;margin-left:6px">
+        <span style="font-size:13px;color:${proj.bar};>보정</span>
         <input type="number" min="0" max="200" placeholder="-"
           value="${adjVal??''}"
           onchange="setAdj('${person.id}','${projId}',this.value);renderGRM()"
           onclick="event.stopPropagation()"
-          style="width:44px;border:1px solid ${proj.bar}66;border-radius:5px;padding:1px 4px;font-size:12px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
-        <span style="font-size:11px;color:${proj.bar};opacity:.7">%</span>
+          style="width:52px;border:1px solid ${proj.bar}66;border-radius:5px;padding:2px 6px;font-size:14px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
+        <span style="font-size:13px;color:${proj.bar};>%</span>
       </span>`;
-      return `<div style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:15px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
+      return `<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:15px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
         <span style="width:7px;height:7px;border-radius:50%;background:${proj.bar};flex-shrink:0;display:inline-block"></span>
         ${proj.name} <span style="font-family:'Space Mono',monospace;font-weight:700">${pct}%</span>
         ${adjHtml}
       </div>`;
     }).join('');
 
+    // 보정 공수 총합
+    const adjTotal = projEntries.reduce((s,[projId])=>{
+      const v=getAdj(person.id,projId);
+      return s+(v!=null?v:0);
+    }, 0);
+    const hasAdj = projEntries.some(([projId])=>getAdj(person.id,projId)!=null);
+    const adjBadge = hasAdj
+      ? `<div style="font-family:'Space Mono',monospace;font-size:14px;font-weight:700;padding:2px 10px;border-radius:10px;background:#fef3c7;color:#b45309;border:1px solid #fcd34d">보정 ${adjTotal}%</div>`
+      : '';
+
     const emptyMsg=projEntries.length===0
-      ? `<span style="font-size:15px;color:var(--tx3)">이번 달 등록된 일정 없음</span>`
+      ? `<span style="font-size:15px;color:var(--tx2)">이번 달 등록된 일정 없음</span>`
       : '';
 
     html+=`
     <div class="grm-card" style="margin-bottom:12px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div style="font-size:15px;font-weight:700;color:var(--tx)">${person.name}</div>
-        <div style="font-size:15px;color:var(--tx3)">${person.role}</div>
-        <div style="margin-left:auto;font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:${usedPct>=80?'#e53e3e':usedPct>=50?'#d97706':'#059669'}">${usedPct}%</div>
+        <div style="font-size:15px;color:var(--tx2);font-weight:500">${person.role}</div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <div style="font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:${usedPct>=80?'#e53e3e':usedPct>=50?'#d97706':'#059669'}">실공수 ${usedPct}%</div>
+          ${adjBadge}
+        </div>
       </div>
       <div class="grm-breakdown" style="height:10px;margin-bottom:10px">${segments}${freeBar}</div>
       <div style="display:flex;flex-wrap:wrap;gap:2px">${tags}${emptyMsg}</div>
