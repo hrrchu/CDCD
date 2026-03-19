@@ -246,6 +246,7 @@ td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 #g-bub{position:fixed;background:#fff;border:1px solid var(--bd2);border-radius:9px;padding:10px 12px;min-width:520px;max-width:760px;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.14);display:none;pointer-events:auto}
 #g-bub.vis{display:block;animation:pop .12s ease}
 #g-bub a{pointer-events:auto!important;cursor:pointer!important}
+a[href]{pointer-events:auto!important;cursor:pointer!important}
 .bd2t{font-family:'Space Mono',monospace;font-size:15px;color:var(--tx3);margin-bottom:4px}
 .bpp{font-size:15px;font-weight:700;margin-bottom:3px}
 .bt2{font-size:15px;color:var(--tx);line-height:1.5;margin-bottom:6px}
@@ -1820,10 +1821,12 @@ function applyAdminMode(){
   });
   document.querySelectorAll('#tool-tbody [contenteditable]').forEach(el=>{
     el.contentEditable=_isAdmin?'true':'false'; el.style.userSelect='text';
-    el.querySelectorAll('a').forEach(a=>a.style.pointerEvents='auto');
+    el.querySelectorAll('a').forEach(a=>{ a.style.pointerEvents='auto'; a.style.cursor='pointer'; });
   });
   const toolAddBtn=document.querySelector('[onclick="addToolRow()"]');
   if(toolAddBtn) toolAddBtn.style.display=_isAdmin?'':'none';
+  // 모든 페이지 링크는 항상 클릭 가능
+  document.querySelectorAll('a[href]').forEach(a=>{ a.style.pointerEvents='auto'; a.style.cursor='pointer'; });
 }
 
 // ════════════════════════════════════════════
@@ -3852,9 +3855,9 @@ function openModal(taskId,start,end,editIdx){
   // 날짜 스피너 활성화 여부
   document.querySelectorAll('#cm-date-row input[type=number]').forEach(el=>{ el.disabled=readOnly; });
   const cmText=document.getElementById('cm-text');
-  if(cmText){ cmText.contentEditable=readOnly?'false':'true'; }
+  if(cmText){ cmText.contentEditable=readOnly?'false':'true'; cmText.querySelectorAll('a').forEach(a=>{ a.style.pointerEvents='auto'; a.style.cursor='pointer'; }); }
   const cmLink=document.getElementById('cm-link');
-  if(cmLink){ cmLink.contentEditable=readOnly?'false':'true'; }
+  if(cmLink){ cmLink.contentEditable=readOnly?'false':'true'; cmLink.querySelectorAll('a').forEach(a=>{ a.style.pointerEvents='auto'; a.style.cursor='pointer'; }); }
   const task=tasks.find(t=>t.id===taskId);
   const person=getPeople().find(p=>p.id===task?.personId);
   const r=editIdx!=null?(ranges[taskId]||[])[editIdx]:null;
