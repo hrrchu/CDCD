@@ -1223,6 +1223,7 @@ let GROUPS = [
 function getPeople(){ return GROUPS.flatMap(g=>g.members); }
 let tasks = getPeople().map(p=>({id:'tk_'+p.id, personId:p.id, name:'일정'}));
 let _filterProjId = null; // 레전드 프로젝트 필터
+let _filterPersonId = null; // 담당자 필터
 
 // ════════════════════════════════════════════
 //  한국 공휴일 (2024~2027 내장)
@@ -2915,12 +2916,16 @@ function renderLegend(){
       </div>`;
     }).join('')+
     `<div class="legend-add" onclick="openProjMgr()">＋ 추가</div>`+
-    (_filterProjId?`<div class="legend-item" onclick="filterByProj(null)" style="background:#fee2e2;border-color:#fca5a5;color:#dc2626;font-weight:700" title="필터 해제">✕ 필터 해제</div>`:'');
+    (_filterProjId||_filterPersonId?`<div class="legend-item" onclick="_filterProjId=null;_filterPersonId=null;renderLegend();renderTable()" style="background:#fee2e2;border-color:#fca5a5;color:#dc2626;font-weight:700">✕ 필터 해제</div>`:'');
 }
 
 function filterByProj(projId){
   _filterProjId = (_filterProjId === projId) ? null : projId;
   renderLegend();
+  renderTable();
+}
+function filterByPerson(personId){
+  _filterPersonId = (_filterPersonId === personId) ? null : personId;
   renderTable();
 }
 function renderHeader(){
@@ -2996,16 +3001,19 @@ function renderTable(){
     );
     b+=`<tr class="gr" style="${!groupHasProj?'opacity:.35':''}"><td colspan="${wds.length+2}"><span class="gdot" style="background:${group.gc}"></span>${group.label}</td></tr>`;
     members.forEach(person=>{
+      // 담당자 필터: 해당 아닌 멤버 숨기기
+      if(_filterPersonId && person.id !== _filterPersonId) return;
       // 해당 프로젝트 없는 멤버는 흐리게
       const personHasProj = !_filterProjId || tasks.filter(t=>t.personId===person.id).some(t=>(ranges[t.id]||[]).some(r=>r.projectId===_filterProjId));
       tasks.filter(t=>t.personId===person.id).forEach(task=>{
         const tR=ranges[task.id]||[];
         b+=`<tr data-task="${task.id}" data-person="${person.id}" data-group="${group.id}" onmouseenter="rowEnter(this)" onmouseleave="rowLeave(this)" style="${!personHasProj?'opacity:.3':''}">`;
-        b+=`<td class="cn">
+        const isFilteredPerson = _filterPersonId === person.id;
+        b+=`<td class="cn" onclick="filterByPerson('${person.id}')" title="클릭: 이 담당자만 보기" style="cursor:pointer${isFilteredPerson?';background:var(--acc)22;border-left:3px solid var(--acc)':''}">
           <div class="pi">
           ${renderAv(person, group.gc)}
-          <div><div class="pn">${person.name}</div><div class="pr">${person.role}</div></div>
-        </div></td>`;
+          <div><div class="pn" style="${isFilteredPerson?'color:var(--acc);font-weight:700':''}">${person.name}</div><div class="pr">${person.role}</div></div>
+          </div></td>`;
         
 
         wds.forEach(({ds:dateStr, dow},idx)=>{
