@@ -5097,4 +5097,256 @@ function loadFromSbData(payload){
   // avatarImgs는 id:2 row에서만 로드 (여기서 덮어쓰지 않음)
   if(payload.ideaCards)  ideaCards  = payload.ideaCards;
   if(payload.toolRows)   toolRows   = payload.toolRows;
-  if(payload.MS_TYPES)   MS_TYPES   = payload.M
+  if(payload.MS_TYPES)   MS_TYPES   = payload.MS_TYPES;
+  if(payload.activityLog) activityLog = payload.activityLog;
+  if(payload.votes)       votes       = payload.votes;
+  if(payload.p1Html !== undefined) p1SetHtml(payload.p1Html);
+  if(payload.grmNote){ const e=document.getElementById('grm-note'); if(e) cmSetContent('grm-note', payload.grmNote); }
+  if(payload.p1Title){ const e=document.getElementById('p1-title'); if(e) e.value=payload.p1Title; }
+  if(payload.p1Sub){   const e=document.getElementById('p1-sub');   if(e) e.value=payload.p1Sub;   }
+  if(payload.grmAdj)   grmAdj   = payload.grmAdj;
+  if(payload.dateMemos) dateMemos = payload.dateMemos;
+
+  renderLegend(); renderHeader(); renderTable(); renderStats();
+  applyAdminMode();
+  if(curSubTab===1) renderGRM();
+  if(curSubTab===2) renderLeaveList();
+  if(curPage===2) renderToolTable();
+  if(curPage===3) renderIdeaBoard();
+  if(curPage===3) renderVotePage();
+  showSyncPulse();
+}
+
+async function pushAllToSb(){
+  if(!_sb) return;
+  _sbIgnoreNext = true;
+  const payload = {
+    PROJECTS, GROUPS, ranges, leaves, milestones,
+    ideaCards, toolRows, MS_TYPES, activityLog, votes,
+    p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
+    grmNote: document.getElementById('grm-note')?.innerText||'',
+    dateMemos, grmAdj,
+    _updated: Date.now()
+  };
+  try{
+    const { error } = await _sb.from(SB_TABLE).upsert({ id: SB_ROW_ID, payload });
+    if(error) throw error;
+
+  } catch(e){ console.error('SB write error', e); _sbIgnoreNext=false; }
+}
+
+function fbPush(){
+  if(!_sbConnected) return;
+  clearTimeout(_sbPushTimer);
+  _sbPushTimer = setTimeout(pushAllToSb, 600);
+}
+
+// UI helpers
+function setFbIndicator(state){
+  const dot   = document.getElementById('fb-dot');
+  const label = document.getElementById('fb-label');
+  const wrap  = document.getElementById('fb-indicator');
+  if(!dot) return;
+  if(state==='on'){
+    dot.style.background='#22c55e';
+    label.textContent='🟢 실시간 연결 중';
+    wrap.style.background='#f0fdf4';
+    wrap.style.color='#166534';
+    wrap.style.borderColor='#86efac';
+  } else if(state==='connecting'){
+    dot.style.background='#f59e0b';
+    label.textContent='⏳ 연결 중...';
+    wrap.style.background='#fffbeb';
+    wrap.style.color='#92400e';
+    wrap.style.borderColor='#fcd34d';
+  } else {
+    dot.style.background='#cbd5e1';
+    label.textContent='⚪ 오프라인';
+    wrap.style.background='#f1f5f9';
+    wrap.style.color='#64748b';
+    wrap.style.borderColor='#e2e8f0';
+  }
+}
+
+let _syncPulseTimer = null;
+function showSyncPulse(){
+  const label = document.getElementById('fb-label');
+  if(!label || !_sbConnected) return;
+  label.textContent = '🔄 동기화됨';
+  clearTimeout(_syncPulseTimer);
+  _syncPulseTimer = setTimeout(()=>{ if(_sbConnected) label.textContent='🟢 실시간 연결 중'; }, 2000);
+}
+
+let _toastTimer = null;
+function showToast(msg, type='success'){
+  let toast = document.getElementById('sb-toast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'sb-toast';
+    toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1d27;color:#fff;padding:10px 20px;border-radius:24px;font-size:15px;font-family:Pretendard,sans-serif;font-weight:600;z-index:9999;transition:opacity .3s;pointer-events:none;white-space:nowrap';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  toast.style.background = type==='error' ? '#ef4444' : '#1a1d27';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=>{ toast.style.opacity='0'; }, 4000);
+}
+
+// Stub functions for compatibility
+function openFbSetup(){
+  alert('📋 Supabase 테이블 생성 방법:\n\n1. supabase.com → 프로젝트 → SQL Editor\n2. 아래 SQL 실행:\n\nCREATE TABLE schedule_data (\n  id bigint PRIMARY KEY,\n  payload jsonb\n);\nINSERT INTO schedule_data (id, payload) VALUES (1, \'{}\');\n\nALTER TABLE schedule_data ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "allow_all" ON schedule_data FOR ALL USING (true) WITH CHECK (true);\n\n3. 페이지 새로고침!');
+}
+function closeFbSetup(){}
+function openFbSetup_indicator(){ openFbSetup(); }
+
+// ════════════════════════════════════════════
+//  TOUCH SUPPORT (iPhone/Mobile)
+// ════════════════════════════════════════════
+function addTouchSupport(){
+  let _touchDragging = false;
+
+  function makeME(type, touch, target){
+    return new MouseEvent(type,{
+      bubbles:true, cancelable:true,
+      clientX:touch.clientX, clientY:touch.clientY,
+      screenX:touch.screenX, screenY:touch.screenY,
+      view:window
+    });
+  }
+
+  // ── 간트 드래그 (mousedown 속성 가진 요소) ──
+  document.addEventListener('touchstart', e=>{
+    const el = e.target.closest('[onmousedown]');
+    if(!el) return;
+    if(e.target.closest('td.cn')) return; // 이름 칸은 스크롤용
+    _touchDragging = true;
+    el.dispatchEvent(makeME('mousedown', e.touches[0]));
+  }, {passive:false});
+
+  document.addEventListener('touchmove', e=>{
+    if(!_touchDragging) return;
+    e.preventDefault();
+    document.dispatchEvent(makeME('mousemove', e.touches[0]));
+  }, {passive:false});
+
+  document.addEventListener('touchend', e=>{
+    if(!_touchDragging) return;
+    _touchDragging = false;
+    const touch = e.changedTouches[0];
+    document.dispatchEvent(makeME('mouseup', touch));
+  }, {passive:false});
+
+  // ── 휴가 리스트 터치 드래그앤드롭 ──
+  let _lvTouch = {active:false, pid:null, li:null, ghost:null, lastEl:null};
+
+  document.addEventListener('touchstart', e=>{
+    const row = e.target.closest('.lv-row');
+    if(!row) return;
+    const handle = e.target.closest('[style*="cursor:grab"]');
+    if(!handle && !e.target.closest('.lv-row > div:first-child')) return;
+    _lvTouch.active = true;
+    _lvTouch.pid = row.dataset.pid;
+    _lvTouch.li  = parseInt(row.dataset.li);
+    // ghost
+    const ghost = row.cloneNode(true);
+    ghost.style.cssText += ';position:fixed;opacity:.7;pointer-events:none;z-index:9999;width:'+row.offsetWidth+'px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);border-radius:8px;left:'+row.getBoundingClientRect().left+'px;top:'+row.getBoundingClientRect().top+'px';
+    document.body.appendChild(ghost);
+    _lvTouch.ghost = ghost;
+    row.style.opacity = '.3';
+  }, {passive:false});
+
+  document.addEventListener('touchmove', e=>{
+    if(!_lvTouch.active) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    if(_lvTouch.ghost){
+      _lvTouch.ghost.style.left = (t.clientX - 30)+'px';
+      _lvTouch.ghost.style.top  = (t.clientY - 20)+'px';
+    }
+    // highlight drop target
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    const row = el?.closest('.lv-row');
+    if(_lvTouch.lastEl && _lvTouch.lastEl !== row) _lvTouch.lastEl.style.borderTop='';
+    if(row && row.dataset.pid){ row.style.borderTop='2px solid var(--acc)'; _lvTouch.lastEl=row; }
+  }, {passive:false});
+
+  document.addEventListener('touchend', e=>{
+    if(!_lvTouch.active) return;
+    _lvTouch.active = false;
+    if(_lvTouch.ghost){ _lvTouch.ghost.remove(); _lvTouch.ghost=null; }
+    if(_lvTouch.lastEl) _lvTouch.lastEl.style.borderTop='';
+    // find drop target
+    const t = e.changedTouches[0];
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    const targetRow = el?.closest('.lv-row');
+    if(targetRow && targetRow.dataset.pid){
+      const tpid = targetRow.dataset.pid;
+      const tli  = parseInt(targetRow.dataset.li);
+      if(tpid !== _lvTouch.pid || tli !== _lvTouch.li){
+        // fake drop event
+        lvDrop({preventDefault:()=>{},stopPropagation:()=>{}}, tpid, tli);
+        _lvTouch = {active:false,pid:null,li:null,ghost:null,lastEl:null};
+        return;
+      }
+    }
+    // tap → open modal
+    const row = document.querySelector(`.lv-row[data-pid="${_lvTouch.pid}"][data-li="${_lvTouch.li}"]`);
+    if(row) row.style.opacity='';
+    _lvTouch = {active:false,pid:null,li:null,ghost:null,lastEl:null};
+  }, {passive:false});
+
+  // ── lv-row 드래그 시작은 핸들 ⠿ 터치시만 ──
+  // (위에서 처리됨)
+}
+
+// 팝업 열릴 때 버블 즉시 숨기기 (MutationObserver)
+const _mbObserver = new MutationObserver(()=>{
+  if(document.querySelector('.mb.open')) hideBubNow();
+});
+document.querySelectorAll('.mb').forEach(el=>
+  _mbObserver.observe(el, {attributes:true, attributeFilter:['class']})
+);
+
+
+// 엔터로 팝업 저장/닫기
+document.addEventListener('keydown', e=>{
+  if(e.key !== 'Enter' || e.shiftKey || e.target.tagName==='TEXTAREA' || e.target.tagName==='SELECT') return;
+  const open = document.querySelector('.mb.open');
+  if(!open) return;
+  e.preventDefault();
+  const id = open.id;
+  if(id==='cmod')     { saveComment(); return; }
+  if(id==='lmod')     { saveLeave(); return; }
+  if(id==='msmod')    { saveMilestone(); return; }
+  if(id==='dm-modal') { saveDateMemo(); return; }
+  if(id==='admin-modal') { submitAdminPw(); return; }
+  // 나머지 팝업은 그냥 닫기
+  open.classList.remove('open');
+  pending=null; pendingLv=null; msPending=null; _dmDate=null;
+});
+
+// ESC 키로 팝업 닫기
+document.addEventListener('keydown', e=>{
+  if(e.key !== 'Escape') return;
+  // 열린 모달 닫기
+  const openModal = document.querySelector('.mb.open');
+  if(openModal){
+    openModal.classList.remove('open');
+    pending = null; pendingLv = null; msPending = null; _dmDate = null;
+    return;
+  }
+  // 버블 닫기
+  hideBubNow();
+});
+
+// 커서 위치에 따라 표 편집 툴 자동 표시
+document.addEventListener('selectionchange', tbUpdateTableTools);
+
+init();
+initDarkMode();
+addTouchSupport();
+setTimeout(initSupabase, 300);
+</script>
+</body>
+</html>
