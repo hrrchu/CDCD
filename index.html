@@ -1970,25 +1970,23 @@ function startEditIdea(idx){
   if(!card) return;
   const wrap = document.getElementById('ibody-'+idx);
   if(!wrap) return;
-  // 편집 모드로 전환
   wrap.contentEditable = 'true';
   wrap.spellcheck = false;
   wrap.style.outline = '2px solid var(--acc)';
   wrap.style.borderRadius = '6px';
   wrap.style.padding = '4px';
   wrap.style.cursor = 'text';
-  wrap.innerHTML = card.body ? cmSetContentStr(card.body) : '';
+  // 저장된 텍스트를 그대로 표시
+  wrap.innerText = card.body || '';
   wrap.focus();
-  // 커서 끝으로
   const range = document.createRange();
   range.selectNodeContents(wrap);
   range.collapse(false);
   const sel = window.getSelection();
   sel.removeAllRanges();
   sel.addRange(range);
-  // 저장 이벤트
   wrap.onblur = () => saveEditIdea(idx, wrap);
-  wrap.onkeydown = (e) => { if(e.key==='Escape') { wrap.blur(); } };
+  wrap.onkeydown = (e) => { if(e.key==='Escape') wrap.blur(); };
 }
 function saveEditIdea(idx, wrap){
   if(!wrap) return;
@@ -1999,7 +1997,8 @@ function saveEditIdea(idx, wrap){
   wrap.style.cursor = 'default';
   wrap.onblur = null;
   wrap.onkeydown = null;
-  ideaCards[idx].body = wrap.innerHTML.trim();
+  // innerText로 저장 (순수 텍스트)
+  ideaCards[idx].body = wrap.innerText.trim();
   fbPush();
   renderIdeaBoard();
 }
@@ -3297,7 +3296,7 @@ function renderIdeaBoard(){
       <div class="idea-card-body" id="ibody-${idx}"
         ondblclick="startEditIdea(${idx})"
         style="user-select:text;-webkit-user-select:text;cursor:default"
-      >${card.body?cmSetContentStr(card.body):'<span style="color:rgba(0,0,0,.25);font-size:13px">더블클릭해서 수정...</span>'}</div>
+      >${card.body?linkify(card.body):'<span style="color:rgba(0,0,0,.25);font-size:13px">더블클릭해서 수정...</span>'}</div>
       <div class="idea-card-footer">
         <span class="idea-card-date">${card.author||''}${card.author?' · ':''}${dateStr}</span>
       </div>
