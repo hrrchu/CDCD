@@ -3597,11 +3597,12 @@ function getMsForCell(taskId, dateStr){
 }
 function hasMsOnCell(taskId, dateStr){
   const ms=getMsForCell(taskId,dateStr);
-  return ms&&(ms.report||ms.variation||ms.storyboard);
+  if(!ms) return false;
+  return MS_TYPES.some(t=>ms[t.key]);
 }
 function msBarsHtml(taskId, dateStr){
   const ms=getMsForCell(taskId,dateStr)||{};
-  const dots = MS_TYPES.filter(t=>ms[t.key]).map(t=>`
+  const bars = MS_TYPES.filter(t=>ms[t.key]).map(t=>`
     <div class="ms-dot" style="background:${t.color}" title="${t.label}"
       draggable="true"
       ondragstart="msDragStart(event,'${taskId}','${dateStr}')"
@@ -3609,7 +3610,7 @@ function msBarsHtml(taskId, dateStr){
   return `<div class="ms-zone"
     onclick="openMsModal(event,'${taskId}','${dateStr}')"
     ondragover="if(_msDrag.taskId)event.preventDefault()"
-    ondrop="if(_msDrag.taskId)msDrop(event,'${taskId}','${dateStr}')">${dots}</div>`;
+    ondrop="if(_msDrag.taskId)msDrop(event,'${taskId}','${dateStr}')">${bars}</div>`;
 }
 
 function renderTable(){
@@ -4036,7 +4037,7 @@ function hideBubNow(){
 let msPending=null;
 
 function openMsModal(e,taskId,dateStr){
-  e.stopPropagation();
+  if(e) e.stopPropagation();
   msPending={taskId,dateStr};
   const ms=getMsForCell(taskId,dateStr)||{};
   const task=tasks.find(t=>t.id===taskId);
@@ -4083,6 +4084,7 @@ function addMsType(){
   document.getElementById('ms-new-label').value='';
   renderMsGrid();
   renderMsTypeList();
+  fbPush();
 }
 
 function deleteMsType(idx){
@@ -4096,6 +4098,7 @@ function deleteMsType(idx){
   renderMsGrid();
   renderMsTypeList();
   renderTable();
+  fbPush();
 }
 
 function closeMsmod(){document.getElementById('msmod').classList.remove('open');msPending=null}
@@ -5304,7 +5307,7 @@ function loadFromSbData(payload){
   // avatarImgs는 id:2 row에서만 로드 (여기서 덮어쓰지 않음)
   if(payload.ideaCards)  ideaCards  = payload.ideaCards;
   if(payload.toolRows)   toolRows   = payload.toolRows;
-  if(payload.MS_TYPES)   MS_TYPES   = payload.MS_TYPES;
+  if(payload.MS_TYPES && payload.MS_TYPES.length) MS_TYPES = payload.MS_TYPES.map(t=>({key:t.key||'ms_'+Date.now(),label:t.label||'',color:t.color||'#4f8cff',...t}));
   if(payload.activityLog) activityLog = payload.activityLog;
   if(payload.votes)       votes       = payload.votes;
   if(payload.p1Html !== undefined) p1SetHtml(payload.p1Html);
