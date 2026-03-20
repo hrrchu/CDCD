@@ -5304,8 +5304,13 @@ function loadFromSbData(payload){
   if(payload.GROUPS){
     GROUPS = payload.GROUPS;
     const people = getPeople();
-    tasks = tasks.filter(t => people.find(p=>p.id===t.personId));
-    people.forEach(p=>{ if(!tasks.find(t=>t.personId===p.id)) tasks.push({id:'tk_'+p.id, personId:p.id, name:'일정'}); });
+    const newTasks = [];
+    people.forEach(p=>{
+      const existing = tasks.find(t=>t.personId===p.id);
+      if(existing) newTasks.push(existing);
+      else newTasks.push({id:'tk_'+p.id, personId:p.id, name:'일정'});
+    });
+    tasks = newTasks;
   }
   if(payload.ranges)     ranges     = payload.ranges;
   if(payload.leaves)     leaves     = payload.leaves;
@@ -5431,11 +5436,13 @@ function addTouchSupport(){
     });
   }
 
-  // ── 간트 드래그 (mousedown 속성 가진 요소) ──
+  // ── 간트 드래그 (모바일에서 생성/이동/리사이즈 차단) ──
   document.addEventListener('touchstart', e=>{
     const el = e.target.closest('[onmousedown]');
     if(!el) return;
-    if(e.target.closest('td.cn')) return; // 이름 칸은 스크롤용
+    if(e.target.closest('td.cn')) return;
+    const attr = el.getAttribute('onmousedown')||'';
+    if(attr.includes('barMD')||attr.includes('createMD')||attr.includes('resizeMD')) return;
     _touchDragging = true;
     el.dispatchEvent(makeME('mousedown', e.touches[0]));
   }, {passive:false});
@@ -5451,6 +5458,27 @@ function addTouchSupport(){
     _touchDragging = false;
     const touch = e.changedTouches[0];
     document.dispatchEvent(makeME('mouseup', touch));
+  }, {passive:false});
+
+  // ── 모바일: 바 탭으로 편집 팝업 열기 ──
+  let _tapStart = null;
+  document.addEventListener('touchstart', e=>{
+    const bf = e.target.closest('.bf');
+    if(!bf) return;
+    _tapStart = {x: e.touches[0].clientX, y: e.touches[0].clientY, time: Date.now()};
+  }, {passive:true});
+  document.addEventListener('touchend', e=>{
+    if(!_tapStart) return;
+    const touch = e.changedTouches[0];
+    const dx = Math.abs(touch.clientX - _tapStart.x);
+    const dy = Math.abs(touch.clientY - _tapStart.y);
+    const dt = Date.now() - _tapStart.time;
+    _tapStart = null;
+    if(dx > 10 || dy > 10 || dt > 500) return;
+    const bf = e.target.closest('.bf');
+    if(!bf) return;
+    e.preventDefault();
+    bf.click();
   }, {passive:false});
 
   // ── 휴가 리스트 터치 드래그앤드롭 ──
