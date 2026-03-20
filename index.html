@@ -14,7 +14,7 @@
   --bg:#f5f6f8;--sur:#fff;--sf2:#f0f1f4;
   --bd:#e2e4ea;--bd2:#d0d3dd;
   --acc:#4f8cff;--tx:#1a1d27;--tx2:#2d3348;--tx3:#5a6072;
-  --cell:40px;--nc:110px;
+  --cell:40px;--nc:90px;
   --sh:0 1px 4px rgba(0,0,0,.07);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -233,8 +233,6 @@ table{border-collapse:collapse;min-width:100%;user-select:none}
 thead th{background:#fafbfc;padding:0;border-bottom:2px solid var(--bd2);border-right:1px solid var(--bd);position:sticky;top:0;z-index:10}
 th.cn{width:var(--nc);min-width:0;font-size:15px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;padding:9px 0;text-align:left;position:sticky;left:0;z-index:20;background:#fafbfc}
 th.cn{position:relative}
-.cn-resizer{position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;z-index:30;background:transparent;transition:background .15s}
-.cn-resizer:hover,.cn-resizer.dragging{background:var(--acc);opacity:.5}
 th.ct{display:none}
 th.cd{width:var(--cell);min-width:var(--cell);text-align:center;font-family:'Space Mono',monospace;font-size:15px;color:var(--tx3);padding:4px 0 2px;vertical-align:bottom}
 th.week-start, td.week-start{border-left:2px solid #cbd5e1!important}
@@ -474,8 +472,8 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .idea-new-body-input[contenteditable]:empty:before{content:attr(data-placeholder);color:var(--tx3);pointer-events:none}
 .free-editor a{color:var(--acc);text-decoration:underline;cursor:pointer}
 .free-editor a:hover{opacity:.75}
-.free-editor td{resize:both;overflow:auto;min-width:60px;min-height:32px;box-sizing:border-box}
-.free-editor th{resize:horizontal;overflow:auto;min-width:60px;box-sizing:border-box}
+.free-editor td{resize:none;min-width:60px;min-height:32px;box-sizing:border-box}
+.free-editor th{resize:none;min-width:60px;box-sizing:border-box}
 .free-editor:focus{border-color:var(--acc)}
 .free-tip{font-size:15px;color:var(--tx3);margin-top:8px}
 
@@ -734,7 +732,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
   /* ── GANTT TABLE ── */
   .gs{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  :root{--cell:36px;--nc:60px}
+  :root{--cell:36px;--nc:56px}
   .pn{font-size:15px}
   .pr{font-size:15px}
   .av{width:36px;height:36px;font-size:20px}
@@ -786,7 +784,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 @media(max-width:400px){
   .idea-board{grid-template-columns:1fr}
-  :root{--nc:56px;--cell:32px}
+  :root{--nc:48px;--cell:32px}
   .nav-tab{padding:9px 8px;font-size:15px}
 }
 
@@ -1850,9 +1848,9 @@ function tbInsertTable(){
   const rows = parseInt(prompt('행 수:', '3'))||3;
   const cols = parseInt(prompt('열 수:', '3'))||3;
   if(rows<1||cols<1) return;
-  const cellStyle = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:60px;min-height:32px;text-align:left;font-size:15px;resize:both;overflow:auto';
-  const thStyle = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:60px;min-height:32px;background:#f1f5f9;font-weight:700;font-size:15px;resize:horizontal;overflow:auto';
-  let html = `<table style="border-collapse:collapse;width:auto;min-width:200px;margin:10px 0;resize:horizontal;overflow:auto;display:inline-block"><thead><tr>`;
+  const cellStyle = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:60px;text-align:left;font-size:15px';
+  const thStyle = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:60px;background:#f1f5f9;font-weight:700;font-size:15px';
+  let html = `<table style="border-collapse:collapse;width:auto;min-width:200px;margin:10px 0;display:table"><thead><tr>`;
   for(let c=0;c<cols;c++) html += `<th style="${thStyle}" contenteditable="true">제목 ${c+1}</th>`;
   html += `</tr></thead><tbody>`;
   for(let r=0;r<rows;r++){
@@ -2086,7 +2084,7 @@ let _ladderRevealed= false;
 
 function initLadderSetup(){
   renderLadderMemberBtns();
-  if(!_ladderResults.length) _ladderResults = [{label:'꽝😢',count:1},{label:'당첨!🎉',count:1}];
+  _ladderResults = [{label:'꽝😢',count:11},{label:'당첨!🎉',count:1}];
   renderLadderResultsEdit();
   renderLadderPlayers();
 }
@@ -2137,6 +2135,15 @@ function renderLadderPlayers(){
       ${p.name}
       <button onclick="removeLadderPlayer('${p.name}')" style="background:none;border:none;cursor:pointer;color:#93c5fd;font-size:15px;line-height:1;padding:0">✕</button>
     </span>`).join('');
+  // 꽝 자동 = 전체 - 1, 당첨 = 1 고정
+  const n = _ladderPlayers.length;
+  if(n > 0){
+    const kkwang = _ladderResults.find(r=>r.label.includes('꽝'));
+    const dangchim = _ladderResults.find(r=>r.label.includes('당첨'));
+    if(kkwang) kkwang.count = Math.max(0, n - 1);
+    if(dangchim) dangchim.count = 1;
+    renderLadderResultsEdit();
+  }
 }
 
 
@@ -2577,27 +2584,6 @@ function editVote(voteId){
 
 
 // ── NAME COLUMN RESIZE ──
-function cnResizeMD(e){
-  e.preventDefault(); e.stopPropagation();
-  const resizer = e.currentTarget;
-  resizer.classList.add('dragging');
-  const startX = e.clientX;
-  const startW = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nc'))||72;
-
-  function onMove(e){
-    const newW = Math.max(0, Math.min(200, startW + e.clientX - startX));
-    document.documentElement.style.setProperty('--nc', newW+'px');
-  }
-  function onUp(){
-    resizer.classList.remove('dragging');
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onUp);
-    // 바 레이블 너비 재계산
-    renderTable();
-  }
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onUp);
-}
 
 // ════════════════════════════════════════════
 //  TOOL INFO TABLE
@@ -3568,7 +3554,7 @@ function renderTable(){
   const td0=todayStr();
   const DAY=['일','월','화','수','목','금','토'];
 
-  let h=`<tr><th class="cn">이름<div class="cn-resizer" id="cn-resizer" onmousedown="cnResizeMD(event)" title="드래그로 너비 조절"></div></th>`;
+  let h=`<tr><th class="cn">이름</th>`;
   const M2=['1','2','3','4','5','6','7','8','9','10','11','12'];
   wds.forEach(({d,ds,dow})=>{
     const hname=getHoliday(ds);
