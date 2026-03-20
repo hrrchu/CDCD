@@ -110,6 +110,97 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 .status-btn:hover{border-color:var(--acc)}
 .status-btn.active{border-color:var(--acc);background:var(--acc);color:#fff;opacity:1!important}
 
+
+/* ── DARK MODE ── */
+:root[data-theme="dark"]{
+  --bg:#141518;--sur:#1e2025;--sf2:#25272e;
+  --bd:#2e3140;--bd2:#3a3d50;
+  --acc:#5c9fff;--tx:#e8eaf0;--tx2:#b0b7cc;--tx3:#6b7290;
+  --sh:0 1px 4px rgba(0,0,0,.3);
+}
+:root[data-theme="dark"] .gs{background:var(--bg)}
+:root[data-theme="dark"] tr.gr td{background:#1a1c22}
+:root[data-theme="dark"] td.cell.today{background:rgba(92,159,255,.05)}
+:root[data-theme="dark"] td.cell.empty:hover{background:rgba(255,255,255,.06)!important}
+
+:root[data-theme="dark"] td.cell.has-ms:hover{background:rgba(255,255,255,.06)!important}
+:root[data-theme="dark"] .free-editor{background:var(--sur);color:var(--tx)}
+:root[data-theme="dark"] .tool-cell-input{background:var(--sur);color:var(--tx);border-color:var(--bd2)}
+:root[data-theme="dark"] .modal{background:var(--sur)}
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea{background:var(--sf2);color:var(--tx);border-color:var(--bd2)}
+:root[data-theme="dark"] .sub-content{background:var(--sur);border-color:var(--bd)}
+:root[data-theme="dark"] .grm-card{background:var(--sur)}
+:root[data-theme="dark"] thead td,
+:root[data-theme="dark"] thead th{background:var(--sur)!important}
+:root[data-theme="dark"] .header-date{background:var(--sur)}
+:root[data-theme="dark"] td.cn{background:var(--sur)}
+:root[data-theme="dark"] tbody tr{background:var(--bg)}
+
+/* 날짜 헤더 */
+:root[data-theme="dark"] .wd{background:var(--sur);color:var(--tx3)}
+:root[data-theme="dark"] .hd{background:var(--sf2);color:var(--tx2)}
+:root[data-theme="dark"] td.cell.holiday-cell{background:#2a1a1a!important}
+/* 레전드/프로젝트 버튼 */
+:root[data-theme="dark"] .legend-item{background:var(--sf2);border-color:var(--bd);color:var(--tx2)}
+:root[data-theme="dark"] .legend-item:hover{border-color:var(--tx3)}
+:root[data-theme="dark"] .legend{background:var(--sur);border-color:var(--bd)}
+:root[data-theme="dark"] .legend-add{background:var(--sf2);border-color:var(--bd);color:var(--tx3)}
+/* 팝업 입력 */
+:root[data-theme="dark"] .fg input,
+:root[data-theme="dark"] .fg textarea,
+:root[data-theme="dark"] .fg select{background:var(--sf2);color:var(--tx);border-color:var(--bd2)}
+:root[data-theme="dark"] .fg input:focus,
+:root[data-theme="dark"] .fg textarea:focus{background:#2a2d38;border-color:var(--acc)}
+:root[data-theme="dark"] .proj-name-input{background:var(--sf2);color:var(--tx);border-color:var(--bd2)}
+:root[data-theme="dark"] [contenteditable]{color:var(--tx)}
+/* process */
+:root[data-theme="dark"] .free-page-title{color:var(--tx)}
+:root[data-theme="dark"] .free-page-subtitle{color:var(--tx3)}
+:root[data-theme="dark"] .free-page-title:focus,
+:root[data-theme="dark"] .free-page-subtitle:focus{background:#2a2d38}
+:root[data-theme="dark"] .editor-toolbar{background:var(--sf2);border-color:var(--bd)}
+:root[data-theme="dark"] .tb-btn{color:var(--tx2)}
+:root[data-theme="dark"] .tb-btn:hover{background:var(--bd);color:var(--tx)}
+:root[data-theme="dark"] .tb-select{background:var(--sf2);color:var(--tx);border-color:var(--bd2)}
+:root[data-theme="dark"] #grm-note{background:var(--sf2)!important;color:var(--tx)!important;border-color:var(--bd2)!important}
+/* 메모 보드 카드 */
+:root[data-theme="dark"] .idea-card{color:#1a1d27!important}
+:root[data-theme="dark"] .idea-card .idea-card-title{color:rgba(0,0,0,.8)!important}
+:root[data-theme="dark"] .idea-card .idea-card-body{color:rgba(0,0,0,.65)!important}
+:root[data-theme="dark"] .idea-card-tool-btn{color:rgba(0,0,0,.5)!important}
+:root[data-theme="dark"] .idea-card .idea-card-footer{color:rgba(0,0,0,.4)!important}
+:root[data-theme="dark"] .idea-card-tool-btn{background:rgba(255,255,255,.08);color:var(--tx2)}
+:root[data-theme="dark"] .idea-card-tool-btn:hover{background:rgba(255,255,255,.15)}
+:root[data-theme="dark"] .idea-board{background:transparent}
+:root[data-theme="dark"] .idea-new-area{background:#fff!important;border-color:rgba(0,0,0,.15)!important}
+:root[data-theme="dark"] .idea-new-body-input{background:#fff!important;color:#1a1d27!important}
+/* nav/header */
+:root[data-theme="dark"] .nav{background:var(--sur);border-color:var(--bd)}
+:root[data-theme="dark"] .sub-tabs{background:var(--sur)}
+:root[data-theme="dark"] .sc{background:var(--sf2);border-color:var(--bd)}
+:root[data-theme="dark"] .btn-g{background:var(--sf2);color:var(--tx2);border-color:var(--bd2)}
+:root[data-theme="dark"] .btn-g:hover{background:var(--bd)}
+:root[data-theme="dark"] .status-btn{background:var(--sf2);color:var(--tx);border-color:var(--bd2)}
+:root[data-theme="dark"] .tb-color{border-color:var(--bd2)}
+/* 날짜 스피너 */
+:root[data-theme="dark"] .date-spinner{background:var(--sf2);border-color:var(--bd2)}
+:root[data-theme="dark"] .date-spinner input{background:var(--sf2);color:var(--tx)}
+:root[data-theme="dark"] .date-spinner .ds-arrow{background:var(--sf2);border-color:var(--bd2)}
+:root[data-theme="dark"] .date-spinner .ds-sep{color:var(--tx3)}
+/* 팝업 메모/설명 contenteditable */
+:root[data-theme="dark"] #cm-text,
+:root[data-theme="dark"] #cm-link,
+:root[data-theme="dark"] .fg [contenteditable]{background:var(--sf2)!important;color:var(--tx)!important;border-color:var(--bd2)!important}
+/* 드래그 생성 하이라이트 */
+:root[data-theme="dark"] td.cell.creating{background:rgba(92,159,255,.12)!important}
+:root[data-theme="dark"] td.cell.creating-anchor{background:rgba(92,159,255,.2)!important}
+:root[data-theme="dark"] td.cell.move-preview{background:rgba(92,159,255,.1)!important}
+/* 주 구분선 */
+:root[data-theme="dark"] th.week-start,
+:root[data-theme="dark"] td.week-start{border-left:2px solid #3a3d50!important}
+
 /* ── HINT ── */
 .hint{font-size:15px;color:var(--tx3);padding:4px 22px;display:flex;gap:10px;flex-wrap:wrap;background:var(--sf2);border-bottom:1px solid var(--bd)}
 .hint b{color:var(--tx2)}.hint .sep{color:var(--bd2)}
@@ -377,8 +468,8 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .idea-new-body-input[contenteditable]:empty:before{content:attr(data-placeholder);color:var(--tx3);pointer-events:none}
 .free-editor a{color:var(--acc);text-decoration:underline;cursor:pointer}
 .free-editor a:hover{opacity:.75}
-.free-editor td{resize:both;overflow:auto;min-width:60px;min-height:32px}
-.free-editor th{resize:horizontal;overflow:auto;min-width:60px}
+.free-editor td{resize:both;overflow:auto;min-width:60px;min-height:32px;box-sizing:border-box}
+.free-editor th{resize:horizontal;overflow:auto;min-width:60px;box-sizing:border-box}
 .free-editor:focus{border-color:var(--acc)}
 .free-tip{font-size:15px;color:var(--tx3);margin-top:8px}
 
@@ -594,6 +685,33 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 .status-btn:hover{border-color:var(--acc)}
 .status-btn.active{border-color:var(--acc);background:var(--acc);color:#fff;opacity:1!important}
 
+
+/* ── DARK MODE ── */
+:root[data-theme="dark"]{
+  --bg:#141518;--sur:#1e2025;--sf2:#25272e;
+  --bd:#2e3140;--bd2:#3a3d50;
+  --acc:#5c9fff;--tx:#e8eaf0;--tx2:#b0b7cc;--tx3:#6b7290;
+  --sh:0 1px 4px rgba(0,0,0,.3);
+}
+:root[data-theme="dark"] .gs{background:var(--bg)}
+:root[data-theme="dark"] tr.gr td{background:#1a1c22}
+:root[data-theme="dark"] td.cell.today{background:rgba(92,159,255,.05)}
+:root[data-theme="dark"] td.cell.empty:hover{background:rgba(255,255,255,.06)!important}
+:root[data-theme="dark"] td.cell.has-ms:hover{background:rgba(255,255,255,.06)!important}
+:root[data-theme="dark"] .free-editor{background:var(--sur);color:var(--tx)}
+:root[data-theme="dark"] .tool-cell-input{background:var(--sur);color:var(--tx);border-color:var(--bd2)}
+:root[data-theme="dark"] .modal{background:var(--sur)}
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea{background:var(--sf2);color:var(--tx);border-color:var(--bd2)}
+:root[data-theme="dark"] .sub-content{background:var(--sur);border-color:var(--bd)}
+:root[data-theme="dark"] .grm-card{background:var(--sur)}
+:root[data-theme="dark"] thead td,
+:root[data-theme="dark"] thead th{background:var(--sur)!important}
+:root[data-theme="dark"] .header-date{background:var(--sur)}
+:root[data-theme="dark"] td.cn{background:var(--sur)}
+:root[data-theme="dark"] tbody tr{background:var(--bg)}
+
 /* ── HINT ── */
   .hint{display:none}
 
@@ -712,6 +830,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <button id="multi-month-clear" onclick="clearMultiMonth()" style="display:none;font-size:15px;padding:3px 8px;border-radius:6px;border:1px solid #fca5a5;background:#fff5f5;color:#e53e3e;cursor:pointer">✕ 모아보기 해제</button>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center" id="schedule-btn-row">
+      <button id="darkmode-btn" onclick="toggleDarkMode()" title="다크모드 전환" style="font-size:17px;padding:4px 8px;border-radius:6px;border:1px solid var(--bd2);background:transparent;cursor:pointer">🌙</button>
       <button id="admin-btn" onclick="toggleAdmin()" style="font-size:15px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bd2);background:#f8fafc;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:4px">🔒 <span id="admin-label">관리자</span></button>
       <button class="btn btn-g" onclick="openProjMgr()">🎨 프로젝트 관리</button>
       <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원 관리</button>
@@ -757,7 +876,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   <!-- SUB 1: GRM -->
   <div class="sub-content" id="scontent-1">
     <div class="grm-wrap">
-      <div style="margin-bottom:16px;border:1px solid var(--bd2);border-radius:10px;background:#fafbfc;padding:12px 14px">
+      <div id="grm-note-wrap" style="margin-bottom:16px;border:1px solid var(--bd2);border-radius:10px;background:var(--sf2);padding:12px 14px">
         <div style="font-size:15px;font-weight:700;color:var(--tx3);margin-bottom:6px;letter-spacing:.4px">📝 GRM 노트</div>
         <div id="grm-note"
           contenteditable="true"
@@ -955,6 +1074,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
               <option value="🔥 핫이슈">🔥 핫이슈</option>
             </select>
             <select class="idea-new-author-sel" id="if-author"></select>
+            <input type="color" id="if-color" value="#ffffff" title="메모지 색상" style="width:28px;height:28px;border:1px solid var(--bd2);border-radius:6px;padding:2px;cursor:pointer;flex-shrink:0">
             <button class="idea-new-close" onclick="deactivateNewArea(event)">닫기</button>
             <button class="idea-new-submit" onclick="saveIdea(event)">메모 추가</button>
           </div>
@@ -1713,7 +1833,7 @@ function tbInsertTable(){
   if(rows<1||cols<1) return;
   const cellStyle = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:60px;min-height:32px;text-align:left;font-size:15px;resize:both;overflow:auto';
   const thStyle = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:60px;min-height:32px;background:#f1f5f9;font-weight:700;font-size:15px;resize:horizontal;overflow:auto';
-  let html = `<table style="border-collapse:collapse;width:50%;margin:10px 0"><thead><tr>`;
+  let html = `<table style="border-collapse:collapse;width:auto;min-width:200px;margin:10px 0;resize:horizontal;overflow:auto;display:inline-block"><thead><tr>`;
   for(let c=0;c<cols;c++) html += `<th style="${thStyle}" contenteditable="true">제목 ${c+1}</th>`;
   html += `</tr></thead><tbody>`;
   for(let r=0;r<rows;r++){
@@ -1808,6 +1928,31 @@ function getAllWds(){
   const seen=new Set();
   return allMonths.filter(({y,m})=>{ const k=y+'-'+m; if(seen.has(k))return false; seen.add(k); return true; })
     .flatMap(({y,m})=>getWeekdays(y,m));
+}
+
+// ════════════════════════════════════════════
+//  DARK MODE
+// ════════════════════════════════════════════
+function initDarkMode(){
+  const saved = localStorage.getItem('cdtheme');
+  const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const dark = saved ? saved==='dark' : sysDark;
+  applyDarkMode(dark);
+  // 시스템 변경 감지
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e=>{
+    if(!localStorage.getItem('cdtheme')) applyDarkMode(e.matches);
+  });
+}
+function applyDarkMode(dark){
+  document.documentElement.setAttribute('data-theme', dark?'dark':'light');
+  const btn = document.getElementById('darkmode-btn');
+  if(btn) btn.textContent = dark ? '☀️' : '🌙';
+  renderIdeaBoard();
+}
+function toggleDarkMode(){
+  const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  localStorage.setItem('cdtheme', isDark?'light':'dark');
+  applyDarkMode(!isDark);
 }
 // ════════════════════════════════════════════
 //  ADMIN AUTH
@@ -3038,15 +3183,15 @@ const IDEA_TAGS = [
 ];
 
 const NOTE_COLORS = [
-  {name:'기본',   bg:'#ffffff', border:'rgba(0,0,0,.09)'},
-  {name:'노랑',   bg:'#fff9c4', border:'rgba(0,0,0,.07)'},
-  {name:'연두',   bg:'#ccff90', border:'rgba(0,0,0,.07)'},
-  {name:'민트',   bg:'#a7ffeb', border:'rgba(0,0,0,.07)'},
-  {name:'하늘',   bg:'#cbf0f8', border:'rgba(0,0,0,.07)'},
-  {name:'라벤더', bg:'#e8d5fb', border:'rgba(0,0,0,.07)'},
-  {name:'핑크',   bg:'#ffcdd2', border:'rgba(0,0,0,.07)'},
-  {name:'살구',   bg:'#ffe0b2', border:'rgba(0,0,0,.07)'},
-  {name:'회색',   bg:'#e0e0e0', border:'rgba(0,0,0,.09)'},
+  {name:'기본',   bg:'#ffffff', border:'rgba(0,0,0,.09)', dark:'#25272e', darkBorder:'#3a3d50'},
+  {name:'노랑',   bg:'#fff9c4', border:'rgba(0,0,0,.07)', dark:'#2e2a14', darkBorder:'#4a4020'},
+  {name:'연두',   bg:'#ccff90', border:'rgba(0,0,0,.07)', dark:'#1a2e10', darkBorder:'#2e4a1a'},
+  {name:'민트',   bg:'#a7ffeb', border:'rgba(0,0,0,.07)', dark:'#0e2a24', darkBorder:'#1a4035'},
+  {name:'하늘',   bg:'#cbf0f8', border:'rgba(0,0,0,.07)', dark:'#0e2030', darkBorder:'#1a3448'},
+  {name:'라벤더', bg:'#e8d5fb', border:'rgba(0,0,0,.07)', dark:'#251a30', darkBorder:'#3a2848'},
+  {name:'핑크',   bg:'#ffcdd2', border:'rgba(0,0,0,.07)', dark:'#2e1418', darkBorder:'#4a2028'},
+  {name:'살구',   bg:'#ffe0b2', border:'rgba(0,0,0,.07)', dark:'#2e2010', darkBorder:'#4a3018'},
+  {name:'회색',   bg:'#e0e0e0', border:'rgba(0,0,0,.09)', dark:'#2a2a2a', darkBorder:'#404040'},
 ];
 
 const IDEA_EMOJIS = ['👍','❤️','🔥','😂','😮','👏','🤔','💯','🎉','✅','❓','💬','🌟','🚀','😢'];
@@ -3072,6 +3217,10 @@ function renderIdeaBoard(){
   board.innerHTML=filtered.map((card,vi)=>{
     const idx=ideaCards.indexOf(card);
     const nc=NOTE_COLORS.find(n=>n.bg===card.color)||NOTE_COLORS[0];
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    const cardBg = card.color || '#ffffff';
+    const cardBorder = isDark ? 'rgba(255,255,255,.15)' : nc.border;
+    const cardTx = '#1a1d27';
     const tag=IDEA_TAGS.find(t=>t.label===card.tag)||IDEA_TAGS[0];
     const dateStr=new Date(card.ts).toLocaleDateString('ko-KR',{month:'short',day:'numeric'});
     const reactions=Object.entries(card.reactions||{}).filter(([,p])=>p.length).map(([emoji,pids])=>{
@@ -3094,7 +3243,8 @@ function renderIdeaBoard(){
     }).join('');
     const personSel='<option value="">👤 익명</option>'+getPeople().map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
     const colorDots=NOTE_COLORS.map(n=>`<div class="idea-color-dot${card.color===n.bg?' selected':''}" style="background:${n.bg}" title="${n.name}" onclick="setNoteColor(${idx},'${n.bg}')"></div>`).join('');
-    return `<div class="idea-card" style="background:${nc.bg};border-color:${nc.border}"
+    const colorPicker=`<input type="color" value="${card.color||'#ffffff'}" title="자유 색상" onchange="setNoteColor(${idx},this.value)" style="width:22px;height:22px;border:1px solid rgba(0,0,0,.15);border-radius:4px;padding:1px;cursor:pointer;flex-shrink:0">`;
+    return `<div class="idea-card" style="background:${cardBg};border-color:${cardBorder};${cardTx?'color:'+cardTx:''}"
       draggable="true"
       ondragstart="ideaDragStart(event,${idx})"
       ondragover="ideaDragOver(event,${vi})"
@@ -3104,7 +3254,7 @@ function renderIdeaBoard(){
       <button class="idea-card-pin${card.pinned?' pinned':''}" onclick="togglePin(${idx})" title="${card.pinned?'핀 해제':'핀 고정'}">📌</button>
 
       <div class="idea-card-toolbar">
-        ${colorDots}
+        ${colorDots}${colorPicker}
       </div>
       ${card.tag?`<div class="idea-tag-pill" style="background:${tag.bg};color:${tag.color}">${tag.label}</div>`:''}
       ${card.title?`<div class="idea-card-title">${card.title}</div>`:''}
@@ -3208,7 +3358,8 @@ function saveIdea(e){
   if(!body) return;
   const tag=document.getElementById('if-tag').value;
   const author=document.getElementById('if-author')?.value||'익명';
-  ideaCards.unshift({id:Date.now(),title:'',body,tag,author,ts:Date.now(),reactions:{},comments:[],color:'#ffffff',pinned:false});
+  const ifColor = document.getElementById('if-color')?.value||'#ffffff';
+  ideaCards.unshift({id:Date.now(),title:'',body,tag,author,ts:Date.now(),reactions:{},comments:[],color:ifColor,pinned:false});
   document.getElementById('if-body').innerHTML='';
   deactivateNewArea(null);
   renderIdeaBoard();fbPush();
@@ -4946,255 +5097,4 @@ function loadFromSbData(payload){
   // avatarImgs는 id:2 row에서만 로드 (여기서 덮어쓰지 않음)
   if(payload.ideaCards)  ideaCards  = payload.ideaCards;
   if(payload.toolRows)   toolRows   = payload.toolRows;
-  if(payload.MS_TYPES)   MS_TYPES   = payload.MS_TYPES;
-  if(payload.activityLog) activityLog = payload.activityLog;
-  if(payload.votes)       votes       = payload.votes;
-  if(payload.p1Html !== undefined) p1SetHtml(payload.p1Html);
-  if(payload.grmNote){ const e=document.getElementById('grm-note'); if(e) cmSetContent('grm-note', payload.grmNote); }
-  if(payload.p1Title){ const e=document.getElementById('p1-title'); if(e) e.value=payload.p1Title; }
-  if(payload.p1Sub){   const e=document.getElementById('p1-sub');   if(e) e.value=payload.p1Sub;   }
-  if(payload.grmAdj)   grmAdj   = payload.grmAdj;
-  if(payload.dateMemos) dateMemos = payload.dateMemos;
-
-  renderLegend(); renderHeader(); renderTable(); renderStats();
-  applyAdminMode();
-  if(curSubTab===1) renderGRM();
-  if(curSubTab===2) renderLeaveList();
-  if(curPage===2) renderToolTable();
-  if(curPage===3) renderIdeaBoard();
-  if(curPage===3) renderVotePage();
-  showSyncPulse();
-}
-
-async function pushAllToSb(){
-  if(!_sb) return;
-  _sbIgnoreNext = true;
-  const payload = {
-    PROJECTS, GROUPS, ranges, leaves, milestones,
-    ideaCards, toolRows, MS_TYPES, activityLog, votes,
-    p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
-    grmNote: document.getElementById('grm-note')?.innerText||'',
-    dateMemos, grmAdj,
-    _updated: Date.now()
-  };
-  try{
-    const { error } = await _sb.from(SB_TABLE).upsert({ id: SB_ROW_ID, payload });
-    if(error) throw error;
-
-  } catch(e){ console.error('SB write error', e); _sbIgnoreNext=false; }
-}
-
-function fbPush(){
-  if(!_sbConnected) return;
-  clearTimeout(_sbPushTimer);
-  _sbPushTimer = setTimeout(pushAllToSb, 600);
-}
-
-// UI helpers
-function setFbIndicator(state){
-  const dot   = document.getElementById('fb-dot');
-  const label = document.getElementById('fb-label');
-  const wrap  = document.getElementById('fb-indicator');
-  if(!dot) return;
-  if(state==='on'){
-    dot.style.background='#22c55e';
-    label.textContent='🟢 실시간 연결 중';
-    wrap.style.background='#f0fdf4';
-    wrap.style.color='#166534';
-    wrap.style.borderColor='#86efac';
-  } else if(state==='connecting'){
-    dot.style.background='#f59e0b';
-    label.textContent='⏳ 연결 중...';
-    wrap.style.background='#fffbeb';
-    wrap.style.color='#92400e';
-    wrap.style.borderColor='#fcd34d';
-  } else {
-    dot.style.background='#cbd5e1';
-    label.textContent='⚪ 오프라인';
-    wrap.style.background='#f1f5f9';
-    wrap.style.color='#64748b';
-    wrap.style.borderColor='#e2e8f0';
-  }
-}
-
-let _syncPulseTimer = null;
-function showSyncPulse(){
-  const label = document.getElementById('fb-label');
-  if(!label || !_sbConnected) return;
-  label.textContent = '🔄 동기화됨';
-  clearTimeout(_syncPulseTimer);
-  _syncPulseTimer = setTimeout(()=>{ if(_sbConnected) label.textContent='🟢 실시간 연결 중'; }, 2000);
-}
-
-let _toastTimer = null;
-function showToast(msg, type='success'){
-  let toast = document.getElementById('sb-toast');
-  if(!toast){
-    toast = document.createElement('div');
-    toast.id = 'sb-toast';
-    toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1d27;color:#fff;padding:10px 20px;border-radius:24px;font-size:15px;font-family:Pretendard,sans-serif;font-weight:600;z-index:9999;transition:opacity .3s;pointer-events:none;white-space:nowrap';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = msg;
-  toast.style.opacity = '1';
-  toast.style.background = type==='error' ? '#ef4444' : '#1a1d27';
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(()=>{ toast.style.opacity='0'; }, 4000);
-}
-
-// Stub functions for compatibility
-function openFbSetup(){
-  alert('📋 Supabase 테이블 생성 방법:\n\n1. supabase.com → 프로젝트 → SQL Editor\n2. 아래 SQL 실행:\n\nCREATE TABLE schedule_data (\n  id bigint PRIMARY KEY,\n  payload jsonb\n);\nINSERT INTO schedule_data (id, payload) VALUES (1, \'{}\');\n\nALTER TABLE schedule_data ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "allow_all" ON schedule_data FOR ALL USING (true) WITH CHECK (true);\n\n3. 페이지 새로고침!');
-}
-function closeFbSetup(){}
-function openFbSetup_indicator(){ openFbSetup(); }
-
-// ════════════════════════════════════════════
-//  TOUCH SUPPORT (iPhone/Mobile)
-// ════════════════════════════════════════════
-function addTouchSupport(){
-  let _touchDragging = false;
-
-  function makeME(type, touch, target){
-    return new MouseEvent(type,{
-      bubbles:true, cancelable:true,
-      clientX:touch.clientX, clientY:touch.clientY,
-      screenX:touch.screenX, screenY:touch.screenY,
-      view:window
-    });
-  }
-
-  // ── 간트 드래그 (mousedown 속성 가진 요소) ──
-  document.addEventListener('touchstart', e=>{
-    const el = e.target.closest('[onmousedown]');
-    if(!el) return;
-    if(e.target.closest('td.cn')) return; // 이름 칸은 스크롤용
-    _touchDragging = true;
-    el.dispatchEvent(makeME('mousedown', e.touches[0]));
-  }, {passive:false});
-
-  document.addEventListener('touchmove', e=>{
-    if(!_touchDragging) return;
-    e.preventDefault();
-    document.dispatchEvent(makeME('mousemove', e.touches[0]));
-  }, {passive:false});
-
-  document.addEventListener('touchend', e=>{
-    if(!_touchDragging) return;
-    _touchDragging = false;
-    const touch = e.changedTouches[0];
-    document.dispatchEvent(makeME('mouseup', touch));
-  }, {passive:false});
-
-  // ── 휴가 리스트 터치 드래그앤드롭 ──
-  let _lvTouch = {active:false, pid:null, li:null, ghost:null, lastEl:null};
-
-  document.addEventListener('touchstart', e=>{
-    const row = e.target.closest('.lv-row');
-    if(!row) return;
-    const handle = e.target.closest('[style*="cursor:grab"]');
-    if(!handle && !e.target.closest('.lv-row > div:first-child')) return;
-    _lvTouch.active = true;
-    _lvTouch.pid = row.dataset.pid;
-    _lvTouch.li  = parseInt(row.dataset.li);
-    // ghost
-    const ghost = row.cloneNode(true);
-    ghost.style.cssText += ';position:fixed;opacity:.7;pointer-events:none;z-index:9999;width:'+row.offsetWidth+'px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);border-radius:8px;left:'+row.getBoundingClientRect().left+'px;top:'+row.getBoundingClientRect().top+'px';
-    document.body.appendChild(ghost);
-    _lvTouch.ghost = ghost;
-    row.style.opacity = '.3';
-  }, {passive:false});
-
-  document.addEventListener('touchmove', e=>{
-    if(!_lvTouch.active) return;
-    e.preventDefault();
-    const t = e.touches[0];
-    if(_lvTouch.ghost){
-      _lvTouch.ghost.style.left = (t.clientX - 30)+'px';
-      _lvTouch.ghost.style.top  = (t.clientY - 20)+'px';
-    }
-    // highlight drop target
-    const el = document.elementFromPoint(t.clientX, t.clientY);
-    const row = el?.closest('.lv-row');
-    if(_lvTouch.lastEl && _lvTouch.lastEl !== row) _lvTouch.lastEl.style.borderTop='';
-    if(row && row.dataset.pid){ row.style.borderTop='2px solid var(--acc)'; _lvTouch.lastEl=row; }
-  }, {passive:false});
-
-  document.addEventListener('touchend', e=>{
-    if(!_lvTouch.active) return;
-    _lvTouch.active = false;
-    if(_lvTouch.ghost){ _lvTouch.ghost.remove(); _lvTouch.ghost=null; }
-    if(_lvTouch.lastEl) _lvTouch.lastEl.style.borderTop='';
-    // find drop target
-    const t = e.changedTouches[0];
-    const el = document.elementFromPoint(t.clientX, t.clientY);
-    const targetRow = el?.closest('.lv-row');
-    if(targetRow && targetRow.dataset.pid){
-      const tpid = targetRow.dataset.pid;
-      const tli  = parseInt(targetRow.dataset.li);
-      if(tpid !== _lvTouch.pid || tli !== _lvTouch.li){
-        // fake drop event
-        lvDrop({preventDefault:()=>{},stopPropagation:()=>{}}, tpid, tli);
-        _lvTouch = {active:false,pid:null,li:null,ghost:null,lastEl:null};
-        return;
-      }
-    }
-    // tap → open modal
-    const row = document.querySelector(`.lv-row[data-pid="${_lvTouch.pid}"][data-li="${_lvTouch.li}"]`);
-    if(row) row.style.opacity='';
-    _lvTouch = {active:false,pid:null,li:null,ghost:null,lastEl:null};
-  }, {passive:false});
-
-  // ── lv-row 드래그 시작은 핸들 ⠿ 터치시만 ──
-  // (위에서 처리됨)
-}
-
-// 팝업 열릴 때 버블 즉시 숨기기 (MutationObserver)
-const _mbObserver = new MutationObserver(()=>{
-  if(document.querySelector('.mb.open')) hideBubNow();
-});
-document.querySelectorAll('.mb').forEach(el=>
-  _mbObserver.observe(el, {attributes:true, attributeFilter:['class']})
-);
-
-
-// 엔터로 팝업 저장/닫기
-document.addEventListener('keydown', e=>{
-  if(e.key !== 'Enter' || e.shiftKey || e.target.tagName==='TEXTAREA' || e.target.tagName==='SELECT') return;
-  const open = document.querySelector('.mb.open');
-  if(!open) return;
-  e.preventDefault();
-  const id = open.id;
-  if(id==='cmod')     { saveComment(); return; }
-  if(id==='lmod')     { saveLeave(); return; }
-  if(id==='msmod')    { saveMilestone(); return; }
-  if(id==='dm-modal') { saveDateMemo(); return; }
-  if(id==='admin-modal') { submitAdminPw(); return; }
-  // 나머지 팝업은 그냥 닫기
-  open.classList.remove('open');
-  pending=null; pendingLv=null; msPending=null; _dmDate=null;
-});
-
-// ESC 키로 팝업 닫기
-document.addEventListener('keydown', e=>{
-  if(e.key !== 'Escape') return;
-  // 열린 모달 닫기
-  const openModal = document.querySelector('.mb.open');
-  if(openModal){
-    openModal.classList.remove('open');
-    pending = null; pendingLv = null; msPending = null; _dmDate = null;
-    return;
-  }
-  // 버블 닫기
-  hideBubNow();
-});
-
-// 커서 위치에 따라 표 편집 툴 자동 표시
-document.addEventListener('selectionchange', tbUpdateTableTools);
-
-init();
-addTouchSupport();
-setTimeout(initSupabase, 300);
-</script>
-</body>
-</html>
+  if(payload.MS_TYPES)   MS_TYPES   = payload.M
