@@ -3554,7 +3554,7 @@ function renderLegend(){
         ${p.esm?`<span style="font-size:12px;color:${active?p.bar:'var(--tx3)'};font-family:'Space Mono',monospace;margin-left:2px">${p.esm}</span>`:''}
       </div>`;
     }).join('')+
-    `<div class="legend-add" onclick="openProjMgr()">＋ 추가</div>`+
+    ``+
     (_filterProjId||_filterPersonId||_filterStatus?`<div class="legend-item" onclick="_filterProjId=null;_filterPersonId=null;_filterStatus=null;applyStatusBtns();renderLegend();renderTable()" style="background:#fee2e2;border-color:#fca5a5;color:#dc2626;font-weight:700">✕ 필터 해제</div>`:'');
 }
 
