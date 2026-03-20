@@ -861,7 +861,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
   <!-- SUB 0: GANTT -->
   <div class="sub-content active" id="scontent-0">
-    <div class="gs">
+    <div class="gs" onmouseleave="hideBubNow()">
       <table>
         <thead id="thead"></thead>
         <tbody id="tbody"></tbody>
@@ -4022,7 +4022,7 @@ document.addEventListener('mouseout',e=>{
 });
 function hideBub(){
   clearTimeout(bTimeout);
-  bTimeout=setTimeout(()=>{ document.getElementById('g-bub')?.classList.remove('vis'); },5000);
+  bTimeout=setTimeout(()=>{ document.getElementById('g-bub')?.classList.remove('vis'); },3000);
 }
 function hideBubNow(){
   clearTimeout(bTimeout);
