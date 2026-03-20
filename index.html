@@ -717,8 +717,8 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원 관리</button>
       <button class="btn btn-leave" onclick="openLeaveModal(null,null)">🏖️ 휴가 등록</button>
       <button class="btn btn-leave" onclick="openScheduleAdd()">➕ 일정 등록</button>
-      <button id="sf-wip"  onclick="toggleStatusFilter('wip')"  class="btn btn-g">🔄 진행중</button>
       <button id="sf-plan" onclick="toggleStatusFilter('plan')" class="btn btn-g">📋 예정</button>
+      <button id="sf-wip"  onclick="toggleStatusFilter('wip')"  class="btn btn-g">🔄 진행중</button>
       <button id="sf-done" onclick="toggleStatusFilter('done')" class="btn btn-g">✅ 완료</button>
       <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5;padding:4px 8px" onclick="openBulkDelete()" title="일괄 삭제">🗑</button>
     </div>
@@ -1111,12 +1111,16 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     <div class="fg">
       <label>상태</label>
       <input type="hidden" id="cm-status" value="plan">
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px" id="cm-status-btns">
-        <button type="button" onclick="setCmStatus('plan')"   data-status="plan"       class="status-btn" style="opacity:0.2">예정</button>
-        <button type="button" onclick="setCmStatus('wip')"    data-status="wip"        class="status-btn">진행중</button>
-        <button type="button" onclick="setCmStatus('done')"   data-status="done"       class="status-btn" style="opacity:0.2">완료</button>
-        <button type="button" onclick="setCmStatus('variation')" data-status="variation" class="status-btn">베리에이션</button>
-        <button type="button" onclick="setCmStatus('revision')"  data-status="revision"  class="status-btn">수정중</button>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px" id="cm-status-btns">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button type="button" onclick="setCmStatus('wip')"       data-status="wip"       class="status-btn">진행중</button>
+          <button type="button" onclick="setCmStatus('variation')" data-status="variation" class="status-btn">베리에이션</button>
+          <button type="button" onclick="setCmStatus('revision')"  data-status="revision"  class="status-btn">수정중</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button type="button" onclick="setCmStatus('plan')"      data-status="plan"      class="status-btn" style="opacity:0.3">예정</button>
+          <button type="button" onclick="setCmStatus('done')"      data-status="done"      class="status-btn" style="opacity:0.3">완료</button>
+        </div>
       </div>
     </div>
     <div class="ma">
@@ -1797,10 +1801,18 @@ function setCmStatus(val){
 function applyCmStatusBtns(val){
   setCmStatus(val);
 }
+
+// 현재 표시 중인 전체 날짜 배열 (멀티월 포함)
+function getAllWds(){
+  const allMonths = [{y:CY,m:CM}, ..._multiMonths].sort((a,b)=>a.y!==b.y?a.y-b.y:a.m-b.m);
+  const seen=new Set();
+  return allMonths.filter(({y,m})=>{ const k=y+'-'+m; if(seen.has(k))return false; seen.add(k); return true; })
+    .flatMap(({y,m})=>getWeekdays(y,m));
+}
 // ════════════════════════════════════════════
 //  ADMIN AUTH
 // ════════════════════════════════════════════
-const ADMIN_PW = 'cd2026';
+const ADMIN_PW = 'cd20266';
 let _isAdmin = false;
 
 function toggleAdmin(){
@@ -3231,10 +3243,10 @@ function getBarStyle(proj,status){
   if(status==='done'){
     const gray=Math.round(r*.299+g*.587+b*.114);
     const dr=Math.round(r*.8+gray*.2),dg=Math.round(g*.8+gray*.2),db=Math.round(b*.8+gray*.2);
-    return {bg:`rgb(${dr},${dg},${db})`, tc:'#888', op:0.2, shadow:'none'};
+    return {bg:`rgb(${dr},${dg},${db})`, tc:'#888', op:0.3, shadow:'none'};
   }
   if(status==='blocked') return {bg:hex, tc, op:0.15, shadow:'none'};
-  return {bg:hex, tc, op:0.2, shadow:'none'};
+  return {bg:hex, tc, op:0.3, shadow:'none'};
 }
 function statusBadge(s){return{plan:'',wip:'',done:'',blocked:'⛔',variation:'',revision:''}[s]||''}
 
@@ -3610,7 +3622,7 @@ function finishMove(){
 function paintResize(curIdx){
   if(!iSt||iMode!=='resize')return;
   const {taskId,ri,side}=iSt;const r=(ranges[taskId]||[])[ri];if(!r)return;
-  const wds=getWeekdays(CY,CM);let lo,hi;
+  const wds=getAllWds();let lo,hi;
   if(side==='left'){const ei=wds.findIndex(w=>dn(w.ds)>=dn(r.end));lo=Math.min(curIdx,ei);hi=ei}
   else{const si=wds.findIndex(w=>dn(w.ds)>=dn(r.start));lo=si;hi=Math.max(curIdx,si)}
   document.querySelectorAll(`td[data-task="${taskId}"]`).forEach(td=>{
@@ -3624,7 +3636,7 @@ function finishResize(){
   clearMovePreview();
   const {taskId,ri,side,curIdx,anchorIdx}=iSt;iSt=null;
   const r=(ranges[taskId]||[])[ri];if(!r)return;
-  const wds=getWeekdays(CY,CM);
+  const wds=getAllWds();
   if(side==='left'){
     // 왼쪽 핸들: end 고정, start를 curIdx 날짜로
     const ei=wds.findIndex(x=>dn(x.ds)>=dn(r.end));
