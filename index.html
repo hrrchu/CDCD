@@ -159,7 +159,7 @@ tr.row-drag-over-bottom td.cn{border-bottom:2.5px solid var(--acc)!important}
 td.ct{display:none}
 tbody tr:hover td.cn{background:#f8f9fb}
 .pi{display:flex;align-items:center;gap:3px;padding:0 2px}
-.av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;overflow:hidden}
+.av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0;overflow:hidden}
 .pn{font-size:15px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pr{font-size:15px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tn{font-size:15px;color:var(--tx);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:142px}
@@ -371,6 +371,8 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .idea-new-body-input[contenteditable]:empty:before{content:attr(data-placeholder);color:var(--tx3);pointer-events:none}
 .free-editor a{color:var(--acc);text-decoration:underline;cursor:pointer}
 .free-editor a:hover{opacity:.75}
+.free-editor td{resize:both;overflow:auto;min-width:60px;min-height:32px}
+.free-editor th{resize:horizontal;overflow:auto;min-width:60px}
 .free-editor:focus{border-color:var(--acc)}
 .free-tip{font-size:15px;color:var(--tx3);margin-top:8px}
 
@@ -599,7 +601,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   :root{--cell:36px;--nc:60px}
   .pn{font-size:15px}
   .pr{font-size:15px}
-  .av{width:36px;height:36px;font-size:15px}
+  .av{width:36px;height:36px;font-size:20px}
   .tn{font-size:15px;max-width:104px}
   th.cd .dn{font-size:15px}
   th.cd .dl{font-size:15px}
@@ -659,7 +661,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 .mt{font-size:15px!important}
 .grm-title{font-size:15px!important}
 .ms-icon{font-size:15px!important}
-.av{font-size:15px!important}
+.av{font-size:20px!important}
 .tm-av{font-size:15px!important}
 </style>
 </head>
@@ -822,13 +824,19 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <!-- 색상 -->
       <div style="display:flex;align-items:center;gap:4px">
         <span style="font-size:13px;color:var(--tx3)">글자</span>
-        <input type="color" class="tb-color" id="tb-fore-color" value="#1a1d27" title="글자색">
-        <button class="tb-btn" onclick="tbExec('foreColor',document.getElementById('tb-fore-color').value)" style="font-size:12px;padding:3px 7px">적용</button>
+        <input type="color" class="tb-color" id="tb-fore-color" value="#1a1d27" title="글자색" oninput="document.getElementById('tb-fore-hex').value=this.value">
+        <input type="text" id="tb-fore-hex" value="#1a1d27" maxlength="7" placeholder="#000000"
+          style="width:72px;border:1px solid var(--bd2);border-radius:5px;padding:3px 6px;font-size:12px;font-family:'Space Mono',monospace;outline:none"
+          oninput="if(/^#[0-9a-fA-F]{6}$/.test(this.value))document.getElementById('tb-fore-color').value=this.value">
+        <button class="tb-btn" onclick="tbExec('foreColor',document.getElementById('tb-fore-hex').value||document.getElementById('tb-fore-color').value)" style="font-size:12px;padding:3px 7px">적용</button>
       </div>
       <div style="display:flex;align-items:center;gap:4px">
         <span style="font-size:13px;color:var(--tx3)">배경</span>
-        <input type="color" class="tb-color" id="tb-hili-color" value="#ffff00" title="배경색">
-        <button class="tb-btn" onclick="tbExec('hiliteColor',document.getElementById('tb-hili-color').value)" style="font-size:12px;padding:3px 7px">적용</button>
+        <input type="color" class="tb-color" id="tb-hili-color" value="#ffff00" title="배경색" oninput="document.getElementById('tb-hili-hex').value=this.value">
+        <input type="text" id="tb-hili-hex" value="#ffff00" maxlength="7" placeholder="#ffff00"
+          style="width:72px;border:1px solid var(--bd2);border-radius:5px;padding:3px 6px;font-size:12px;font-family:'Space Mono',monospace;outline:none"
+          oninput="if(/^#[0-9a-fA-F]{6}$/.test(this.value))document.getElementById('tb-hili-color').value=this.value">
+        <button class="tb-btn" onclick="tbExec('hiliteColor',document.getElementById('tb-hili-hex').value||document.getElementById('tb-hili-color').value)" style="font-size:12px;padding:3px 7px">적용</button>
       </div>
       <div class="tb-sep"></div>
       <!-- 정렬 -->
@@ -1684,9 +1692,9 @@ function tbInsertTable(){
   const rows = parseInt(prompt('행 수:', '3'))||3;
   const cols = parseInt(prompt('열 수:', '3'))||3;
   if(rows<1||cols<1) return;
-  const cellStyle = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:80px;text-align:left;font-size:15px';
-  const thStyle = cellStyle + ';background:#f1f5f9;font-weight:700';
-  let html = `<table style="border-collapse:collapse;width:100%;margin:10px 0"><thead><tr>`;
+  const cellStyle = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:60px;min-height:32px;text-align:left;font-size:15px;resize:both;overflow:auto';
+  const thStyle = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:60px;min-height:32px;background:#f1f5f9;font-weight:700;font-size:15px;resize:horizontal;overflow:auto';
+  let html = `<table style="border-collapse:collapse;width:50%;margin:10px 0"><thead><tr>`;
   for(let c=0;c<cols;c++) html += `<th style="${thStyle}" contenteditable="true">제목 ${c+1}</th>`;
   html += `</tr></thead><tbody>`;
   for(let r=0;r<rows;r++){
@@ -3189,12 +3197,16 @@ function textFor(hex){
 }
 function getBarStyle(proj,status){
   const hex=proj.bar;
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
   const tc=textFor(hex);
-  if(status==='wip')     return {bg:hex, tc, op:1,    shadow:'none'};
-  if(status==='done')    return {bg:hex, tc, op:0.5,  shadow:'none'};
-  if(status==='blocked') return {bg:hex, tc, op:0.2,  shadow:'none'};
-  // plan (예정)
-  return {bg:hex, tc, op:0.3, shadow:'none'};
+  if(status==='wip') return {bg:hex, tc, op:1, shadow:'none'};
+  if(status==='done'){
+    const gray=Math.round(r*.299+g*.587+b*.114);
+    const dr=Math.round(r*.8+gray*.2),dg=Math.round(g*.8+gray*.2),db=Math.round(b*.8+gray*.2);
+    return {bg:`rgb(${dr},${dg},${db})`, tc:'#888', op:0.25, shadow:'none'};
+  }
+  if(status==='blocked') return {bg:hex, tc, op:0.15, shadow:'none'};
+  return {bg:hex, tc, op:0.25, shadow:'none'};
 }
 function statusBadge(s){return{plan:'📋',wip:'🔄',done:'✅',blocked:'⛔'}[s]||'📋'}
 
@@ -3346,7 +3358,9 @@ function renderTable(){
           const isWeekStart = dow===1;
           const r=tR.find(r=>n>=dn(r.start)&&n<=dn(r.end));
           const lv=(leaves[person.id]||[]).find(l=>n>=dn(l.start)&&n<=dn(l.end));
-          const msHtml=msBarsHtml(task.id, dateStr);
+          // 상태 필터 시 해당 일정 상태와 맞을 때만 마일스톤 표시
+          const msVisible = !_filterStatus || (r && r.status === _filterStatus);
+          const msHtml = msVisible ? msBarsHtml(task.id, dateStr) : '';
           const hasMs=hasMsOnCell(task.id, dateStr);
 
           if(lv){
@@ -4135,11 +4149,10 @@ function renderProjList(){
         <input type="color" value="${p.bar}" oninput="pjCol(${i},this.value)">
       </div></td>
       <td><input class="proj-name-input" value="${p.name}" oninput="pjName(${i},this.value)"></td>
-      <td><input class="proj-name-input" value="${p.esm||''}" placeholder="ESM 코드..." oninput="pjEsm(${i},this.value)" style="width:160px;color:var(--tx2)"></td>
       <td style="color:var(--tx3);font-size:15px">${Object.values(ranges).reduce((s,a)=>s+a.filter(r=>r.projectId===p.id).length,0)}개</td>
       <td><button class="btn btn-danger" style="padding:4px 8px;font-size:15px" onclick="rmProj('${p.id}')">삭제</button></td>
     </tr>`).join('');
-  document.getElementById('proj-list-table').innerHTML=`<thead><tr style="font-size:15px;color:var(--tx3);text-transform:uppercase"><td style="padding:5px 8px">색상</td><td>이름</td><td>ESM</td><td>사용</td><td></td></tr></thead><tbody>${rows}</tbody>`;
+  document.getElementById('proj-list-table').innerHTML=`<thead><tr style="font-size:15px;color:var(--tx3);text-transform:uppercase"><td style="padding:5px 8px">색상</td><td>이름</td><td>사용</td><td></td></tr></thead><tbody>${rows}</tbody>`;
 }
 function pjCol(i,val){PROJECTS[i].bar=val;const sw=document.getElementById('sw-'+i);if(sw)sw.style.background=val}
 function pjName(i,val){PROJECTS[i].name=val}
