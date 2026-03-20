@@ -82,7 +82,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tx);mi
 th.cd.holiday:hover .hd-name{display:block!important}
 th.cd{cursor:pointer;position:relative}
 th.cd:hover{background:rgba(79,140,255,.06)}
-.dm-dot{display:block;width:5px;height:5px;border-radius:50%;background:var(--acc);margin:0 auto 1px;flex-shrink:0}
+.dm-bar-wrap{position:absolute;bottom:2px;left:2px;right:2px;display:flex;gap:1px;height:3px}
+.dm-bar{flex:1;border-radius:2px;height:100%}
 .dm-popup{display:none;position:fixed;background:#fff;border:1px solid var(--bd2);border-radius:9px;padding:10px 12px;min-width:160px;max-width:220px;z-index:9998;box-shadow:0 6px 20px rgba(0,0,0,.13);font-size:15px;pointer-events:none}
 .dm-popup.vis{display:block}
 
@@ -234,7 +235,7 @@ thead th{background:#fafbfc;padding:0;border-bottom:2px solid var(--bd2);border-
 th.cn{width:var(--nc);min-width:0;font-size:15px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;padding:9px 0;text-align:left;position:sticky;left:0;z-index:20;background:#fafbfc}
 th.cn{position:relative}
 th.ct{display:none}
-th.cd{width:var(--cell);min-width:var(--cell);text-align:center;font-family:'Space Mono',monospace;font-size:15px;color:var(--tx3);padding:4px 0 2px;vertical-align:bottom}
+th.cd{width:var(--cell);min-width:var(--cell);text-align:center;font-family:'Space Mono',monospace;font-size:15px;color:var(--tx3);padding:4px 0 10px;vertical-align:bottom}
 th.week-start, td.week-start{border-left:2px solid #cbd5e1!important}
 th.month-start, td.month-start{border-left:2.5px solid var(--acc)!important}
 th.cd .dn{display:block;font-size:15px;color:var(--tx2);padding-bottom:2px;font-weight:600}
@@ -661,7 +662,8 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 th.cd.holiday:hover .hd-name{display:block!important}
 th.cd{cursor:pointer;position:relative}
 th.cd:hover{background:rgba(79,140,255,.06)}
-.dm-dot{display:block;width:5px;height:5px;border-radius:50%;background:var(--acc);margin:0 auto 1px;flex-shrink:0}
+.dm-bar-wrap{position:absolute;bottom:2px;left:2px;right:2px;display:flex;gap:1px;height:3px}
+.dm-bar{flex:1;border-radius:2px;height:100%}
 .dm-popup{display:none;position:fixed;background:#fff;border:1px solid var(--bd2);border-radius:9px;padding:10px 12px;min-width:160px;max-width:220px;z-index:9998;box-shadow:0 6px 20px rgba(0,0,0,.13);font-size:15px;pointer-events:none}
 .dm-popup.vis{display:block}
 
@@ -1065,6 +1067,13 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <div class="idea-header-title">💡 메모 보드</div>
         <input class="idea-search" id="idea-search" placeholder="🔍 메모 검색..." oninput="renderIdeaBoard()">
       </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="idea-tag-filters">
+        <button onclick="setIdeaTagFilter(null)" id="ift-all" class="btn btn-p" style="font-size:13px;padding:4px 12px">전체</button>
+        <button onclick="setIdeaTagFilter('💡 아이디어')" id="ift-0" class="btn btn-g" style="font-size:13px;padding:4px 12px">💡 아이디어</button>
+        <button onclick="setIdeaTagFilter('🔥 핫이슈')" id="ift-1" class="btn btn-g" style="font-size:13px;padding:4px 12px">🔥 핫이슈</button>
+        <button onclick="setIdeaTagFilter('⚠️ 업무이슈')" id="ift-2" class="btn btn-g" style="font-size:13px;padding:4px 12px">⚠️ 업무이슈</button>
+        <button onclick="setIdeaTagFilter('📌 기타')" id="ift-3" class="btn btn-g" style="font-size:13px;padding:4px 12px">📌 기타</button>
+      </div>
       <div class="idea-new-area" id="idea-new-area" onclick="activateNewArea()">
         <div class="idea-new-placeholder" id="idea-new-placeholder">메모 작성...</div>
         <div class="idea-new-form" id="idea-new-form">
@@ -1075,15 +1084,14 @@ th.cd:hover{background:rgba(79,140,255,.06)}
             onpaste="cmPaste(event,'if-body')"
             style="min-height:60px;outline:none;white-space:pre-wrap;word-break:break-word"
           ></div>
-          <div class="idea-new-footer">
-            <select class="idea-new-tag-sel" id="if-tag">
-              <option value="💡 idea">💡 아이디어</option>
-              <option value="🐛 버그">🐛 버그</option>
-              <option value="✨ 개선">✨ 개선</option>
-              <option value="📌 공유">📌 공유</option>
+          <div class="idea-new-footer" onclick="event.stopPropagation()">
+            <select class="idea-new-tag-sel" id="if-tag" onclick="event.stopPropagation()">
+              <option value="💡 아이디어">💡 아이디어</option>
               <option value="🔥 핫이슈">🔥 핫이슈</option>
+              <option value="⚠️ 업무이슈">⚠️ 업무이슈</option>
+              <option value="📌 기타">📌 기타</option>
             </select>
-            <select class="idea-new-author-sel" id="if-author"></select>
+            <select class="idea-new-author-sel" id="if-author" onclick="event.stopPropagation()"></select>
             <input type="color" id="if-color" value="#ffffff" title="메모지 색상" style="width:28px;height:28px;border:1px solid var(--bd2);border-radius:6px;padding:2px;cursor:pointer;flex-shrink:0">
             <button class="idea-new-close" onclick="deactivateNewArea(event)">닫기</button>
             <button class="idea-new-submit" onclick="saveIdea(event)">메모 추가</button>
@@ -1163,9 +1171,13 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 <div class="mb" id="dm-modal">
   <div class="modal" style="max-width:320px">
     <div class="mt" id="dm-modal-title"></div>
-    <div class="fg" style="margin-top:12px">
-      <label>날짜 메모</label>
-      <textarea id="dm-memo-input" rows="4" placeholder="이 날짜에 대한 메모를 입력하세요..." style="width:100%;border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-size:15px;font-family:'Pretendard',sans-serif;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+    <div class="fg" style="margin-top:10px">
+      <label>프로젝트 태그</label>
+      <div id="dm-proj-list" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px"></div>
+    </div>
+    <div class="fg" style="margin-top:10px">
+      <label>메모</label>
+      <textarea id="dm-memo-input" rows="3" placeholder="이 날짜에 대한 메모를 입력하세요..." style="width:100%;border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-size:15px;font-family:'Pretendard',sans-serif;outline:none;resize:none;box-sizing:border-box"></textarea>
     </div>
     <div style="display:flex;gap:8px;margin-top:12px">
       <button class="btn" style="flex:1" onclick="closeDmModal()">취소</button>
@@ -1594,7 +1606,7 @@ let dateMemos = {};
 let grmAdj = {}; // grmAdj[ym][personId][projId] = 보정% (수기)
 let activityLog = []; // [{ts, type, personName, projName, start, end, action}]
 // milestones[taskId][dateStr] = {report:bool, variation:bool, storyboard:bool, note:string}
-// dateMemos[dateStr] = string
+// dateMemos[dateStr] = {text:string, projs:[projId,...]} (또는 하위호환 string)
 let milestones = {};
 // avatarImgs[personId] = base64 data URL
 let avatarImgs = {};
@@ -1771,12 +1783,37 @@ function initSpinner(prefix, dateStr){
 let _dmDate = null;
 let _dmBubTimeout = null;
 
+
+function dmProjToggle(el, projId, color){
+  const label = el.closest('label');
+  if(el.checked){
+    label.style.borderColor=color;
+    label.style.background=color+'22';
+    label.style.color=color;
+  } else {
+    label.style.borderColor='var(--bd)';
+    label.style.background='transparent';
+    label.style.color='var(--tx3)';
+  }
+}
 function openDateMemo(dateStr){
   if(!_isAdmin){ showToast('관리자만 날짜 메모를 작성할 수 있어요 🔒','error'); return; }
   _dmDate = dateStr;
   document.getElementById('dm-modal-title').textContent = '📅 ' + dateStr;
-  document.getElementById('dm-memo-input').value = dateMemos[dateStr] || '';
-  document.getElementById('dm-del-btn').style.display = dateMemos[dateStr] ? '' : 'none';
+  const existing = dateMemos[dateStr];
+  const existText = typeof existing==='string' ? existing : (existing?.text||'');
+  const existProjs = typeof existing==='string' ? [] : (existing?.projs||[]);
+  document.getElementById('dm-memo-input').value = existText;
+  document.getElementById('dm-del-btn').style.display = existing ? '' : 'none';
+  // 프로젝트 체크박스 렌더링
+  const projWrap = document.getElementById('dm-proj-list');
+  if(projWrap){
+    projWrap.innerHTML = PROJECTS.map(p=>`
+      <label style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1px solid ${existProjs.includes(p.id)?p.bar:'var(--bd)'};background:${existProjs.includes(p.id)?p.bar+'22':'transparent'};cursor:pointer;font-size:13px;font-weight:600;color:${existProjs.includes(p.id)?p.bar:'var(--tx2)'};transition:.1s">
+        <input type="checkbox" value="${p.id}" ${existProjs.includes(p.id)?'checked':''} style="display:none" onchange="dmProjToggle(this,'${p.id}','${p.bar}')">
+        <span style="width:7px;height:7px;border-radius:50%;background:${p.bar};display:inline-block;flex-shrink:0"></span>${p.name}
+      </label>`).join('');
+  }
   document.getElementById('dm-modal').classList.add('open');
   setTimeout(()=>document.getElementById('dm-memo-input').focus(), 100);
 }
@@ -1784,7 +1821,8 @@ function closeDmModal(){ document.getElementById('dm-modal').classList.remove('o
 function saveDateMemo(){
   if(!_dmDate) return;
   const val = document.getElementById('dm-memo-input').value.trim();
-  if(val) dateMemos[_dmDate] = val;
+  const checkedProjs = [...document.querySelectorAll('#dm-proj-list input:checked')].map(el=>el.value);
+  if(val||checkedProjs.length) dateMemos[_dmDate] = {text:val, projs:checkedProjs};
   else delete dateMemos[_dmDate];
   closeDmModal();
   renderHeader(); renderTable();
@@ -1799,7 +1837,8 @@ function deleteDateMemo(){
 }
 function showDateMemoBub(th, dateStr){
   clearTimeout(_dmBubTimeout);
-  const memo = dateMemos[dateStr];
+  const _dm = dateMemos[dateStr];
+  const memo = typeof _dm==='string' ? _dm : (_dm?.text||'메모');
   const hname = getHoliday(dateStr);
   if(!memo && !hname) return;
   const popup = document.getElementById('dm-popup');
@@ -3252,12 +3291,25 @@ function renderLeaveList(){
 let ideaCards = [];
 let ideaDragSrcIdx = null;
 
+
+let _ideaTagFilter = null;
+function setIdeaTagFilter(tag){
+  _ideaTagFilter = tag;
+  // 버튼 스타일
+  document.getElementById('ift-all').className = !tag ? 'btn btn-p' : 'btn btn-g';
+  ['💡 아이디어','🔥 핫이슈','⚠️ 업무이슈','📌 기타'].forEach((t,i)=>{
+    const btn = document.getElementById('ift-'+i);
+    if(btn) btn.className = (tag===t) ? 'btn btn-p' : 'btn btn-g';
+  });
+  // 폰트 크기 유지
+  document.querySelectorAll('#idea-tag-filters button').forEach(b=>{b.style.fontSize='13px';b.style.padding='4px 12px';});
+  renderIdeaBoard();
+}
 const IDEA_TAGS = [
   {label:'💡 아이디어', bg:'#fef9c3', color:'#7c6500'},
-  {label:'🐛 버그',    bg:'#fee2e2', color:'#991b1b'},
-  {label:'✨ 개선',    bg:'#d1fae5', color:'#065f46'},
-  {label:'📌 공유',    bg:'#dbeafe', color:'#1e40af'},
-  {label:'🔥 핫이슈', bg:'#ffe4e6', color:'#9f1239'},
+  {label:'🔥 핫이슈',  bg:'#ffe4e6', color:'#9f1239'},
+  {label:'⚠️ 업무이슈', bg:'#fee2e2', color:'#991b1b'},
+  {label:'📌 기타',    bg:'#dbeafe', color:'#1e40af'},
 ];
 
 const NOTE_COLORS = [
@@ -3284,12 +3336,16 @@ function renderIdeaBoard(){
   const sorted=[...pinned,...unpinned];
   const filtered=q?sorted.filter(c=>(c.title+c.body).toLowerCase().includes(q)):sorted;
 
-  if(!filtered.length){
-    board.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--tx3);font-size:15px">${q?'검색 결과가 없어요':'메모를 작성해보세요!'}</div>`;
+  if(!ideaCards.length){
+    board.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--tx3);font-size:15px">메모를 작성해보세요!</div>`;
     return;
   }
-  board.innerHTML=filtered.map((card,vi)=>{
-    const idx=ideaCards.indexOf(card);
+  board.innerHTML=ideaCards.map((card,vi)=>{
+    const q=document.getElementById('idea-search')?.value?.toLowerCase()||'';
+    const matchQ = !q||(card.body||card.title||'').toLowerCase().includes(q);
+    const matchTag = !_ideaTagFilter || card.tag===_ideaTagFilter;
+    const active = matchQ && matchTag;
+    const idx = vi;
     const nc=NOTE_COLORS.find(n=>n.bg===card.color)||NOTE_COLORS[0];
     const isDark = document.documentElement.getAttribute('data-theme')==='dark';
     const cardBg = card.color || '#ffffff';
@@ -3318,7 +3374,7 @@ function renderIdeaBoard(){
     const personSel='<option value="">👤 익명</option>'+getPeople().map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
     const colorDots=NOTE_COLORS.map(n=>`<div class="idea-color-dot${card.color===n.bg?' selected':''}" style="background:${n.bg}" title="${n.name}" onclick="setNoteColor(${idx},'${n.bg}')"></div>`).join('');
     const colorPicker=`<input type="color" value="${card.color||'#ffffff'}" title="자유 색상" onchange="setNoteColor(${idx},this.value)" style="width:22px;height:22px;border:1px solid rgba(0,0,0,.15);border-radius:4px;padding:1px;cursor:pointer;flex-shrink:0">`;
-    return `<div class="idea-card" style="background:${cardBg};border-color:${cardBorder};${cardTx?'color:'+cardTx:''}"
+    return `<div class="idea-card" style="background:${cardBg};border-color:${cardBorder};${cardTx?'color:'+cardTx:''};${active?'':'opacity:0.2;pointer-events:none;filter:grayscale(0.5)'}"
 >
 
       <button class="idea-card-pin${card.pinned?' pinned':''}" onclick="togglePin(${idx})" title="${card.pinned?'핀 해제':'핀 고정'}">📌</button>
@@ -3562,6 +3618,19 @@ function renderTable(){
     const isWeekStart = dow===1;
     const isMonthStart = d===1;
     const hasMemo = !!dateMemos[ds];
+    const dmProjs = (typeof dateMemos[ds]==='object'&&dateMemos[ds]?.projs)||[];
+    // 날짜 메모에 지정된 프로젝트 색 우선, 없으면 해당 날짜 일정 색
+    let dateProjs = dmProjs.map(pid=>getProj(pid)?.bar).filter(Boolean);
+    if(!dateProjs.length){
+      tasks.forEach(task=>{
+        (ranges[task.id]||[]).forEach(r=>{
+          if(dn(ds)>=dn(r.start)&&dn(ds)<=dn(r.end)){
+            const proj=getProj(r.projectId);
+            if(proj&&!dateProjs.includes(proj.bar)) dateProjs.push(proj.bar);
+          }
+        });
+      });
+    }
     h+=`<th class="cd${ds===td0?' today':''}${isHol?' holiday':''}${isWeekStart?' week-start':''}${isMonthStart?' month-start':''}"
       onclick="openDateMemo('${ds}')"
       onmouseenter="showDateMemoBub(this,'${ds}')"
@@ -3570,7 +3639,8 @@ function renderTable(){
       <span class="dn">${d}</span>
       <span class="dl">${DAY[dow]}</span>
       ${isHol?`<span class="hd-name">${hname}</span>`:''}
-      ${hasMemo?`<span class="dm-dot"></span>`:''}
+      ${dateProjs.length?`<div class="dm-bar-wrap">${dateProjs.slice(0,5).map(c=>`<div class="dm-bar" style="background:${c}"></div>`).join('')}</div>`:''}
+      ${hasMemo&&!dateProjs.length?`<div class="dm-bar-wrap"><div class="dm-bar" style="background:var(--acc)"></div></div>`:''}
     </th>`;
   });
   h+='</tr>';
