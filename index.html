@@ -3619,18 +3619,8 @@ function renderTable(){
     const isMonthStart = d===1;
     const hasMemo = !!dateMemos[ds];
     const dmProjs = (typeof dateMemos[ds]==='object'&&dateMemos[ds]?.projs)||[];
-    // 날짜 메모에 지정된 프로젝트 색 우선, 없으면 해당 날짜 일정 색
-    let dateProjs = dmProjs.map(pid=>getProj(pid)?.bar).filter(Boolean);
-    if(!dateProjs.length){
-      tasks.forEach(task=>{
-        (ranges[task.id]||[]).forEach(r=>{
-          if(dn(ds)>=dn(r.start)&&dn(ds)<=dn(r.end)){
-            const proj=getProj(r.projectId);
-            if(proj&&!dateProjs.includes(proj.bar)) dateProjs.push(proj.bar);
-          }
-        });
-      });
-    }
+    // 직접 지정한 프로젝트만 바로 표시
+    const dateProjs = dmProjs.map(pid=>getProj(pid)?.bar).filter(Boolean);
     h+=`<th class="cd${ds===td0?' today':''}${isHol?' holiday':''}${isWeekStart?' week-start':''}${isMonthStart?' month-start':''}"
       onclick="openDateMemo('${ds}')"
       onmouseenter="showDateMemoBub(this,'${ds}')"
