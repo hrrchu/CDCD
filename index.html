@@ -193,7 +193,13 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 :root[data-theme="dark"] #cm-text,
 :root[data-theme="dark"] #cm-link,
 :root[data-theme="dark"] .fg [contenteditable]{background:var(--sf2)!important;color:var(--tx)!important;border-color:var(--bd2)!important}
-/* 드래그 생성 하이라이트 */
+:root[data-theme="dark"] .bub{background:#1e2025;border-color:#3a3d50;color:#e8eaf0}
+:root[data-theme="dark"] .bub *{color:#e8eaf0}
+:root[data-theme="dark"] .legend{background:var(--sur);border-color:var(--bd)}
+:root[data-theme="dark"] .legend-item{background:var(--sf2)!important;border-color:var(--bd2)!important;color:var(--tx2)!important}
+:root[data-theme="dark"] #g-bub{background:#1e2025!important;border-color:#3a3d50!important;color:#e8eaf0!important}
+:root[data-theme="dark"] #g-bub *{color:#e8eaf0!important}
+:root[data-theme="dark"] .dm-popup{background:#1e2025!important;border-color:#3a3d50!important;color:#e8eaf0!important}
 :root[data-theme="dark"] td.cell.creating{background:rgba(92,159,255,.12)!important}
 :root[data-theme="dark"] td.cell.creating-anchor{background:rgba(92,159,255,.2)!important}
 :root[data-theme="dark"] td.cell.move-preview{background:rgba(92,159,255,.1)!important}
@@ -1188,7 +1194,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     <div class="rbadge" id="cm-badge"></div>
     <div class="fg" id="cm-person-row" style="display:none">
       <label>담당자 <span style="font-size:15px;color:var(--tx3)">복수 선택 가능</span></label>
-      <div id="cm-person-list" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;border:1px solid var(--bd2);border-radius:8px;padding:6px 8px;background:#fafbfc"></div>
+      <div id="cm-person-list" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;border:1px solid var(--bd2);border-radius:8px;padding:6px 8px;background:var(--sf2)"></div>
     </div>
     <div class="fg" id="cm-date-row" style="display:none">
       <label>기간</label>
@@ -1756,6 +1762,7 @@ let _dmDate = null;
 let _dmBubTimeout = null;
 
 function openDateMemo(dateStr){
+  if(!_isAdmin){ showToast('관리자만 날짜 메모를 작성할 수 있어요 🔒','error'); return; }
   _dmDate = dateStr;
   document.getElementById('dm-modal-title').textContent = '📅 ' + dateStr;
   document.getElementById('dm-memo-input').value = dateMemos[dateStr] || '';
@@ -2006,16 +2013,11 @@ function applyAdminMode(){
   const p1t = document.getElementById('p1-title'); if(p1t) p1t.readOnly=!_isAdmin;
   const p1s = document.getElementById('p1-sub');   if(p1s) p1s.readOnly=!_isAdmin;
   const gn  = document.getElementById('grm-note'); if(gn){ gn.contentEditable=_isAdmin?'true':'false'; }
-  // tool
-  document.querySelectorAll('.tool-cell-input,.tool-drag-cell,.tool-del-btn,#tool-add-btn').forEach(el=>{
-    el.disabled=!_isAdmin; el.style.pointerEvents=_isAdmin?'':'none';
-  });
+  // tool - 모든 팀원 사용 가능
   document.querySelectorAll('#tool-tbody [contenteditable]').forEach(el=>{
-    el.contentEditable=_isAdmin?'true':'false'; el.style.userSelect='text';
+    el.contentEditable='true'; el.style.userSelect='text';
     el.querySelectorAll('a').forEach(a=>{ a.style.pointerEvents='auto'; a.style.cursor='pointer'; });
   });
-  const toolAddBtn=document.querySelector('[onclick="addToolRow()"]');
-  if(toolAddBtn) toolAddBtn.style.display=_isAdmin?'':'none';
   // 모든 페이지 링크는 항상 클릭 가능
   document.querySelectorAll('a[href]').forEach(a=>{ a.style.pointerEvents='auto'; a.style.cursor='pointer'; });
 }
@@ -4003,7 +4005,7 @@ function renderPsel(pid){
   selProjId=pid||PROJECTS[0]?.id;
   document.getElementById('cm-psel').innerHTML=PROJECTS.map(p=>`
     <div class="ppill${p.id===selProjId?' sel':''}"
-      style="background:${p.id===selProjId?p.bar+'18':'#f4f5f7'};color:${p.bar};border-color:${p.id===selProjId?p.bar:'transparent'}"
+      style="background:${p.id===selProjId?p.bar+'33':'var(--sf2)'};color:${p.bar};border-color:${p.id===selProjId?p.bar:'var(--bd)'}"
       onclick="selP('${p.id}')">
       <span class="ppdot" style="background:${p.bar}"></span>${p.name}
     </div>`).join('');
@@ -4022,7 +4024,7 @@ function renderPersonCheckboxes(people, selectedIds){
     members.forEach(p=>{
       const chk = selectedIds.includes(p.id);
       html += `
-        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid ${chk?'var(--acc)':'var(--bd)'};border-radius:8px;background:${chk?'#f0f7ff':'#fafbfc'};cursor:pointer;margin-bottom:4px"
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid ${chk?'var(--acc)':'var(--bd)'};border-radius:8px;background:${chk?'var(--acc)18':'var(--sf2)'};cursor:pointer;margin-bottom:4px"
           onclick="togglePersonChk('${p.id}',this)">
           <input type="checkbox" id="pchk-${p.id}" value="${p.id}" ${chk?'checked':''}
             style="width:15px;height:15px;accent-color:var(--acc);flex-shrink:0;pointer-events:none">
@@ -4039,7 +4041,7 @@ function togglePersonChk(personId, row){
   if(!chk) return;
   chk.checked = !chk.checked;
   const on = chk.checked;
-  row.style.background = on ? '#f0f7ff' : '#fafbfc';
+  row.style.background = on ? 'var(--acc)' + '18' : 'var(--sf2)';
   row.style.borderColor = on ? 'var(--acc)' : 'var(--bd)';
 }
 
@@ -4499,7 +4501,7 @@ function renderGRM(){
           <span style="font-size:13px;color:${proj.bar}">보정</span>
           <input type="number" min="0" max="200" placeholder="-"
             value="${adjVal??''}"
-            onblur="setAdj('${personId}','${proj.id}',this.value);renderGRM()"
+            onblur="setAdj('${personId}','${proj.id}',this.value);renderGRM()" ${_isAdmin?'':'disabled'}
             onclick="event.stopPropagation()"
             style="width:52px;border:1px solid ${proj.bar}66;border-radius:5px;padding:2px 6px;font-size:14px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
           <span style="font-size:13px;color:${proj.bar}">%</span>
@@ -4569,7 +4571,7 @@ function renderGRM(){
         <span style="font-size:13px;color:${proj.bar}">보정</span>
         <input type="number" min="0" max="200" placeholder="-"
           value="${adjVal??''}"
-          onblur="setAdj('${person.id}','${projId}',this.value);renderGRM()"
+          onblur="setAdj('${person.id}','${projId}',this.value);renderGRM()" ${_isAdmin?'':'disabled'}
           onclick="event.stopPropagation()"
           style="width:52px;border:1px solid ${proj.bar}66;border-radius:5px;padding:2px 6px;font-size:14px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
         <span style="font-size:13px;color:${proj.bar}">%</span>
@@ -4625,6 +4627,7 @@ function getAdj(personId, projId){
   return grmAdj?.[ym]?.[personId]?.[projId] ?? null;
 }
 function setAdj(personId, projId, val){
+  if(!_isAdmin){ showToast('관리자만 보정 공수를 입력할 수 있어요 🔒','error'); return; }
   const ym=grmYM();
   if(!grmAdj[ym]) grmAdj[ym]={};
   if(!grmAdj[ym][personId]) grmAdj[ym][personId]={};
