@@ -3401,7 +3401,7 @@ function renderTable(){
               return `<div style="position:absolute;top:calc(${msH}px + ${topFrac} * (100% - ${msH}px));left:0;right:0;height:calc(${heightFrac} * (100% - ${msH}px));overflow:hidden;${dimmed?'opacity:0;':''}"
                 onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
                 onclick="barBfClick(event,'${task.id}',${ri})">
-                <div class="bf" style="position:absolute;top:0;bottom:0;left:0;right:0;height:100%;background:${bs.bg};opacity:${bs.op||1};">
+                <div class="bf" style="position:absolute;top:0;bottom:0;left:0;right:0;height:100%;background:${bs.bg};opacity:${bs.op||1};${isS?'border-radius:8px 0 0 8px;margin-left:2px;left:2px;':''}${isE?'border-radius:0 8px 8px 0;margin-right:2px;right:2px;':''}${isS&&isE?'border-radius:8px;margin:0 2px;left:2px;right:2px;':''}">
                   ${isS?`<span class="bl" style="color:${bs.tc};width:${lblW}px;overflow:hidden;text-overflow:ellipsis;font-size:${rs.length>1&&si>0?'11px':'15px'}">${rv.rtitle||proj.name}</span>`:''}
                   ${isS?`<div class="rh rh-l" onmousedown="resizeMD(event,'${task.id}',${ri},'left',${idx})"></div>`:''}
                   ${isE?`<div class="rh rh-r" onmousedown="resizeMD(event,'${task.id}',${ri},'right',${idx})"></div>`:''}
