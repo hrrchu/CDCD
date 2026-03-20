@@ -89,10 +89,10 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 
 /* ── MILESTONE ZONE ── */
-.ms-zone{position:absolute;top:0;left:0;right:0;height:10px;z-index:7;cursor:pointer;display:flex;align-items:stretch;gap:1px;padding:1px 1px}
-.ms-zone:hover{background:rgba(0,0,0,.06)}
-.ms-dot{flex:1;height:100%;border-radius:2px;flex-shrink:0;transition:opacity .1s;cursor:pointer;min-width:6px;max-width:none}
-.ms-dot:hover{opacity:.75}
+
+
+
+
 
 
 /* ── EDITOR TOOLBAR ── */
@@ -279,7 +279,7 @@ tbody tr.drop-target{background:#f0f5ff!important;outline:2px solid var(--acc)}
 td.cell.bar{cursor:crosshair;padding:0}
 td.cell.bar:active{cursor:crosshair}
 .bt{width:100%;height:100%;position:relative;cursor:crosshair}
-.bf{height:calc(100% - 10px);width:100%;position:absolute;bottom:0;top:10px;left:0;right:0;display:flex;align-items:center;transition:filter .1s;cursor:grab}
+.bf{height:100%;width:100%;position:absolute;bottom:0;top:0;left:0;right:0;display:flex;align-items:center;transition:filter .1s;cursor:grab}
 .bf:active{cursor:grabbing}
 td.cell.bs .bf{border-radius:11px 0 0 11px;margin-left:3px}
 td.cell.be .bf{border-radius:0 11px 11px 0;margin-right:3px}
@@ -298,7 +298,7 @@ td.cell.move-preview .bf{opacity:.68;filter:brightness(1.08)}
 td.cell.bar{cursor:crosshair;padding:0}
 td.cell.bar:active{cursor:crosshair}
 .bt{width:100%;height:100%;position:relative;cursor:crosshair}
-.bf{height:calc(100% - 10px);width:100%;position:absolute;bottom:0;top:10px;left:0;right:0;display:flex;align-items:center;transition:filter .1s;cursor:grab}
+.bf{height:100%;width:100%;position:absolute;bottom:0;top:0;left:0;right:0;display:flex;align-items:center;transition:filter .1s;cursor:grab}
 .bf:active{cursor:grabbing}
 td.cell.bs .bf{border-radius:11px 0 0 11px;margin-left:3px}
 td.cell.be .bf{border-radius:0 11px 11px 0;margin-right:3px}
@@ -314,13 +314,13 @@ td.cell.move-preview{background:rgba(79,140,255,.08)!important}
 td.cell.move-preview .bf{opacity:.68;filter:brightness(1.08)}
 
 /* ── MILESTONE BARS ── */
-.ms-wrap{position:absolute;top:50%;left:4px;transform:translateY(-50%);display:flex;flex-direction:row;gap:3px;z-index:6;pointer-events:auto}
-.ms-bar{width:10px;height:10px;border-radius:50%;opacity:.95;width:100%;border-radius:3px;cursor:grab;pointer-events:auto;transition:opacity .12s,height .12s;position:relative}
-.ms-bar:active{cursor:grabbing}
+
+
+
 .ms-bar:hover{opacity:.8;height:8px}
-.ms-bar:hover .ms-tip{display:block}
+.ms-bar:hover 
 .ms-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1d27;color:#fff;font-size:15px;font-weight:600;white-space:nowrap;padding:4px 8px;border-radius:5px;pointer-events:none;z-index:200;font-family:'Pretendard',sans-serif;box-shadow:0 3px 10px rgba(0,0,0,.2)}
-.ms-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#1a1d27}
+
 td.cell.has-ms{cursor:pointer}
 td.cell.empty:hover,td.cell.has-ms:hover{background:rgba(79,140,255,.07)!important}
 
@@ -376,13 +376,13 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .lv-pill:hover{filter:brightness(.95)}
 
 /* ── MILESTONE MODAL checkboxes ── */
-.ms-grid{display:flex;flex-direction:column;gap:8px;margin-top:4px}
-.ms-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;cursor:pointer;transition:.12s}
+
+
 .ms-row:hover{background:#f8f9ff;border-color:var(--acc)}
 .ms-row.checked{background:#f0f7ff;border-color:var(--acc)}
 .ms-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--acc);cursor:pointer}
 .ms-icon{font-size:15px}
-.ms-label{font-size:15px;font-weight:600;color:var(--tx);flex:1}
+
 .ms-note{font-size:15px;color:var(--tx3)}
 
 /* ── PROJECT MANAGEMENT ── */
@@ -669,10 +669,6 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 
 /* ── MILESTONE ZONE ── */
-.ms-zone{position:absolute;top:0;left:0;right:0;height:10px;z-index:7;cursor:pointer;display:flex;align-items:stretch;gap:1px;padding:1px 1px}
-.ms-zone:hover{background:rgba(0,0,0,.06)}
-.ms-dot{flex:1;height:100%;border-radius:2px;flex-shrink:0;transition:opacity .1s;cursor:pointer;min-width:6px;max-width:none}
-.ms-dot:hover{opacity:.75}
 
 
 /* ── EDITOR TOOLBAR ── */
@@ -1283,30 +1279,6 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 
 
-<!-- Milestone Modal -->
-<!-- Milestone Modal -->
-<div class="mb" id="msmod">
-  <div class="modal" style="width:400px">
-    <div class="mt">🏁 마일스톤</div>
-    <div class="mss" id="ms-sub"></div>
-    <div class="ms-grid" id="ms-grid" style="margin-top:8px"></div>
-    <div class="fg" style="margin-top:10px"><label>메모</label><input type="text" id="ms-note" placeholder="간단한 메모..."></div>
-    <div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px">
-      <div style="font-size:15px;font-weight:700;color:var(--tx2);margin-bottom:8px">마일스톤 종류 관리</div>
-      <div id="ms-type-list"></div>
-      <div style="display:flex;gap:6px;margin-top:8px;align-items:center">
-        <input type="text" id="ms-new-label" placeholder="새 종류 이름..." style="flex:1;background:#fafbfc;border:1px solid var(--bd2);border-radius:7px;padding:6px 9px;font-size:15px;font-family:'Pretendard',sans-serif;outline:none">
-        <input type="color" id="ms-new-color" value="#3b82f6" style="width:34px;height:34px;border:1px solid var(--bd2);border-radius:7px;padding:2px;cursor:pointer;flex-shrink:0">
-        <button class="btn btn-p" onclick="addMsType()" style="padding:6px 12px;flex-shrink:0">추가</button>
-      </div>
-    </div>
-    <div class="ma" style="margin-top:14px">
-      <button class="btn btn-p" onclick="saveMilestone()">저장</button>
-      <button class="btn btn-g" onclick="closeMsmod()">취소</button>
-      <button class="btn btn-danger" onclick="deleteMilestone()">삭제</button>
-    </div>
-  </div>
-</div>
 
 
 <!-- Bulk Delete Modal -->
@@ -1607,7 +1579,6 @@ let grmAdj = {}; // grmAdj[ym][personId][projId] = 보정% (수기)
 let activityLog = []; // [{ts, type, personName, projName, start, end, action}]
 // milestones[taskId][dateStr] = {report:bool, variation:bool, storyboard:bool, note:string}
 // dateMemos[dateStr] = {text:string, projs:[projId,...]} (또는 하위호환 string)
-let milestones = {};
 // avatarImgs[personId] = base64 data URL
 let avatarImgs = {};
 
@@ -1623,11 +1594,6 @@ const LEAVE_TYPES = {
   checkup: {label:'검진',    color:'#64748b', bg:'#e2e8f0', icon:'🏥'},
   refresh: {label:'리프레쉬', color:'#64748b', bg:'#e2e8f0', icon:'✨'},
 };
-let MS_TYPES = [
-  {key:'storyboard', label:'스토리보드', color:'#042940'},
-  {key:'midcheck',   label:'중간점검',   color:'#03A688'},
-  {key:'variation',  label:'베리에이션', color:'#DBF227'},
-];
 
 const today = new Date();
 let CY=today.getFullYear(), CM=today.getMonth();
@@ -3592,6 +3558,7 @@ function renderHeader(){
 }
 function chM(d){CM+=d;if(CM>11){CM=0;CY++}if(CM<0){CM=11;CY--}renderHeader();renderTable();renderStats();if(curSubTab===1)renderGRM();if(curSubTab===2){if(_leaveTab==='year')renderLeaveListYear();else renderLeaveList();}}
 
+
 function getMsForCell(taskId, dateStr){
   return milestones[taskId]?.[dateStr]||null;
 }
@@ -3688,9 +3655,6 @@ function renderTable(){
           const rs=tR.filter(r=>n>=dn(r.start)&&n<=dn(r.end)); // 이 날짜에 걸치는 모든 범위
           const r=rs[0]||null; // 첫 번째 (하위호환)
           const lv=(leaves[person.id]||[]).find(l=>n>=dn(l.start)&&n<=dn(l.end));
-          const msVisible = !_filterStatus || rs.some(r=>_filterStatus==='wip'?['wip','variation','revision'].includes(r.status):r.status===_filterStatus);
-          const msHtml = msVisible ? msBarsHtml(task.id, dateStr) : '';
-          const hasMs=hasMsOnCell(task.id, dateStr);
 
           if(lv){
             const li=(leaves[person.id]||[]).indexOf(lv);
@@ -3700,19 +3664,17 @@ function renderTable(){
               draggable="true"
               ondragstart="lvGanttDragStart(event,'${person.id}',${li})"
               ondragover="event.preventDefault()"
-              ondrop="_msDrag.taskId?msDrop(event,'${task.id}','${dateStr}'):lvGanttDrop(event,'${person.id}','${dateStr}')"
+              ondrop="lvGanttDrop(event,'${person.id}','${dateStr}')"
               ondragend="lvGanttDragEnd()"
               onclick="leaveClick(event,'${person.id}',${li})"
               >
               <div class="lv-fill" style="background:${lt.bg};color:${lt.color}">
                 ${lvS?`<span class="lv-icon">${lt.icon}</span><span class="lv-lbl">${lt.label}</span>`:''}
               </div>
-              ${msHtml?`<div style="position:absolute;bottom:3px;left:2px;right:2px;display:flex;flex-direction:column;gap:2px;pointer-events:none">${msHtml}</div>`:''}
               <div class="bub"></div>
             </td>`;
           } else if(rs.length>0){
             // 겹치는 바들 세로 분할: 첫 번째 2/3, 나머지 1/3 균등 분할
-            const msH=10;
             const barsHtml = rs.map((rv,si)=>{
               const ri=tR.indexOf(rv);
               const proj=getProj(rv.projectId);
@@ -3730,7 +3692,7 @@ function renderTable(){
               if(rs.length===1){ topFrac=0; heightFrac=1; }
               else if(si===0){ topFrac=0; heightFrac=1/3; }
               else { topFrac=1/3+(si-1)*(2/3/(rs.length-1)); heightFrac=2/3/(rs.length-1); }
-              return `<div style="position:absolute;top:calc(${msH}px + ${topFrac} * (100% - ${msH}px));left:0;right:0;height:calc(${heightFrac} * (100% - ${msH}px));overflow:hidden;${dimmed?'opacity:0;':''}"
+              return `<div style="position:absolute;top:calc(${topFrac} * 100%);left:0;right:0;height:calc(${heightFrac} * 100%);overflow:hidden;${dimmed?'opacity:0;':''}"
                 onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
                 onclick="barBfClick(event,'${task.id}',${ri})">
                 <div class="bf" style="position:absolute;top:0;bottom:0;left:0;right:0;height:100%;background:${bs.bg};opacity:${bs.op||1};${isS?'border-radius:8px 0 0 8px;margin-left:2px;left:2px;':''}${isE?'border-radius:0 8px 8px 0;margin-right:2px;right:2px;':''}${isS&&isE?'border-radius:8px;margin:0 2px;left:2px;right:2px;':''}">
@@ -3744,22 +3706,20 @@ function renderTable(){
             const cls=`cell bar${isToday?' today':''}${isHolCell?' holiday-cell':''}${isWeekStart?' week-start':''}`;
             b+=`<td class="${cls}" data-task="${task.id}" data-person="${person.id}" data-ri="${tR.indexOf(rs[0])}" data-idx="${idx}" data-ds="${dateStr}"
               onclick="barTdClick(event,'${task.id}',${tR.indexOf(rs[0])},'${dateStr}')"
-              ondragover="if(_msDrag.taskId)event.preventDefault()"
-              ondrop="if(_msDrag.taskId)msDrop(event,'${task.id}','${dateStr}')">
+>
               <div class="bt" style="position:relative;height:100%">
-                ${msHtml}
                 ${barsHtml}
               </div>
               <div class="bub"></div>
             </td>`;
           } else {
             // 빈 셀
-            b+=`<td class="cell empty${isToday?' today':''}${isHolCell?' holiday-cell':''}${hasMs?' has-ms':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-person="${person.id}" data-idx="${idx}" data-ds="${dateStr}"
+            b+=`<td class="cell empty${isToday?' today':''}${isHolCell?' holiday-cell':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-person="${person.id}" data-idx="${idx}" data-ds="${dateStr}"
                 onmousedown="createMD(event,'${task.id}',${idx})"
                 onclick="emptyCellClick(event,'${task.id}','${dateStr}')"
                 ondragover="event.preventDefault()"
                 ondrop="msDrop(event,'${task.id}','${dateStr}')">
-                ${msHtml?`<div style="position:absolute;bottom:3px;left:2px;right:2px;display:flex;flex-direction:column;gap:2px;pointer-events:none">${msHtml}</div>`:''}
+  
               </td>`;
           }
         });
@@ -3943,9 +3903,7 @@ function finishResize(){
 }
 
 // ── BAR TD CLICK → milestone modal (clicking anywhere on bar cell except the bf bar itself) ──
-function barTdClick(e, taskId, ri, dateStr){
-  // ms-zone이 자체 클릭 처리
-}
+
 
 // ── BAR BF CLICK → schedule edit modal ──
 function barBfClick(e, taskId, ri){
@@ -4034,94 +3992,13 @@ function hideBubNow(){
 // ════════════════════════════════════════════
 //  MILESTONE MODAL
 // ════════════════════════════════════════════
-let msPending=null;
 
-function openMsModal(e,taskId,dateStr){
-  if(e) e.stopPropagation();
-  msPending={taskId,dateStr};
-  const ms=getMsForCell(taskId,dateStr)||{};
-  const task=tasks.find(t=>t.id===taskId);
-  const person=getPeople().find(p=>p.id===task?.personId);
-  document.getElementById('ms-sub').textContent=`${person?.name||''} · ${dateStr}`;
-  document.getElementById('ms-note').value=ms.note||'';
-  renderMsGrid(ms);
-  renderMsTypeList();
-  document.getElementById('msmod').classList.add('open');
-}
 
-function renderMsGrid(ms){
-  ms=ms||getMsForCell(msPending?.taskId,msPending?.dateStr)||{};
-  document.getElementById('ms-grid').innerHTML=MS_TYPES.map(t=>`
-    <label class="ms-row${ms[t.key]?' checked':''}" id="msrow-${t.key}">
-      <input type="checkbox" id="ms-${t.key}" ${ms[t.key]?'checked':''} onchange="toggleMsRow('${t.key}')">
-      <div style="width:12px;height:12px;border-radius:2px;background:${t.color};flex-shrink:0"></div>
-      <span class="ms-label">${t.label}</span>
-    </label>
-  `).join('');
-}
 
-function renderMsTypeList(){
-  document.getElementById('ms-type-list').innerHTML=MS_TYPES.map((t,i)=>`
-    <div style="display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--bd)">
-      <div style="width:10px;height:10px;border-radius:2px;background:${t.color};flex-shrink:0"></div>
-      <span style="flex:1;font-size:15px;color:var(--tx)">${t.label}</span>
-      <button onclick="deleteMsType(${i})" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:15px;line-height:1;padding:0 4px" title="삭제">×</button>
-    </div>
-  `).join('');
-}
 
-function toggleMsRow(key){
-  const chk=document.getElementById('ms-'+key);
-  document.getElementById('msrow-'+key).classList.toggle('checked',chk.checked);
-}
 
-function addMsType(){
-  const label=document.getElementById('ms-new-label').value.trim();
-  const color=document.getElementById('ms-new-color').value;
-  if(!label) return;
-  const key='ms_'+Date.now();
-  MS_TYPES.push({key,label,color});
-  document.getElementById('ms-new-label').value='';
-  renderMsGrid();
-  renderMsTypeList();
-  fbPush();
-}
 
-function deleteMsType(idx){
-  const t=MS_TYPES[idx];
-  if(!t) return;
-  // remove this key from all milestones
-  Object.values(milestones).forEach(byDate=>{
-    Object.values(byDate).forEach(ms=>{ delete ms[t.key]; });
-  });
-  MS_TYPES.splice(idx,1);
-  renderMsGrid();
-  renderMsTypeList();
-  renderTable();
-  fbPush();
-}
 
-function closeMsmod(){document.getElementById('msmod').classList.remove('open');msPending=null}
-function deleteMilestone(){
-  if(!msPending) return;
-  const {taskId,dateStr}=msPending;
-  if(milestones[taskId]) delete milestones[taskId][dateStr];
-  closeMsmod(); renderTable(); fbPush();
-}
-function saveMilestone(){
-  if(!msPending) return;
-  const {taskId,dateStr}=msPending;
-  const entry={note:document.getElementById('ms-note').value};
-  MS_TYPES.forEach(t=>{
-    const chk=document.getElementById('ms-'+t.key);
-    entry[t.key]=chk?chk.checked:false;
-  });
-  const hasAny=MS_TYPES.some(t=>entry[t.key]);
-  if(!milestones[taskId]) milestones[taskId]={};
-  if(hasAny) milestones[taskId][dateStr]=entry;
-  else delete milestones[taskId][dateStr];
-  closeMsmod(); renderTable(); fbPush();
-}
 
 // ════════════════════════════════════════════
 //  SCHEDULE MODAL
@@ -4458,49 +4335,6 @@ function lvDragEnd(){
 }
 
 // ── Milestone drag ──
-let _msDrag={taskId:null,dateStr:null};
-function msDragStart(e,taskId,dateStr){
-  e.stopPropagation();
-  if(!_isAdmin){ e.preventDefault(); return; }
-  _msDrag={taskId,dateStr};
-  e.dataTransfer.effectAllowed='move';
-  e.dataTransfer.setData('text/plain','ms');
-}
-function msDrop(e,targetTaskId,targetDateStr){
-  e.preventDefault();e.stopPropagation();
-  const {taskId:srcTask,dateStr:srcDate}=_msDrag;
-  if(!srcTask||!srcDate) return;
-  if(srcTask===targetTaskId&&srcDate===targetDateStr) return;
-  const srcMs=(milestones[srcTask]||{})[srcDate];
-  if(!srcMs) return;
-  if(!milestones[targetTaskId]) milestones[targetTaskId]={};
-  // merge: don't overwrite existing, just move
-  const existing=(milestones[targetTaskId][targetDateStr])||{};
-  milestones[targetTaskId][targetDateStr]={...existing,...srcMs};
-  delete milestones[srcTask][srcDate];
-  _msDrag={taskId:null,dateStr:null};
-  renderTable();fbPush();
-}
-function msDragEnd(){_msDrag={taskId:null,dateStr:null}}
-
-// ════════════════════════════════════════════
-//  PROJECT MANAGER
-// ════════════════════════════════════════════
-function openProjMgr(){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;} renderProjList();document.getElementById('projmod').classList.add('open')}
-function closeProjMgr(){document.getElementById('projmod').classList.remove('open');renderLegend();renderTable();renderStats();fbPush()}
-function renderProjList(){
-  const rows=PROJECTS.map((p,i)=>`
-    <tr data-pi="${i}">
-      <td><div class="color-input-wrap">
-        <div class="color-swatch" style="background:${p.bar}" id="sw-${i}"></div>
-        <input type="color" value="${p.bar}" oninput="pjCol(${i},this.value)">
-      </div></td>
-      <td><input class="proj-name-input" value="${p.name}" oninput="pjName(${i},this.value)"></td>
-      <td style="color:var(--tx3);font-size:15px">${Object.values(ranges).reduce((s,a)=>s+a.filter(r=>r.projectId===p.id).length,0)}개</td>
-      <td><button class="btn btn-danger" style="padding:4px 8px;font-size:15px" onclick="rmProj('${p.id}')">삭제</button></td>
-    </tr>`).join('');
-  document.getElementById('proj-list-table').innerHTML=`<thead><tr style="font-size:15px;color:var(--tx3);text-transform:uppercase"><td style="padding:5px 8px">색상</td><td>이름</td><td>사용</td><td></td></tr></thead><tbody>${rows}</tbody>`;
-}
 function pjCol(i,val){PROJECTS[i].bar=val;const sw=document.getElementById('sw-'+i);if(sw)sw.style.background=val}
 function pjName(i,val){PROJECTS[i].name=val}
 function pjEsm(i,val){PROJECTS[i].esm=val}
@@ -5303,12 +5137,10 @@ function loadFromSbData(payload){
   }
   if(payload.ranges)     ranges     = payload.ranges;
   if(payload.leaves)     leaves     = payload.leaves;
-  if(payload.milestones) milestones = payload.milestones;
-  // avatarImgs는 id:2 row에서만 로드 (여기서 덮어쓰지 않음)
+    // avatarImgs는 id:2 row에서만 로드 (여기서 덮어쓰지 않음)
   if(payload.ideaCards)  ideaCards  = payload.ideaCards;
   if(payload.toolRows)   toolRows   = payload.toolRows;
-  if(payload.MS_TYPES && payload.MS_TYPES.length) MS_TYPES = payload.MS_TYPES.map(t=>({key:t.key||'ms_'+Date.now(),label:t.label||'',color:t.color||'#4f8cff',...t}));
-  if(payload.activityLog) activityLog = payload.activityLog;
+    if(payload.activityLog) activityLog = payload.activityLog;
   if(payload.votes)       votes       = payload.votes;
   if(payload.p1Html !== undefined) p1SetHtml(payload.p1Html);
   if(payload.grmNote){ const e=document.getElementById('grm-note'); if(e) cmSetContent('grm-note', payload.grmNote); }
@@ -5331,8 +5163,7 @@ async function pushAllToSb(){
   if(!_sb) return;
   _sbIgnoreNext = true;
   const payload = {
-    PROJECTS, GROUPS, ranges, leaves, milestones,
-    ideaCards, toolRows, MS_TYPES, activityLog, votes,
+    PROJECTS, GROUPS, ranges, leaves, ideaCards, toolRows, MS_TYPES, activityLog, votes,
     p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
     grmNote: document.getElementById('grm-note')?.innerText||'',
     dateMemos, grmAdj,
