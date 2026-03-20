@@ -537,7 +537,7 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .idea-search:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(79,140,255,.12)}
 .idea-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;align-items:start}
 /* Keep-style card */
-.idea-card{border-radius:10px;padding:14px 14px 10px;position:relative;transition:box-shadow .15s,transform .12s;cursor:default;border:1px solid rgba(0,0,0,.09)}
+.idea-card{border-radius:10px;padding:14px 14px 10px;position:relative;transition:box-shadow .15s,transform .12s;cursor:default;border:1px solid rgba(0,0,0,.09);overflow:hidden;min-width:0}
 .idea-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.14);transform:translateY(-1px)}
 .idea-card.idea-dragging{opacity:.45;transform:scale(.96);pointer-events:none}
 .idea-card.idea-drag-over{outline:2px solid rgba(0,0,0,.35);outline-offset:1px;transform:none}
@@ -578,9 +578,9 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .idea-comment-del{opacity:0;border:none;background:none;color:rgba(0,0,0,.3);cursor:pointer;font-size:15px;padding:2px 3px;flex-shrink:0;border-radius:4px;transition:opacity .1s}
 .idea-comment:hover .idea-comment-del{opacity:.5}
 .idea-comment-del:hover{color:#e74c3c;opacity:1!important}
-.idea-add-comment{display:flex;gap:5px;margin-top:7px;align-items:center}
-.idea-add-comment select{border:1px solid rgba(0,0,0,.15);border-radius:7px;padding:4px 6px;font-size:15px;font-family:'Pretendard',sans-serif;background:rgba(255,255,255,.6);outline:none;max-width:80px}
-.idea-add-comment input{flex:1;border:1px solid rgba(0,0,0,.15);border-radius:7px;padding:4px 8px;font-size:15px;font-family:'Pretendard',sans-serif;background:rgba(255,255,255,.6);color:rgba(0,0,0,.7);outline:none}
+.idea-add-comment{display:flex;gap:5px;margin-top:7px;align-items:center;flex-wrap:wrap}
+.idea-add-comment select{border:1px solid rgba(0,0,0,.15);border-radius:7px;padding:4px 6px;font-size:13px;font-family:'Pretendard',sans-serif;background:rgba(255,255,255,.6);outline:none;max-width:80px;min-width:0}
+.idea-add-comment input{flex:1;border:1px solid rgba(0,0,0,.15);border-radius:7px;padding:4px 8px;font-size:13px;font-family:'Pretendard',sans-serif;background:rgba(255,255,255,.6);color:rgba(0,0,0,.7);outline:none;min-width:0;width:0}
 .idea-add-comment input:focus{border-color:rgba(0,0,0,.35);background:rgba(255,255,255,.9)}
 .idea-add-comment button{border:none;background:rgba(0,0,0,.12);color:rgba(0,0,0,.6);border-radius:7px;padding:4px 9px;font-size:15px;cursor:pointer}
 .idea-add-comment button:hover{background:rgba(0,0,0,.2)}
@@ -1961,6 +1961,48 @@ function toggleDarkMode(){
   localStorage.setItem('cdtheme', isDark?'light':'dark');
   applyDarkMode(!isDark);
 }
+
+// ════════════════════════════════════════════
+//  IDEA CARD INLINE EDIT
+// ════════════════════════════════════════════
+function startEditIdea(idx){
+  const card = ideaCards[idx];
+  if(!card) return;
+  const wrap = document.getElementById('ibody-'+idx);
+  if(!wrap) return;
+  // 편집 모드로 전환
+  wrap.contentEditable = 'true';
+  wrap.spellcheck = false;
+  wrap.style.outline = '2px solid var(--acc)';
+  wrap.style.borderRadius = '6px';
+  wrap.style.padding = '4px';
+  wrap.style.cursor = 'text';
+  wrap.innerHTML = card.body ? cmSetContentStr(card.body) : '';
+  wrap.focus();
+  // 커서 끝으로
+  const range = document.createRange();
+  range.selectNodeContents(wrap);
+  range.collapse(false);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  // 저장 이벤트
+  wrap.onblur = () => saveEditIdea(idx, wrap);
+  wrap.onkeydown = (e) => { if(e.key==='Escape') { wrap.blur(); } };
+}
+function saveEditIdea(idx, wrap){
+  if(!wrap) return;
+  wrap.contentEditable = 'false';
+  wrap.style.outline = '';
+  wrap.style.borderRadius = '';
+  wrap.style.padding = '';
+  wrap.style.cursor = 'default';
+  wrap.onblur = null;
+  wrap.onkeydown = null;
+  ideaCards[idx].body = wrap.innerHTML.trim();
+  fbPush();
+  renderIdeaBoard();
+}
 // ════════════════════════════════════════════
 //  ADMIN AUTH
 // ════════════════════════════════════════════
@@ -3185,15 +3227,11 @@ const IDEA_TAGS = [
 ];
 
 const NOTE_COLORS = [
-  {name:'기본',   bg:'#ffffff', border:'rgba(0,0,0,.09)', dark:'#25272e', darkBorder:'#3a3d50'},
-  {name:'노랑',   bg:'#fff9c4', border:'rgba(0,0,0,.07)', dark:'#2e2a14', darkBorder:'#4a4020'},
-  {name:'연두',   bg:'#ccff90', border:'rgba(0,0,0,.07)', dark:'#1a2e10', darkBorder:'#2e4a1a'},
-  {name:'민트',   bg:'#a7ffeb', border:'rgba(0,0,0,.07)', dark:'#0e2a24', darkBorder:'#1a4035'},
-  {name:'하늘',   bg:'#cbf0f8', border:'rgba(0,0,0,.07)', dark:'#0e2030', darkBorder:'#1a3448'},
-  {name:'라벤더', bg:'#e8d5fb', border:'rgba(0,0,0,.07)', dark:'#251a30', darkBorder:'#3a2848'},
-  {name:'핑크',   bg:'#ffcdd2', border:'rgba(0,0,0,.07)', dark:'#2e1418', darkBorder:'#4a2028'},
-  {name:'살구',   bg:'#ffe0b2', border:'rgba(0,0,0,.07)', dark:'#2e2010', darkBorder:'#4a3018'},
-  {name:'회색',   bg:'#e0e0e0', border:'rgba(0,0,0,.09)', dark:'#2a2a2a', darkBorder:'#404040'},
+  {name:'흰색',   bg:'#ffffff', border:'rgba(0,0,0,.09)'},
+  {name:'노랑',   bg:'#fff9c4', border:'rgba(0,0,0,.07)'},
+  {name:'민트',   bg:'#a7ffeb', border:'rgba(0,0,0,.07)'},
+  {name:'라벤더', bg:'#e8d5fb', border:'rgba(0,0,0,.07)'},
+  {name:'핑크',   bg:'#ffcdd2', border:'rgba(0,0,0,.07)'},
 ];
 
 const IDEA_EMOJIS = ['👍','❤️','🔥','😂','😮','👏','🤔','💯','🎉','✅','❓','💬','🌟','🚀','😢'];
@@ -3247,12 +3285,8 @@ function renderIdeaBoard(){
     const colorDots=NOTE_COLORS.map(n=>`<div class="idea-color-dot${card.color===n.bg?' selected':''}" style="background:${n.bg}" title="${n.name}" onclick="setNoteColor(${idx},'${n.bg}')"></div>`).join('');
     const colorPicker=`<input type="color" value="${card.color||'#ffffff'}" title="자유 색상" onchange="setNoteColor(${idx},this.value)" style="width:22px;height:22px;border:1px solid rgba(0,0,0,.15);border-radius:4px;padding:1px;cursor:pointer;flex-shrink:0">`;
     return `<div class="idea-card" style="background:${cardBg};border-color:${cardBorder};${cardTx?'color:'+cardTx:''}"
-      draggable="true"
-      ondragstart="ideaDragStart(event,${idx})"
-      ondragover="ideaDragOver(event,${vi})"
-      ondrop="ideaDrop(event,${vi})"
-      ondragend="ideaDragEnd()">
-      <div class="idea-card-drag-handle">⠿⠿</div>
+>
+
       <button class="idea-card-pin${card.pinned?' pinned':''}" onclick="togglePin(${idx})" title="${card.pinned?'핀 해제':'핀 고정'}">📌</button>
 
       <div class="idea-card-toolbar">
@@ -3260,7 +3294,10 @@ function renderIdeaBoard(){
       </div>
       ${card.tag?`<div class="idea-tag-pill" style="background:${tag.bg};color:${tag.color}">${tag.label}</div>`:''}
       ${card.title?`<div class="idea-card-title">${card.title}</div>`:''}
-      ${card.body?`<div class="idea-card-body">${cmSetContentStr(card.body)}</div>`:''}
+      <div class="idea-card-body" id="ibody-${idx}"
+        ondblclick="startEditIdea(${idx})"
+        style="user-select:text;-webkit-user-select:text;cursor:default"
+      >${card.body?cmSetContentStr(card.body):'<span style="color:rgba(0,0,0,.25);font-size:13px">더블클릭해서 수정...</span>'}</div>
       <div class="idea-card-footer">
         <span class="idea-card-date">${card.author||''}${card.author?' · ':''}${dateStr}</span>
       </div>
@@ -3331,28 +3368,6 @@ function addComment(idx){
 function deleteComment(cardIdx,ci){if(ideaCards[cardIdx])ideaCards[cardIdx].comments.splice(ci,1);renderIdeaBoard();fbPush()}
 function deleteIdea(idx){if(!confirm('이 메모를 삭제할까요?'))return;ideaCards.splice(idx,1);renderIdeaBoard();fbPush()}
 
-function ideaDragStart(e,idx){
-  ideaDragSrcIdx=idx;
-  e.dataTransfer.effectAllowed='move';
-  e.dataTransfer.setData('text/plain',idx);
-  setTimeout(()=>{document.querySelectorAll('.idea-card')[idx]?.classList.add('idea-dragging')},0);
-}
-function ideaDragOver(e,vi){
-  e.preventDefault();
-  document.querySelectorAll('.idea-card').forEach((c,i)=>c.classList.toggle('idea-drag-over',i===vi&&ideaDragSrcIdx!==vi));
-}
-function ideaDrop(e,vi){
-  e.preventDefault();
-  if(ideaDragSrcIdx===null) return;
-  const moved=ideaCards.splice(ideaDragSrcIdx,1)[0];
-  ideaCards.splice(vi,0,moved);
-  ideaDragSrcIdx=null;
-  renderIdeaBoard();fbPush();
-}
-function ideaDragEnd(){
-  ideaDragSrcIdx=null;
-  document.querySelectorAll('.idea-card').forEach(c=>c.classList.remove('idea-dragging','idea-drag-over'));
-}
 
 function saveIdea(e){
   if(e) e.stopPropagation();
