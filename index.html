@@ -104,6 +104,12 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 .tb-color{width:26px;height:26px;border:1px solid var(--bd2);border-radius:5px;padding:2px;cursor:pointer}
 .free-editor{border-radius:0 0 12px 12px!important}
 
+
+/* ── STATUS BUTTONS ── */
+.status-btn{padding:5px 12px;border-radius:20px;border:2px solid var(--bd2);background:var(--sur);color:var(--tx);font-size:14px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.12s}
+.status-btn:hover{border-color:var(--acc)}
+.status-btn.active{border-color:var(--acc);background:var(--acc);color:#fff;opacity:1!important}
+
 /* ── HINT ── */
 .hint{font-size:15px;color:var(--tx3);padding:4px 22px;display:flex;gap:10px;flex-wrap:wrap;background:var(--sf2);border-bottom:1px solid var(--bd)}
 .hint b{color:var(--tx2)}.hint .sep{color:var(--bd2)}
@@ -582,6 +588,12 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 .tb-color{width:26px;height:26px;border:1px solid var(--bd2);border-radius:5px;padding:2px;cursor:pointer}
 .free-editor{border-radius:0 0 12px 12px!important}
 
+
+/* ── STATUS BUTTONS ── */
+.status-btn{padding:5px 12px;border-radius:20px;border:2px solid var(--bd2);background:var(--sur);color:var(--tx);font-size:14px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:.12s}
+.status-btn:hover{border-color:var(--acc)}
+.status-btn.active{border-color:var(--acc);background:var(--acc);color:#fff;opacity:1!important}
+
 /* ── HINT ── */
   .hint{display:none}
 
@@ -1050,7 +1062,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 <!-- Schedule Edit Modal -->
 <div class="mb" id="cmod">
-  <div class="modal" style="width:800px;max-width:98vw">
+  <div class="modal" style="width:750px;max-width:98vw">
     <div class="mt" id="cm-title"></div>
     <div class="mss" id="cm-sub"></div>
     <div class="rbadge" id="cm-badge"></div>
@@ -1067,7 +1079,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
           <input type="number" id="cm-sm" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('cm')">
           <span class="ds-sep">-</span>
           <input type="number" id="cm-sd" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('cm')">
-          <div class="ds-arrow" onclick="shiftSpinnerDate('cm-start',1)"><span>▲</span><span>▼</span></div>
+          <div class="ds-arrow"><span onclick="shiftSpinnerDate('cm-start',1)">▲</span><span onclick="shiftSpinnerDate('cm-start',-1)">▼</span></div>
         </div>
         <span style="font-size:15px;color:var(--tx3);font-weight:600">→</span>
         <div class="date-spinner">
@@ -1076,7 +1088,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
           <input type="number" id="cm-em" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('cm')">
           <span class="ds-sep">-</span>
           <input type="number" id="cm-ed" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('cm')">
-          <div class="ds-arrow" onclick="shiftSpinnerDate('cm-end',1)"><span>▲</span><span>▼</span></div>
+          <div class="ds-arrow"><span onclick="shiftSpinnerDate('cm-end',1)">▲</span><span onclick="shiftSpinnerDate('cm-end',-1)">▼</span></div>
         </div>
         <input type="hidden" id="cm-start">
         <input type="hidden" id="cm-end">
@@ -1096,13 +1108,16 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         style="border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-size:15px;font-family:'Pretendard',sans-serif;line-height:1.7;min-height:200px;outline:none;white-space:pre-wrap;word-break:break-word;color:var(--tx);background:#fff"
       ></div>
     </div>
-    <div class="fg"><label>상태</label>
-      <select id="cm-status">
-        <option value="plan">📋 예정</option>
-        <option value="wip">🔄 진행중</option>
-        <option value="done">✅ 완료</option>
-        <option value="blocked">⛔ 블로킹</option>
-      </select>
+    <div class="fg">
+      <label>상태</label>
+      <input type="hidden" id="cm-status" value="plan">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px" id="cm-status-btns">
+        <button type="button" onclick="setCmStatus('plan')"   data-status="plan"       class="status-btn" style="opacity:0.2">예정</button>
+        <button type="button" onclick="setCmStatus('wip')"    data-status="wip"        class="status-btn">진행중</button>
+        <button type="button" onclick="setCmStatus('done')"   data-status="done"       class="status-btn" style="opacity:0.2">완료</button>
+        <button type="button" onclick="setCmStatus('variation')" data-status="variation" class="status-btn">베리에이션</button>
+        <button type="button" onclick="setCmStatus('revision')"  data-status="revision"  class="status-btn">수정중</button>
+      </div>
     </div>
     <div class="ma">
       <button class="btn btn-p" onclick="saveComment()">저장</button>
@@ -1265,7 +1280,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
             <input type="number" id="lm-sm" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('lm')">
             <span class="ds-sep">-</span>
             <input type="number" id="lm-sd" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('lm')">
-            <div class="ds-arrow" onclick="shiftSpinnerDate('lm-start',1)"><span>▲</span><span>▼</span></div>
+            <div class="ds-arrow"><span onclick="shiftSpinnerDate('lm-start',1)">▲</span><span onclick="shiftSpinnerDate('lm-start',-1)">▼</span></div>
           </div>
           <span style="font-size:15px;color:var(--tx3);font-weight:600">→</span>
           <div class="date-spinner">
@@ -1274,7 +1289,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
             <input type="number" id="lm-em" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('lm')">
             <span class="ds-sep">-</span>
             <input type="number" id="lm-ed" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('lm')">
-            <div class="ds-arrow" onclick="shiftSpinnerDate('lm-end',1)"><span>▲</span><span>▼</span></div>
+            <div class="ds-arrow"><span onclick="shiftSpinnerDate('lm-end',1)">▲</span><span onclick="shiftSpinnerDate('lm-end',-1)">▼</span></div>
           </div>
           <input type="hidden" id="lm-start">
           <input type="hidden" id="lm-end">
@@ -1771,6 +1786,17 @@ function tbUpdateTableTools(){
   if(group) group.style.display = inTable ? 'flex' : 'none';
 }
 
+
+function setCmStatus(val){
+  document.getElementById('cm-status').value = val;
+  document.querySelectorAll('.status-btn').forEach(btn=>{
+    const isActive = btn.dataset.status === val;
+    btn.classList.toggle('active', isActive);
+  });
+}
+function applyCmStatusBtns(val){
+  setCmStatus(val);
+}
 // ════════════════════════════════════════════
 //  ADMIN AUTH
 // ════════════════════════════════════════════
@@ -3199,16 +3225,18 @@ function getBarStyle(proj,status){
   const hex=proj.bar;
   const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
   const tc=textFor(hex);
-  if(status==='wip') return {bg:hex, tc, op:1, shadow:'none'};
+  if(status==='wip')       return {bg:hex, tc, op:1,    shadow:'none'};
+  if(status==='variation') return {bg:hex, tc, op:1,    shadow:'none'};
+  if(status==='revision')  return {bg:hex, tc, op:1,    shadow:'none'};
   if(status==='done'){
     const gray=Math.round(r*.299+g*.587+b*.114);
     const dr=Math.round(r*.8+gray*.2),dg=Math.round(g*.8+gray*.2),db=Math.round(b*.8+gray*.2);
-    return {bg:`rgb(${dr},${dg},${db})`, tc:'#888', op:0.25, shadow:'none'};
+    return {bg:`rgb(${dr},${dg},${db})`, tc:'#888', op:0.2, shadow:'none'};
   }
   if(status==='blocked') return {bg:hex, tc, op:0.15, shadow:'none'};
-  return {bg:hex, tc, op:0.25, shadow:'none'};
+  return {bg:hex, tc, op:0.2, shadow:'none'};
 }
-function statusBadge(s){return{plan:'📋',wip:'🔄',done:'✅',blocked:'⛔'}[s]||'📋'}
+function statusBadge(s){return{plan:'',wip:'',done:'',blocked:'⛔',variation:'',revision:''}[s]||''}
 
 // ════════════════════════════════════════════
 //  RENDER
@@ -3359,7 +3387,7 @@ function renderTable(){
           const rs=tR.filter(r=>n>=dn(r.start)&&n<=dn(r.end)); // 이 날짜에 걸치는 모든 범위
           const r=rs[0]||null; // 첫 번째 (하위호환)
           const lv=(leaves[person.id]||[]).find(l=>n>=dn(l.start)&&n<=dn(l.end));
-          const msVisible = !_filterStatus || rs.some(r=>r.status===_filterStatus);
+          const msVisible = !_filterStatus || rs.some(r=>_filterStatus==='wip'?['wip','variation','revision'].includes(r.status):r.status===_filterStatus);
           const msHtml = msVisible ? msBarsHtml(task.id, dateStr) : '';
           const hasMs=hasMsOnCell(task.id, dateStr);
 
@@ -3389,7 +3417,10 @@ function renderTable(){
               const proj=getProj(rv.projectId);
               const bs=getBarStyle(proj,rv.status);
               const isS=n===dn(rv.start),isE=n===dn(rv.end);
-              const dimmed=(_filterProjId&&rv.projectId!==_filterProjId)||(_filterStatus&&rv.status!==_filterStatus);
+              const _wipGroup = ['wip','variation','revision'];
+              const statusMatch = !_filterStatus ||
+                (_filterStatus==='wip' ? _wipGroup.includes(rv.status) : rv.status===_filterStatus);
+              const dimmed=(_filterProjId&&rv.projectId!==_filterProjId)||!statusMatch;
               const cellPx=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cell"))||40;
               const span=dn(rv.end)-dn(rv.start)+1;
               const lblW=Math.max(span*cellPx-8,45);
@@ -3643,7 +3674,7 @@ function emptyCellClick(e,taskId,dateStr){
   document.getElementById('cm-rtitle').value='';
   cmSetContent('cm-text','');
   cmSetContent('cm-link','');
-  document.getElementById('cm-status').value='plan';
+  setCmStatus('plan');
   document.getElementById('cm-del').style.display='none';
   renderPsel(null);
   pending={taskId, start:dateStr, end:dateStr, editIdx:null, isNew:false};
@@ -3854,7 +3885,7 @@ function openScheduleAdd(){ if(!_isAdmin){showToast('관리자만 사용할 수 
   document.getElementById('cm-rtitle').value = '';
   cmSetContent('cm-text','');
   cmSetContent('cm-link','');
-  document.getElementById('cm-status').value = 'plan';
+  setCmStatus('plan');
   document.getElementById('cm-del').style.display = 'none';
   renderPsel(null);
   // 작업항목 초기화
@@ -3896,7 +3927,7 @@ function openModal(taskId,start,end,editIdx){
   document.getElementById('cm-rtitle').value=r?.rtitle||'';
   cmSetContent('cm-text', r?.text||'');
   cmSetContent('cm-link', r?.link||'');
-  document.getElementById('cm-status').value=r?.status||'plan';
+  setCmStatus(r?.status||'plan');
   document.getElementById('cm-del').style.display=editIdx!=null?'':'none';
   renderPsel(r?.projectId||null);
   // 작업항목 불러오기
@@ -5100,6 +5131,24 @@ const _mbObserver = new MutationObserver(()=>{
 document.querySelectorAll('.mb').forEach(el=>
   _mbObserver.observe(el, {attributes:true, attributeFilter:['class']})
 );
+
+
+// 엔터로 팝업 저장/닫기
+document.addEventListener('keydown', e=>{
+  if(e.key !== 'Enter' || e.shiftKey || e.target.tagName==='TEXTAREA' || e.target.tagName==='SELECT') return;
+  const open = document.querySelector('.mb.open');
+  if(!open) return;
+  e.preventDefault();
+  const id = open.id;
+  if(id==='cmod')     { saveComment(); return; }
+  if(id==='lmod')     { saveLeave(); return; }
+  if(id==='msmod')    { saveMilestone(); return; }
+  if(id==='dm-modal') { saveDateMemo(); return; }
+  if(id==='admin-modal') { submitAdminPw(); return; }
+  // 나머지 팝업은 그냥 닫기
+  open.classList.remove('open');
+  pending=null; pendingLv=null; msPending=null; _dmDate=null;
+});
 
 // ESC 키로 팝업 닫기
 document.addEventListener('keydown', e=>{
