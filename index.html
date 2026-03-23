@@ -89,7 +89,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 
 /* ── MILESTONE ZONE ── */
-.ms-zone{position:absolute;top:0;left:0;right:0;height:10px;z-index:7;cursor:pointer;display:flex;align-items:stretch;gap:1px;padding:1px 1px}
+.ms-zone{position:absolute;top:0;left:0;right:0;height:10px;z-index:4;cursor:pointer;display:flex;align-items:stretch;gap:1px;padding:1px 1px;pointer-events:none}
 .ms-zone:hover{background:rgba(0,0,0,.06)}
 .ms-dot{flex:1;height:100%;border-radius:2px;flex-shrink:0;transition:opacity .1s;cursor:pointer;min-width:6px;max-width:none}
 .ms-dot:hover{opacity:.75}
@@ -672,7 +672,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 
 /* ── MILESTONE ZONE ── */
-.ms-zone{position:absolute;top:0;left:0;right:0;height:10px;z-index:7;cursor:pointer;display:flex;align-items:stretch;gap:1px;padding:1px 1px}
+.ms-zone{position:absolute;top:0;left:0;right:0;height:10px;z-index:4;cursor:pointer;display:flex;align-items:stretch;gap:1px;padding:1px 1px;pointer-events:none}
 .ms-zone:hover{background:rgba(0,0,0,.06)}
 .ms-dot{flex:1;height:100%;border-radius:2px;flex-shrink:0;transition:opacity .1s;cursor:pointer;min-width:6px;max-width:none}
 .ms-dot:hover{opacity:.75}
@@ -849,7 +849,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <button id="sf-wip"  onclick="toggleStatusFilter('wip')"  class="btn btn-g">🔄 진행중</button>
       <button id="sf-done" onclick="toggleStatusFilter('done')" class="btn btn-g">✅ 완료</button>
       <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5;padding:4px 8px" onclick="openBulkDelete()" title="일괄 삭제">🗑</button>
-      <button class="btn" style="background:#fffbeb;color:#b45309;border:1px solid #fcd34d;padding:4px 8px" onclick="deleteAllMilestones()" title="마일스톤 전체삭제">🏁</button>
+      <button class="btn btn-g" onclick="openMsMgr()" style="padding:4px 10px;font-size:15px">🏁 마일스톤 관리</button>
     </div>
   </div>
 
@@ -1275,6 +1275,11 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         </div>
       </div>
     </div>
+    <!-- 마일스톤 -->
+    <div class="fg" id="cm-ms-section">
+      <label>마일스톤</label>
+      <div id="cm-ms-grid" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
+    </div>
     <div class="ma">
       <button class="btn btn-p" onclick="saveComment()">저장</button>
       <button class="btn btn-g" onclick="closeCmod()">취소</button>
@@ -1313,6 +1318,28 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 </div>
 
 
+
+<!-- Milestone Manager Modal -->
+<div class="mb" id="ms-mgr-mod">
+  <div class="modal" style="width:420px">
+    <div class="mt">🏁 마일스톤 관리</div>
+    <div style="margin-top:12px">
+      <div id="ms-mgr-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"></div>
+      <div style="border-top:1px solid var(--bd);padding-top:12px">
+        <div style="font-size:14px;font-weight:700;color:var(--tx3);margin-bottom:8px">새 마일스톤 추가</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="text" id="ms-mgr-new-label" placeholder="이름..." style="flex:1;border:1px solid var(--bd2);border-radius:7px;padding:6px 10px;font-size:15px;font-family:'Pretendard',sans-serif;outline:none">
+          <input type="color" id="ms-mgr-new-color" value="#3b82f6" style="width:36px;height:36px;border:1px solid var(--bd2);border-radius:7px;padding:2px;cursor:pointer;flex-shrink:0">
+          <button class="btn btn-p" onclick="msMgrAdd()" style="flex-shrink:0">추가</button>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px;display:flex;justify-content:space-between;align-items:center">
+      <button class="btn btn-danger" onclick="if(confirm('모든 마일스톤 데이터를 삭제할까요?')){Object.keys(milestones).forEach(k=>{milestones[k]={}});closeMsMgr();renderTable();fbPush();showToast('마일스톤 전체 삭제됨')}">전체 삭제</button>
+      <button class="btn btn-g" onclick="closeMsMgr()">닫기</button>
+    </div>
+  </div>
+</div>
 <!-- Bulk Delete Modal -->
 <div class="mb" id="bdmod">
   <div class="modal" style="width:500px">
@@ -3613,13 +3640,8 @@ function msBarsHtml(taskId, dateStr){
   const ms=getMsForCell(taskId,dateStr)||{};
   const bars = MS_TYPES.filter(t=>ms[t.key]).map(t=>`
     <div class="ms-dot" style="background:${t.color}" title="${t.label}"
-      draggable="true"
-      ondragstart="msDragStart(event,'${taskId}','${dateStr}')"
-      ondragend="msDragEnd()"></div>`).join('');
-  return `<div class="ms-zone"
-    onclick="openMsModal(event,'${taskId}','${dateStr}')"
-    ondragover="if(_msDrag.taskId)event.preventDefault()"
-    ondrop="if(_msDrag.taskId)msDrop(event,'${taskId}','${dateStr}')">${bars}</div>`;
+      onclick="openMsModal(event,'${taskId}','${dateStr}')"></div>`).join('');
+  return `<div class="ms-zone">${bars}</div>`;
 }
 
 function renderTable(){
@@ -3753,8 +3775,7 @@ function renderTable(){
             const cls=`cell bar${isToday?' today':''}${isHolCell?' holiday-cell':''}${isWeekStart?' week-start':''}`;
             b+=`<td class="${cls}" data-task="${task.id}" data-person="${person.id}" data-ri="${tR.indexOf(rs[0])}" data-idx="${idx}" data-ds="${dateStr}"
               onclick="barTdClick(event,'${task.id}',${tR.indexOf(rs[0])},'${dateStr}')"
-              ondragover="if(_msDrag.taskId)event.preventDefault()"
-              ondrop="if(_msDrag.taskId)msDrop(event,'${task.id}','${dateStr}')">
+>
               <div class="bt" style="position:relative;height:100%">
                 ${msHtml}
                 ${barsHtml}
@@ -3766,8 +3787,9 @@ function renderTable(){
             b+=`<td class="cell empty${isToday?' today':''}${isHolCell?' holiday-cell':''}${hasMs?' has-ms':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-person="${person.id}" data-idx="${idx}" data-ds="${dateStr}"
                 onmousedown="createMD(event,'${task.id}',${idx})"
                 onclick="emptyCellClick(event,'${task.id}','${dateStr}')"
+                ondrop="if(_msDrag&&_msDrag.taskId)msDrop(event,'${task.id}','${dateStr}')"
                 ondragover="event.preventDefault()"
-                ondrop="msDrop(event,'${task.id}','${dateStr}')">
+>
                 ${msHtml?`<div style="position:absolute;bottom:3px;left:2px;right:2px;display:flex;flex-direction:column;gap:2px;pointer-events:none">${msHtml}</div>`:''}
               </td>`;
           }
@@ -3909,28 +3931,18 @@ function finishMove(){
   const entry={...r,start:newStart,end:newEnd};
   ranges[taskId]=ranges[taskId].filter((_,i)=>i!==ri);
 
-  // 마일스톤도 같이 이동
-  const oldMs = JSON.parse(JSON.stringify(milestones[taskId]||{}));
-  const wds = getAllWds();
-  const targetTaskId = (crossPersonId&&crossPersonId!==personId)
-    ? tasks.find(t=>t.personId===crossPersonId)?.id
-    : taskId;
-
-  if(targetTaskId){
-    if(!milestones[targetTaskId]) milestones[targetTaskId]={};
+  // 마일스톤 이동 (범위 내 날짜, deep copy)
+  const tgtTaskId = (crossPersonId&&crossPersonId!==personId)
+    ? tasks.find(t=>t.personId===crossPersonId)?.id : taskId;
+  if(tgtTaskId){
+    const snapshot = JSON.parse(JSON.stringify(milestones[taskId]||{}));
     const startDn=dn(r.start), endDn=dn(r.end);
-    Object.entries(oldMs).forEach(([ds, msData])=>{
-      if(dn(ds)>=startDn && dn(ds)<=endDn){
-        const dsIdx = wds.findIndex(w=>w.ds===ds);
-        if(dsIdx>=0){
-          const newDsIdx = Math.max(0, Math.min(wds.length-1, dsIdx+delta));
-          const newDs = wds[newDsIdx]?.ds;
-          if(newDs){
-            milestones[targetTaskId][newDs] = msData;
-            delete milestones[taskId][ds];
-          }
-        }
-      }
+    Object.entries(snapshot).forEach(([ds, msData])=>{
+      if(dn(ds)<startDn||dn(ds)>endDn) return;
+      const newDs = delta!==0 ? addWeekdays(ds, delta) : ds;
+      if(!milestones[tgtTaskId]) milestones[tgtTaskId]={};
+      milestones[tgtTaskId][newDs] = msData;
+      if(tgtTaskId!==taskId || newDs!==ds) delete milestones[taskId][ds];
     });
   }
 
@@ -4071,6 +4083,59 @@ function hideBubNow(){
 // ════════════════════════════════════════════
 let msPending=null;
 
+
+function openMsMgr(){
+  if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;}
+  renderMsMgrList();
+  document.getElementById('ms-mgr-mod').classList.add('open');
+}
+function closeMsMgr(){ document.getElementById('ms-mgr-mod').classList.remove('open'); }
+function renderMsMgrList(){
+  const wrap = document.getElementById('ms-mgr-list');
+  if(!wrap) return;
+  wrap.innerHTML = MS_TYPES.map((t,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--sur)">
+      <span style="width:14px;height:14px;border-radius:3px;background:${t.color};flex-shrink:0;display:inline-block" id="ms-mgr-dot-${i}"></span>
+      <input type="text" value="${t.label}" oninput="msMgrLabelChange(${i},this.value)"
+        style="flex:1;border:1px solid var(--bd2);border-radius:6px;padding:4px 8px;font-size:15px;font-weight:600;font-family:'Pretendard',sans-serif;color:var(--tx);background:var(--sur);outline:none">
+      <input type="color" value="${t.color}" oninput="msMgrColorChange(${i},this.value)"
+        style="width:32px;height:32px;border:1px solid var(--bd2);border-radius:6px;padding:2px;cursor:pointer;flex-shrink:0" title="색상 변경">
+      <button onclick="msMgrDelete(${i})" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:18px;padding:0 4px;line-height:1">×</button>
+    </div>`).join('');
+}
+function msMgrAdd(){
+  const label = document.getElementById('ms-mgr-new-label')?.value.trim();
+  const color = document.getElementById('ms-mgr-new-color')?.value;
+  if(!label){showToast('이름을 입력해주세요','error');return;}
+  MS_TYPES.push({key:'ms_'+Date.now(), label, color});
+  document.getElementById('ms-mgr-new-label').value='';
+  renderMsMgrList();
+  fbPush();
+  showToast('✅ 추가됨');
+}
+function msMgrDelete(idx){
+  const t = MS_TYPES[idx];
+  if(!t) return;
+  if(!confirm(`'${t.label}' 마일스톤을 삭제할까요? 등록된 데이터도 모두 사라져요.`)) return;
+  Object.values(milestones).forEach(byDate=>{
+    Object.values(byDate).forEach(ms=>{ delete ms[t.key]; });
+  });
+  MS_TYPES.splice(idx,1);
+  renderMsMgrList();
+  renderTable(); fbPush();
+  showToast('삭제됨');
+}
+function msMgrLabelChange(idx, label){
+  MS_TYPES[idx].label = label;
+  fbPush();
+}
+function msMgrColorChange(idx, color){
+  MS_TYPES[idx].color = color;
+  // dot만 업데이트 (재렌더링 없이)
+  const dot = document.getElementById('ms-mgr-dot-'+idx);
+  if(dot) dot.style.background = color;
+  renderTable(); fbPush();
+}
 function openMsModal(e,taskId,dateStr){
   if(e) e.stopPropagation();
   msPending={taskId,dateStr};
@@ -4270,14 +4335,87 @@ function openModal(taskId,start,end,editIdx){
   setCmStatus(r?.status||'plan');
   document.getElementById('cm-del').style.display=editIdx!=null?'':'none';
   renderPsel(r?.projectId||null);
-  // 작업항목 불러오기
-  const wi = r?.workItems||{};
-  // 작업항목 제거됨
+  // 마일스톤 렌더링 (기존 일정의 시작일 기준)
+  renderCmMsGrid(taskId, start);
   // pending에 날짜 정보 저장 (saveComment에서 스피너 값 읽어서 업데이트)
   pending = {taskId, start, end, editIdx, isNew:false};
   document.getElementById('cmod').classList.add('open');
 }
 function closeCmod(){document.getElementById('cmod').classList.remove('open');pending=null}
+
+function renderCmMsGrid(taskId, dateStr){
+  const grid = document.getElementById('cm-ms-grid');
+  if(!grid) return;
+  // 스피너에서 현재 입력된 날짜 범위 사용
+  const spinStart = document.getElementById('cm-start')?.value || dateStr;
+  const spinEnd   = document.getElementById('cm-end')?.value   || dateStr;
+  const rangeStart = spinStart < spinEnd ? spinStart : spinEnd;
+  const rangeEnd   = spinStart < spinEnd ? spinEnd   : spinStart;
+  // 이 일정 범위의 모든 마일스톤 수집
+  const taskMs = milestones[taskId]||{};
+  const msDateMap = {};
+  Object.entries(taskMs).forEach(([ds, msData])=>{
+    MS_TYPES.forEach(t=>{ if(msData[t.key]) msDateMap[t.key]=ds; });
+  });
+  // 날짜 범위 내 영업일 옵션
+  const allDates = getAllWds().filter(({ds})=>dn(ds)>=dn(rangeStart)&&dn(ds)<=dn(rangeEnd));
+  const dateOpts = allDates.map(({ds})=>`<option value="${ds}">${ds}</option>`).join('');
+
+  grid.innerHTML = MS_TYPES.map(t=>{
+    const checked = !!msDateMap[t.key];
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:9px;border:1px solid ${checked?t.color:'var(--bd)'};background:${checked?t.color+'18':'transparent'};transition:.1s;min-height:44px;box-sizing:border-box" id="cm-ms-row-${t.key}">
+      <input type="checkbox" id="cm-ms-chk-${t.key}" onchange="cmMsToggle(this,'${t.key}','${t.color}')" ${checked?'checked':''} style="width:16px;height:16px;accent-color:${t.color};flex-shrink:0;cursor:pointer">
+      <span style="width:10px;height:10px;border-radius:2px;background:${t.color};flex-shrink:0;display:inline-block"></span>
+      <span style="font-size:14px;font-weight:600;color:${checked?t.color:'var(--tx2)'};min-width:90px;white-space:nowrap">${t.label}</span>
+      <select id="cm-ms-date-${t.key}" style="border:1px solid ${checked?t.color:'var(--bd2)'};border-radius:6px;padding:4px 8px;font-size:13px;font-family:'Space Mono',monospace;outline:none;background:var(--sur);color:var(--tx);${!checked?'opacity:.4':''}">
+        ${dateOpts}
+      </select>
+    </div>`;
+  }).join('');
+  MS_TYPES.forEach(t=>{
+    const sel = document.getElementById('cm-ms-date-'+t.key);
+    if(sel && msDateMap[t.key]) sel.value = msDateMap[t.key];
+  });
+}
+function cmMsToggle(el, key, color){
+  const row = document.getElementById('cm-ms-row-'+key);
+  const sel = document.getElementById('cm-ms-date-'+key);
+  const lbl = row?.querySelector('span:last-of-type');
+  if(el.checked){
+    if(row){ row.style.borderColor=color; row.style.background=color+'18'; }
+    if(sel){ sel.style.borderColor=color; sel.style.opacity='1'; }
+    if(lbl) lbl.style.color=color;
+  } else {
+    if(row){ row.style.borderColor='var(--bd)'; row.style.background='transparent'; }
+    if(sel){ sel.style.borderColor='var(--bd2)'; sel.style.opacity='.5'; }
+    if(lbl) lbl.style.color='var(--tx2)';
+  }
+}
+function saveCmMs(taskId, dateStr){
+  if(!milestones[taskId]) milestones[taskId]={};
+  const spinStart = document.getElementById('cm-start')?.value || dateStr;
+  const spinEnd   = document.getElementById('cm-end')?.value   || dateStr;
+  const rangeStart = spinStart < spinEnd ? spinStart : spinEnd;
+  const rangeEnd   = spinStart < spinEnd ? spinEnd   : spinStart;
+  // 범위 내 기존 마일스톤 클리어
+  Object.keys(milestones[taskId]).forEach(ds=>{
+    if(dn(ds)>=dn(rangeStart)&&dn(ds)<=dn(rangeEnd)){
+      MS_TYPES.forEach(t=>{ delete milestones[taskId][ds][t.key]; });
+      const remaining = Object.keys(milestones[taskId][ds]).filter(k=>k!=='note');
+      if(!remaining.length && !milestones[taskId][ds].note) delete milestones[taskId][ds];
+    }
+  });
+  // 새로 저장
+  MS_TYPES.forEach(t=>{
+    const chk = document.getElementById('cm-ms-chk-'+t.key);
+    const sel = document.getElementById('cm-ms-date-'+t.key);
+    if(chk?.checked && sel?.value){
+      const ds = sel.value;
+      if(!milestones[taskId][ds]) milestones[taskId][ds]={};
+      milestones[taskId][ds][t.key]=true;
+    }
+  });
+}
 function saveComment(){
   if(!pending) return;
   // 비관리자는 상태만 변경 가능
@@ -4331,6 +4469,9 @@ function saveComment(){
   if(!ranges[taskId]) ranges[taskId]=[];
   if(editIdx!=null) ranges[taskId][editIdx]=entry;
   else{ranges[taskId].push(entry);}
+
+  // 마일스톤 저장
+  saveCmMs(taskId, start);
 
   // 활동 기록
   const task=tasks.find(t=>t.id===taskId);
@@ -4495,49 +4636,6 @@ function lvDragEnd(){
 }
 
 // ── Milestone drag ──
-let _msDrag={taskId:null,dateStr:null};
-function msDragStart(e,taskId,dateStr){
-  e.stopPropagation();
-  if(!_isAdmin){ e.preventDefault(); return; }
-  _msDrag={taskId,dateStr};
-  e.dataTransfer.effectAllowed='move';
-  e.dataTransfer.setData('text/plain','ms');
-}
-function msDrop(e,targetTaskId,targetDateStr){
-  e.preventDefault();e.stopPropagation();
-  const {taskId:srcTask,dateStr:srcDate}=_msDrag;
-  if(!srcTask||!srcDate) return;
-  if(srcTask===targetTaskId&&srcDate===targetDateStr) return;
-  const srcMs=(milestones[srcTask]||{})[srcDate];
-  if(!srcMs) return;
-  if(!milestones[targetTaskId]) milestones[targetTaskId]={};
-  // merge: don't overwrite existing, just move
-  const existing=(milestones[targetTaskId][targetDateStr])||{};
-  milestones[targetTaskId][targetDateStr]={...existing,...srcMs};
-  delete milestones[srcTask][srcDate];
-  _msDrag={taskId:null,dateStr:null};
-  renderTable();fbPush();
-}
-function msDragEnd(){_msDrag={taskId:null,dateStr:null}}
-
-// ════════════════════════════════════════════
-//  PROJECT MANAGER
-// ════════════════════════════════════════════
-function openProjMgr(){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;} renderProjList();document.getElementById('projmod').classList.add('open')}
-function closeProjMgr(){document.getElementById('projmod').classList.remove('open');renderLegend();renderTable();renderStats();fbPush()}
-function renderProjList(){
-  const rows=PROJECTS.map((p,i)=>`
-    <tr data-pi="${i}">
-      <td><div class="color-input-wrap">
-        <div class="color-swatch" style="background:${p.bar}" id="sw-${i}"></div>
-        <input type="color" value="${p.bar}" oninput="pjCol(${i},this.value)">
-      </div></td>
-      <td><input class="proj-name-input" value="${p.name}" oninput="pjName(${i},this.value)"></td>
-      <td style="color:var(--tx3);font-size:15px">${Object.values(ranges).reduce((s,a)=>s+a.filter(r=>r.projectId===p.id).length,0)}개</td>
-      <td><button class="btn btn-danger" style="padding:4px 8px;font-size:15px" onclick="rmProj('${p.id}')">삭제</button></td>
-    </tr>`).join('');
-  document.getElementById('proj-list-table').innerHTML=`<thead><tr style="font-size:15px;color:var(--tx3);text-transform:uppercase"><td style="padding:5px 8px">색상</td><td>이름</td><td>사용</td><td></td></tr></thead><tbody>${rows}</tbody>`;
-}
 function pjCol(i,val){PROJECTS[i].bar=val;const sw=document.getElementById('sw-'+i);if(sw)sw.style.background=val}
 function pjName(i,val){PROJECTS[i].name=val}
 function pjEsm(i,val){PROJECTS[i].esm=val}
@@ -4895,6 +4993,30 @@ function renderLeaveListYear(){
 // ════════════════════════════════════════════
 //  GANTT ROW DRAG & DROP (이름 셀로 순서 변경)
 // ════════════════════════════════════════════
+let _msDrag={taskId:null,dateStr:null};
+
+function msDragStart(e,taskId,dateStr){
+  e.stopPropagation();
+  if(!_isAdmin){ e.preventDefault(); return; }
+  _msDrag={taskId,dateStr};
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain','ms');
+}
+function msDrop(e,targetTaskId,targetDateStr){
+  e.preventDefault();e.stopPropagation();
+  const {taskId:srcTask,dateStr:srcDate}=_msDrag;
+  if(!srcTask||!srcDate) return;
+  if(srcTask===targetTaskId&&srcDate===targetDateStr){ _msDrag={taskId:null,dateStr:null}; return; }
+  const srcMs=JSON.parse(JSON.stringify((milestones[srcTask]||{})[srcDate]||{}));
+  if(!Object.keys(srcMs).length) return;
+  if(!milestones[targetTaskId]) milestones[targetTaskId]={};
+  const existing=(milestones[targetTaskId][targetDateStr])||{};
+  milestones[targetTaskId][targetDateStr]={...existing,...srcMs};
+  delete milestones[srcTask][srcDate];
+  _msDrag={taskId:null,dateStr:null};
+  renderTable();fbPush();
+}
+function msDragEnd(){_msDrag={taskId:null,dateStr:null};}
 let _rowDrag = {personId: null, groupId: null};
 
 function rowDragMD(e){
