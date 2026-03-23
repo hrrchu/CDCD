@@ -2094,7 +2094,7 @@ function saveEditIdea(idx, wrap){
 // ════════════════════════════════════════════
 //  ADMIN AUTH
 // ════════════════════════════════════════════
-const ADMIN_PW = 'cd20267';
+const ADMIN_PW = 'cd20266';
 let _isAdmin = false;
 
 function toggleAdmin(){
@@ -3842,7 +3842,7 @@ function barMD(e,taskId,personId,ri,idx){ if(!_isAdmin) return;
 function paintMove(curIdx,crossPid){
   const {taskId,ri,startIdx,personId}=iSt;
   const r=(ranges[taskId]||[])[ri]; if(!r)return;
-  const wds=getWeekdays(CY,CM);
+  const wds=getAllWds();
   const origSI=wds.findIndex(w=>dn(w.ds)>=dn(r.start));
   const len=countWeekdays(r.start,r.end)-1;
   const delta=curIdx-startIdx;
@@ -3908,12 +3908,11 @@ document.addEventListener('mouseup',e=>{
 
 function finishCreate(){
   clearCreate();
-  const wds=getWeekdays(CY,CM);
+  const wds=getAllWds();
   const lo=Math.min(iSt.anchor,iSt.current),hi=Math.max(iSt.anchor,iSt.current);
   const start=wds[lo]?.ds,end=wds[hi]?.ds,taskId=iSt.taskId;
   const wasDrag=_dragStarted;
   iSt=null;
-  // Note: _dragStarted is reset by mouseup handler after click events fire
   if(wasDrag&&start&&end){pending={taskId,start,end};openModal(taskId,start,end,null)}
 }
 
