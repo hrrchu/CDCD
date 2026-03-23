@@ -4342,7 +4342,6 @@ function closeCmod(){document.getElementById('cmod').classList.remove('open');pe
 function renderCmMsGrid(taskId, dateStr){
   const grid = document.getElementById('cm-ms-grid');
   if(!grid) return;
-  // 스피너에서 현재 입력된 날짜 범위 사용
   const spinStart = document.getElementById('cm-start')?.value || dateStr;
   const spinEnd   = document.getElementById('cm-end')?.value   || dateStr;
   const rangeStart = spinStart < spinEnd ? spinStart : spinEnd;
@@ -4353,7 +4352,7 @@ function renderCmMsGrid(taskId, dateStr){
   Object.entries(taskMs).forEach(([ds, msData])=>{
     MS_TYPES.forEach(t=>{ if(msData[t.key]) msDateMap[t.key]=ds; });
   });
-  // 날짜 범위 내 영업일 직접 생성 (달 제한 없음)
+  // 날짜 범위 영업일 배열 생성 (달 제한 없음)
   const allDates = [];
   const cur = new Date(rangeStart);
   const endD = new Date(rangeEnd);
@@ -4365,35 +4364,48 @@ function renderCmMsGrid(taskId, dateStr){
     }
     cur.setDate(cur.getDate()+1);
   }
-  const dateOpts = allDates.map(ds=>`<option value="${ds}">${ds}</option>`).join('');
+  // allDates를 window에 저장 (버튼 클릭 핸들러에서 접근)
+  window._cmMsDates = allDates;
 
   grid.innerHTML = MS_TYPES.map(t=>{
     const checked = !!msDateMap[t.key];
+    const selDate = msDateMap[t.key] || rangeStart;
     return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:9px;border:1px solid ${checked?t.color:'var(--bd)'};background:${checked?t.color+'18':'transparent'};transition:.1s;min-height:44px;box-sizing:border-box" id="cm-ms-row-${t.key}">
       <input type="checkbox" id="cm-ms-chk-${t.key}" onchange="cmMsToggle(this,'${t.key}','${t.color}')" ${checked?'checked':''} style="width:16px;height:16px;accent-color:${t.color};flex-shrink:0;cursor:pointer">
       <span style="width:10px;height:10px;border-radius:2px;background:${t.color};flex-shrink:0;display:inline-block"></span>
       <span style="font-size:14px;font-weight:600;color:${checked?t.color:'var(--tx2)'};min-width:90px;white-space:nowrap">${t.label}</span>
-      <select id="cm-ms-date-${t.key}" style="border:1px solid ${checked?t.color:'var(--bd2)'};border-radius:6px;padding:4px 8px;font-size:13px;font-family:'Space Mono',monospace;outline:none;background:var(--sur);color:var(--tx);${!checked?'opacity:.4':''}">
-        ${dateOpts}
-      </select>
+      <div style="display:flex;align-items:center;gap:3px;${!checked?'opacity:.4':''}">
+        <button type="button" onclick="cmMsDateShift('${t.key}',-1)" style="background:var(--sf2);border:1px solid var(--bd2);border-radius:5px;width:24px;height:28px;cursor:pointer;font-size:13px;color:var(--tx2);display:flex;align-items:center;justify-content:center;flex-shrink:0">◀</button>
+        <span id="cm-ms-date-${t.key}" data-val="${selDate}" style="font-family:'Space Mono',monospace;font-size:13px;color:var(--tx);background:var(--sf2);border:1px solid var(--bd2);border-radius:6px;padding:4px 8px;min-width:90px;text-align:center;white-space:nowrap">${selDate}</span>
+        <button type="button" onclick="cmMsDateShift('${t.key}',1)" style="background:var(--sf2);border:1px solid var(--bd2);border-radius:5px;width:24px;height:28px;cursor:pointer;font-size:13px;color:var(--tx2);display:flex;align-items:center;justify-content:center;flex-shrink:0">▶</button>
+      </div>
     </div>`;
   }).join('');
-  MS_TYPES.forEach(t=>{
-    const sel = document.getElementById('cm-ms-date-'+t.key);
-    if(sel && msDateMap[t.key]) sel.value = msDateMap[t.key];
-  });
+}
+
+function cmMsDateShift(key, dir){
+  const span = document.getElementById('cm-ms-date-'+key);
+  if(!span) return;
+  const dates = window._cmMsDates||[];
+  if(!dates.length) return;
+  const cur = span.dataset.val;
+  let idx = dates.indexOf(cur);
+  if(idx === -1) idx = 0;
+  idx = Math.max(0, Math.min(dates.length-1, idx+dir));
+  span.dataset.val = dates[idx];
+  span.textContent = dates[idx];
 }
 function cmMsToggle(el, key, color){
   const row = document.getElementById('cm-ms-row-'+key);
-  const sel = document.getElementById('cm-ms-date-'+key);
-  const lbl = row?.querySelector('span:last-of-type');
+  const dateWrap = row?.querySelector('div[style*="opacity"]') || row?.querySelector('div:last-child');
+  const lbl = row?.querySelector('span[style*="min-width"]');
   if(el.checked){
     if(row){ row.style.borderColor=color; row.style.background=color+'18'; }
-    if(sel){ sel.style.borderColor=color; sel.style.opacity='1'; }
+    if(dateWrap) dateWrap.style.opacity='1';
     if(lbl) lbl.style.color=color;
   } else {
     if(row){ row.style.borderColor='var(--bd)'; row.style.background='transparent'; }
-    if(sel){ sel.style.borderColor='var(--bd2)'; sel.style.opacity='.5'; }
+    if(dateWrap) dateWrap.style.opacity='.4';
     if(lbl) lbl.style.color='var(--tx2)';
   }
 }
@@ -4414,9 +4426,9 @@ function saveCmMs(taskId, dateStr){
   // 새로 저장
   MS_TYPES.forEach(t=>{
     const chk = document.getElementById('cm-ms-chk-'+t.key);
-    const sel = document.getElementById('cm-ms-date-'+t.key);
-    if(chk?.checked && sel?.value){
-      const ds = sel.value;
+    const span = document.getElementById('cm-ms-date-'+t.key);
+    if(chk?.checked && span?.dataset.val){
+      const ds = span.dataset.val;
       if(!milestones[taskId][ds]) milestones[taskId][ds]={};
       milestones[taskId][ds][t.key]=true;
     }
