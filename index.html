@@ -1213,7 +1213,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 </div>
 
 <!-- Schedule Edit Modal -->
-<div class="mb" id="cmod">
+<div class="mb" id="cmod" onkeydown="if(event.key==='Enter'&&event.target.tagName==='INPUT')event.preventDefault()">
   <div class="modal" style="width:750px;max-width:98vw">
     <div class="mt" id="cm-title"></div>
     <div class="mss" id="cm-sub"></div>
@@ -1246,7 +1246,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <input type="hidden" id="cm-end">
       </div>
     </div>
-    <div class="fg"><label>일정 제목 <span style="font-size:15px;color:var(--tx3)">(없으면 프로젝트명 표시)</span></label><input type="text" id="cm-rtitle" placeholder="예: 러프 시안 작업"></div>
+    <div class="fg"><label>일정 제목 <span style="font-size:15px;color:var(--tx3)">(없으면 프로젝트명 표시)</span></label><input type="text" id="cm-rtitle" placeholder="예: 러프 시안 작업" onkeydown="if(event.key==='Enter')event.preventDefault()"></div>
     <div class="fg"><label>프로젝트</label><div class="psel" id="cm-psel"></div></div>
 
     <div class="fg"><label>메모 / 설명</label>
@@ -5558,35 +5558,20 @@ document.querySelectorAll('.mb').forEach(el=>
 );
 
 
-// 엔터로 팝업 저장/닫기
-document.addEventListener('keydown', e=>{
-  if(e.key !== 'Enter' || e.shiftKey || e.target.tagName==='TEXTAREA' || e.target.tagName==='SELECT') return;
-  const open = document.querySelector('.mb.open');
-  if(!open) return;
-  e.preventDefault();
-  const id = open.id;
-  if(id==='cmod')     { saveComment(); return; }
-  if(id==='lmod')     { saveLeave(); return; }
-  if(id==='msmod')    { saveMilestone(); return; }
-  if(id==='dm-modal') { saveDateMemo(); return; }
-  if(id==='admin-modal') { submitAdminPw(); return; }
-  // 나머지 팝업은 그냥 닫기
-  open.classList.remove('open');
-  pending=null; pendingLv=null; msPending=null; _dmDate=null;
-});
 
 // ESC 키로 팝업 닫기
 document.addEventListener('keydown', e=>{
-  if(e.key !== 'Escape') return;
-  // 열린 모달 닫기
-  const openModal = document.querySelector('.mb.open');
-  if(openModal){
-    openModal.classList.remove('open');
-    pending = null; pendingLv = null; msPending = null; _dmDate = null;
-    return;
+  // ESC: 열린 모달 닫기
+  if(e.key === 'Escape'){
+    const openModal = document.querySelector('.mb.open');
+    if(openModal){
+      openModal.classList.remove('open');
+      pending = null; pendingLv = null; msPending = null; _dmDate = null;
+      return;
+    }
+    hideBubNow();
   }
-  // 버블 닫기
-  hideBubNow();
+  // Enter는 팝업 닫기 동작 없음 (textarea/input 기본동작만)
 });
 
 
