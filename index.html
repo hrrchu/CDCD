@@ -4370,8 +4370,8 @@ function renderCmMsGrid(taskId, dateStr){
   grid.innerHTML = MS_TYPES.map(t=>{
     const checked = !!msDateMap[t.key];
     const selDate = msDateMap[t.key] || rangeStart;
-    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:9px;border:1px solid ${checked?t.color:'var(--bd)'};background:${checked?t.color+'18':'transparent'};transition:.1s;min-height:44px;box-sizing:border-box" id="cm-ms-row-${t.key}">
-      <input type="checkbox" id="cm-ms-chk-${t.key}" onchange="cmMsToggle(this,'${t.key}','${t.color}')" ${checked?'checked':''} style="width:16px;height:16px;accent-color:${t.color};flex-shrink:0;cursor:pointer">
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:9px;border:1px solid ${checked?t.color:'var(--bd)'};background:${checked?t.color+'18':'transparent'};transition:.1s;min-height:44px;box-sizing:border-box" id="cm-ms-row-${t.key}" data-color="${t.color}">
+      <input type="checkbox" id="cm-ms-chk-${t.key}" onchange="cmMsToggle(this,'${t.key}')" ${checked?'checked':''} style="width:16px;height:16px;accent-color:${t.color};flex-shrink:0;cursor:pointer">
       <span style="width:10px;height:10px;border-radius:2px;background:${t.color};flex-shrink:0;display:inline-block"></span>
       <span style="font-size:14px;font-weight:600;color:${checked?t.color:'var(--tx2)'};min-width:90px;white-space:nowrap">${t.label}</span>
       <div style="display:flex;align-items:center;gap:3px;${!checked?'opacity:.4':''}">
@@ -4395,9 +4395,10 @@ function cmMsDateShift(key, dir){
   span.dataset.val = dates[idx];
   span.textContent = dates[idx];
 }
-function cmMsToggle(el, key, color){
+function cmMsToggle(el, key){
   const row = document.getElementById('cm-ms-row-'+key);
-  const dateWrap = row?.querySelector('div[style*="opacity"]') || row?.querySelector('div:last-child');
+  const color = row?.dataset.color || 'var(--acc)';
+  const dateWrap = row?.querySelector('div:last-child');
   const lbl = row?.querySelector('span[style*="min-width"]');
   if(el.checked){
     if(row){ row.style.borderColor=color; row.style.background=color+'18'; }
