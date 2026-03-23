@@ -1263,16 +1263,12 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     <div class="fg">
       <label>상태</label>
       <input type="hidden" id="cm-status" value="plan">
-      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px" id="cm-status-btns">
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="cm-status-btns">
           <button type="button" onclick="setCmStatus('wip')"       data-status="wip"       class="status-btn">진행중</button>
           <button type="button" onclick="setCmStatus('variation')" data-status="variation" class="status-btn">베리에이션</button>
           <button type="button" onclick="setCmStatus('revision')"  data-status="revision"  class="status-btn">수정중</button>
-        </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button type="button" onclick="setCmStatus('plan')"      data-status="plan"      class="status-btn" style="opacity:0.3">예정</button>
           <button type="button" onclick="setCmStatus('done')"      data-status="done"      class="status-btn" style="opacity:0.3">완료</button>
-        </div>
       </div>
     </div>
     <!-- 마일스톤 -->
