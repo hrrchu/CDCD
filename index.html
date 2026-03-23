@@ -3908,6 +3908,33 @@ function finishMove(){
   const newStart=addWeekdays(r.start,delta),newEnd=addWeekdays(r.end,delta);
   const entry={...r,start:newStart,end:newEnd};
   ranges[taskId]=ranges[taskId].filter((_,i)=>i!==ri);
+
+  // 마일스톤도 같이 이동
+  const oldMs = milestones[taskId]||{};
+  const wds = getAllWds();
+  const targetTaskId = (crossPersonId&&crossPersonId!==personId)
+    ? tasks.find(t=>t.personId===crossPersonId)?.id
+    : taskId;
+
+  if(targetTaskId){
+    if(!milestones[targetTaskId]) milestones[targetTaskId]={};
+    // 기존 일정 범위 날짜들의 마일스톤을 delta만큼 이동
+    const startDn=dn(r.start), endDn=dn(r.end);
+    Object.entries(oldMs).forEach(([ds, msData])=>{
+      if(dn(ds)>=startDn && dn(ds)<=endDn){
+        const dsIdx = wds.findIndex(w=>w.ds===ds);
+        if(dsIdx>=0){
+          const newDsIdx = dsIdx + delta;
+          const newDs = wds[Math.max(0,Math.min(wds.length-1, newDsIdx))]?.ds;
+          if(newDs){
+            milestones[targetTaskId][newDs] = msData;
+            if(targetTaskId!==taskId || newDs!==ds) delete milestones[taskId][ds];
+          }
+        }
+      }
+    });
+  }
+
   if(crossPersonId&&crossPersonId!==personId){
     const tgt=tasks.find(t=>t.personId===crossPersonId);
     if(tgt){if(!ranges[tgt.id])ranges[tgt.id]=[];ranges[tgt.id].push(entry);}
