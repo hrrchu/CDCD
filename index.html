@@ -80,7 +80,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tx);mi
 /* ── DATE MEMO ── */
 .hd-name{display:none!important}
 th.cd.holiday:hover .hd-name{display:block!important}
-th.cd{cursor:pointer;position:relative}
+th.cd{cursor:default;position:relative}
 th.cd:hover{background:rgba(79,140,255,.06)}
 .dm-bar-wrap{position:absolute;bottom:2px;left:2px;right:2px;display:flex;gap:1px;height:3px}
 .dm-bar{flex:1;border-radius:2px;height:100%}
@@ -663,7 +663,7 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 /* ── DATE MEMO ── */
 .hd-name{display:none!important}
 th.cd.holiday:hover .hd-name{display:block!important}
-th.cd{cursor:pointer;position:relative}
+th.cd{cursor:default;position:relative}
 th.cd:hover{background:rgba(79,140,255,.06)}
 .dm-bar-wrap{position:absolute;bottom:2px;left:2px;right:2px;display:flex;gap:1px;height:3px}
 .dm-bar{flex:1;border-radius:2px;height:100%}
@@ -2131,7 +2131,10 @@ function applyAdminMode(){
     if(btn){ btn.style.background='#f8fafc'; btn.style.color='var(--tx2)'; btn.style.borderColor='var(--bd2)'; }
     if(label) label.textContent='관리자';
   }
-  // admin-only 버튼 토글 (없음 - 버튼은 항상 보임, 동작에서 체크)
+  // 날짜 헤더 커서: 관리자만 pointer
+  document.querySelectorAll('th.cd').forEach(th=>{
+    th.style.cursor = _isAdmin ? 'pointer' : 'default';
+  });
   // gantt: 비관리자는 드래그 막되 클릭/버블은 허용
   const gs = document.querySelector('.gs');
   if(gs){ gs.style.pointerEvents = ''; gs.style.userSelect = 'text'; }
@@ -2916,7 +2919,7 @@ function updateLinkBtn(btnId, val){
   }
 }
 
-const TOOL_PW = 'MCD';
+const TOOL_PW = 'mcdc';
 let _toolPwVerified = false;
 
 function togglePw(id, btn){
@@ -3676,6 +3679,8 @@ function renderTable(){
   });
   h+='</tr>';
   document.getElementById('thead').innerHTML=h;
+  // 날짜 헤더 커서: 관리자만 pointer
+  document.querySelectorAll('th.cd').forEach(th=>{ th.style.cursor=_isAdmin?'pointer':'default'; });
 
   let b='';
   GROUPS.forEach(group=>{
@@ -5415,6 +5420,7 @@ let _sbChannel = null;
 let _sbConnected = false;
 let _sbIgnoreNext = false;
 let _sbPushTimer = null;
+let _lastPushTime = 0; // 마지막으로 내가 push한 시각
 
 async function initSupabase(){
   try{
@@ -5430,19 +5436,17 @@ async function initSupabase(){
     const { data, error } = await _sb.from(SB_TABLE).select('*').eq('id', SB_ROW_ID).single();
 
     if(error && error.code === '42P01'){
-      // Table doesn't exist - show instructions
       showToast('⚠️ Supabase 테이블 생성이 필요해요. 아래 안내를 확인하세요.', 'error');
       openFbSetup();
       return;
     }
 
     if(error || !data){
-      // Table exists but no data - upload current
       await pushAllToSb();
       showToast('✅ Supabase 연결 완료! 데이터를 업로드했어요.');
     } else {
       loadFromSbData(data.payload);
-        showToast('✅ Supabase 연결 완료! 팀 데이터를 불러왔어요.');
+      showToast('✅ Supabase 연결 완료! 팀 데이터를 불러왔어요.');
     }
 
     // Subscribe to realtime changes
@@ -5453,8 +5457,14 @@ async function initSupabase(){
         table: SB_TABLE,
         filter: `id=eq.${SB_ROW_ID}`
       }, (payload) => {
-        if(_sbIgnoreNext){ _sbIgnoreNext=false; return; }
-        if(payload.new?.payload) loadFromSbData(payload.new.payload);
+        if(!payload.new?.payload) return;
+        const incoming = payload.new.payload;
+        const incomingTime = incoming._updated || 0;
+        // 내가 push한 직후(2초 이내)면 무시 (내 데이터가 돌아온 것)
+        if(Date.now() - _lastPushTime < 2000) return;
+        // 들어온 데이터가 내 로컬보다 오래됐으면 무시
+        if(incomingTime < _lastPushTime) return;
+        loadFromSbData(incoming);
       })
       .subscribe((status) => {
         if(status === 'SUBSCRIBED'){
@@ -5512,20 +5522,19 @@ function loadFromSbData(payload){
 
 async function pushAllToSb(){
   if(!_sb) return;
-  _sbIgnoreNext = true;
+  _lastPushTime = Date.now();
   const payload = {
     PROJECTS, GROUPS, ranges, leaves, milestones,
     ideaCards, toolRows, MS_TYPES, activityLog, votes,
     p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
     grmNote: document.getElementById('grm-note')?.innerText||'',
     dateMemos, grmAdj,
-    _updated: Date.now()
+    _updated: _lastPushTime
   };
   try{
     const { error } = await _sb.from(SB_TABLE).upsert({ id: SB_ROW_ID, payload });
     if(error) throw error;
-
-  } catch(e){ console.error('SB write error', e); _sbIgnoreNext=false; }
+  } catch(e){ console.error('SB write error', e); }
 }
 
 function fbPush(){
