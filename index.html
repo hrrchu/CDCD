@@ -2095,11 +2095,12 @@ function saveEditIdea(idx, wrap){
 //  ADMIN AUTH
 // ════════════════════════════════════════════
 const ADMIN_PW = 'cd20267';
-let _isAdmin = false;
+let _isAdmin = localStorage.getItem('cd_admin') === ADMIN_PW;
 
 function toggleAdmin(){
   if(_isAdmin){
     _isAdmin = false;
+    localStorage.removeItem('cd_admin');
     applyAdminMode();
     showToast('관리자 모드 해제');
   } else {
@@ -2114,6 +2115,7 @@ function submitAdminPw(){
   const pw = document.getElementById('admin-pw-input').value;
   if(pw === ADMIN_PW){
     _isAdmin = true;
+    localStorage.setItem('cd_admin', ADMIN_PW);
     closeAdminModal();
     applyAdminMode();
     showToast('✅ 관리자 모드 활성화');
