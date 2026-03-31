@@ -4662,6 +4662,26 @@ function lvDragEnd(){
 }
 
 // ── Milestone drag ──
+function openProjMgr(){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;} renderProjList();document.getElementById('projmod').classList.add('open'); }
+function closeProjMgr(){ document.getElementById('projmod').classList.remove('open');renderLegend();renderTable();renderStats();fbPush(); }
+function renderProjList(){
+  const tbody = document.getElementById('proj-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = PROJECTS.map((p,i)=>`
+    <tr data-pi="${i}">
+      <td style="padding:6px 8px">
+        <input type="color" id="sw-${i}" value="${p.bar}" oninput="pjCol(${i},this.value)"
+          style="width:32px;height:32px;border:1px solid var(--bd2);border-radius:6px;padding:2px;cursor:pointer">
+      </td>
+      <td style="padding:6px 8px">
+        <input type="text" value="${p.name}" oninput="pjName(${i},this.value)"
+          style="width:100%;border:1px solid var(--bd2);border-radius:6px;padding:5px 8px;font-size:15px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx)">
+      </td>
+      <td style="padding:6px 8px;text-align:center">
+        <button onclick="rmProj('${p.id}')" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:18px;line-height:1">×</button>
+      </td>
+    </tr>`).join('');
+}
 function pjCol(i,val){PROJECTS[i].bar=val;const sw=document.getElementById('sw-'+i);if(sw)sw.style.background=val}
 function pjName(i,val){PROJECTS[i].name=val}
 function pjEsm(i,val){PROJECTS[i].esm=val}
