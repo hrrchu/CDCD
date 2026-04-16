@@ -144,7 +144,6 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 :root[data-theme="dark"] .hd{background:var(--sf2);color:var(--tx2)}
 :root[data-theme="dark"] td.cell.holiday-cell{background:#2a1a1a!important}
 :root[data-theme="dark"] td.cell.custom-holiday-cell{background:rgba(249,115,22,.12)!important}
-:root[data-theme="dark"] .ch-fill{background:rgba(249,115,22,.2);border-left-color:rgba(249,115,22,.5)}
 /* 레전드/프로젝트 버튼 */
 :root[data-theme="dark"] .legend-item{background:var(--sf2);border-color:var(--bd);color:var(--tx2)}
 :root[data-theme="dark"] .legend-item:hover{border-color:var(--tx3)}
@@ -255,9 +254,6 @@ th.cd.custom-holiday .dn{color:#f97316}
 th.cd.custom-holiday .dl{color:#f97316}
 td.cell.custom-holiday-cell{background:rgba(249,115,22,.10)!important}
 td.cell.custom-holiday-cell.empty{cursor:not-allowed!important}
-.ch-fill{position:absolute;inset:3px 0;display:flex;align-items:center;background:rgba(249,115,22,.18);border-left:2.5px solid rgba(249,115,22,.45);pointer-events:none;overflow:hidden}
-.ch-fill-s{border-radius:9px 0 0 9px;left:3px}
-.ch-fill-lbl{font-size:10px;font-weight:700;color:rgba(249,115,22,.85);padding:0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 tbody tr{border-bottom:1px solid var(--bd)}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:#f8f9fb}
@@ -3821,9 +3817,7 @@ function renderTable(){
             </td>`;
           } else {
             // 빈 셀
-            const chFill = isCustomHolCell
-              ? `<div class="ch-fill ch-fill-s"><span class="ch-fill-lbl">🟠 ${customHolidays[dateStr]||'휴일'}</span></div>`
-              : '';
+            const chFill = '';
             b+=`<td class="cell empty${isToday?' today':''}${isHolCell?' holiday-cell':''}${isCustomHolCell?' custom-holiday-cell':''}${hasMs?' has-ms':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-person="${person.id}" data-idx="${idx}" data-ds="${dateStr}"
                 onmousedown="createMD(event,'${task.id}',${idx})"
                 onclick="emptyCellClick(event,'${task.id}','${dateStr}')"
