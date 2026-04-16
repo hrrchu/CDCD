@@ -143,6 +143,8 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 :root[data-theme="dark"] .wd{background:var(--sur);color:var(--tx3)}
 :root[data-theme="dark"] .hd{background:var(--sf2);color:var(--tx2)}
 :root[data-theme="dark"] td.cell.holiday-cell{background:#2a1a1a!important}
+:root[data-theme="dark"] td.cell.custom-holiday-cell{background:rgba(249,115,22,.12)!important}
+:root[data-theme="dark"] .ch-fill{background:rgba(249,115,22,.2);border-left-color:rgba(249,115,22,.5)}
 /* 레전드/프로젝트 버튼 */
 :root[data-theme="dark"] .legend-item{background:var(--sf2);border-color:var(--bd);color:var(--tx2)}
 :root[data-theme="dark"] .legend-item:hover{border-color:var(--tx3)}
@@ -249,6 +251,13 @@ th.cd.holiday{position:relative}
 .hd-name{display:block;font-size:15px;color:#e53e3e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:36px;margin:0 auto;line-height:1.2}
 td.cell.holiday-cell{background:rgba(229,62,62,.04)}
 td.cell.holiday-cell.empty{cursor:not-allowed!important}
+th.cd.custom-holiday .dn{color:#f97316}
+th.cd.custom-holiday .dl{color:#f97316}
+td.cell.custom-holiday-cell{background:rgba(249,115,22,.10)!important}
+td.cell.custom-holiday-cell.empty{cursor:not-allowed!important}
+.ch-fill{position:absolute;inset:3px 0;display:flex;align-items:center;background:rgba(249,115,22,.18);border-left:2.5px solid rgba(249,115,22,.45);pointer-events:none;overflow:hidden}
+.ch-fill-s{border-radius:9px 0 0 9px;left:3px}
+.ch-fill-lbl{font-size:10px;font-weight:700;color:rgba(249,115,22,.85);padding:0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 tbody tr{border-bottom:1px solid var(--bd)}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:#f8f9fb}
@@ -1448,7 +1457,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   <div class="modal" style="width:600px;max-width:98vw">
     <div class="mt">휴가 등록</div>
     <div class="mss">담당자와 기간을 선택하세요</div>
-    <div class="fg"><label>담당자</label><select id="lm-person"></select></div>
+    <div class="fg" id="lm-person-row"><label>담당자</label><select id="lm-person"></select></div>
     <div class="fg" style="display:flex;gap:10px">
       <div style="flex:1">
         <label>기간</label>
@@ -1476,12 +1485,17 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       </div>
     </div>
     <div class="fg"><label>휴가 종류</label>
-      <div style="display:flex;gap:7px;margin-top:3px" id="lm-type-sel">
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:3px" id="lm-type-sel">
         <div class="lv-pill" data-type="off"     onclick="selLvType('off')"     style="background:#e2e8f0;color:#64748b">🏖️ 휴무</div>
         <div class="lv-pill" data-type="offday"  onclick="selLvType('offday')"  style="background:#e2e8f0;color:#64748b">🌿 오프데이</div>
         <div class="lv-pill" data-type="checkup" onclick="selLvType('checkup')" style="background:#e2e8f0;color:#64748b">🏥 검진</div>
         <div class="lv-pill" data-type="refresh" onclick="selLvType('refresh')" style="background:#e2e8f0;color:#64748b">✨ 리프레쉬</div>
+        <div class="lv-pill" data-type="alloff"  onclick="selLvType('alloff')"  style="background:#fff7ed;color:#f97316">🟠 전체 쉬는날</div>
       </div>
+    </div>
+    <div class="fg" id="lm-alloff-row" style="display:none">
+      <label>쉬는날 이름 <span style="font-size:12px;color:var(--tx3);font-weight:400">(선택)</span></label>
+      <input type="text" id="lm-alloff-label" placeholder="예: 창립기념일, 여름휴가...">
     </div>
     <div class="fg"><label>메모 (선택)</label><input type="text" id="lm-note" placeholder="사유 등..."></div>
     <div class="ma">
@@ -1621,7 +1635,8 @@ const KR_HOLIDAYS = {
   '2027-10-11':'한글날 대체공휴일',
   '2027-12-25':'크리스마스',
 };
-function getHoliday(ds){ return KR_HOLIDAYS[ds]||null; }
+function getHoliday(ds){ return KR_HOLIDAYS[ds]||customHolidays[ds]||null; }
+function isCustomHoliday(ds){ return !!customHolidays[ds]; }
 
 
 
@@ -1630,6 +1645,7 @@ let ranges = {};
 // leaves[personId] = [{start,end,type,note}]
 let leaves = {};
 let dateMemos = {};
+let customHolidays = {}; // {dateStr: label}
 let grmAdj = {}; // grmAdj[ym][personId][projId] = 보정% (수기)
 let activityLog = []; // [{ts, type, personName, projName, start, end, action}]
 // milestones[taskId][dateStr] = {report:bool, variation:bool, storyboard:bool, note:string}
@@ -1645,10 +1661,11 @@ function renderAv(person, gc){
 }
 
 const LEAVE_TYPES = {
-  off:     {label:'휴무',    color:'#64748b', bg:'#e2e8f0', icon:'🏖️'},
-  offday:  {label:'오프데이', color:'#64748b', bg:'#e2e8f0', icon:'🌿'},
-  checkup: {label:'검진',    color:'#64748b', bg:'#e2e8f0', icon:'🏥'},
-  refresh: {label:'리프레쉬', color:'#64748b', bg:'#e2e8f0', icon:'✨'},
+  off:     {label:'휴무',      color:'#64748b', bg:'#e2e8f0', icon:'🏖️'},
+  offday:  {label:'오프데이',  color:'#64748b', bg:'#e2e8f0', icon:'🌿'},
+  checkup: {label:'검진',      color:'#64748b', bg:'#e2e8f0', icon:'🏥'},
+  refresh: {label:'리프레쉬',  color:'#64748b', bg:'#e2e8f0', icon:'✨'},
+  alloff:  {label:'전체 쉬는날', color:'#f97316', bg:'#fff7ed', icon:'🟠'},
 };
 let MS_TYPES = [
   {key:'storyboard', label:'스토리보드', color:'#042940'},
@@ -1879,8 +1896,9 @@ function showDateMemoBub(th, dateStr){
     </span>`;
   }).join('');
 
+  const isCustomHolBub = isCustomHoliday(dateStr);
   popup.innerHTML =
-    (hname ? `<div style="color:#e53e3e;font-weight:700;margin-bottom:6px">🎌 ${hname}</div>` : '') +
+    (hname ? `<div style="color:${isCustomHolBub?'#f97316':'#e53e3e'};font-weight:700;margin-bottom:6px">${isCustomHolBub?'🟠':'🎌'} ${hname}</div>` : '') +
     (projTags ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:${memo?'6px':'0'}">${projTags}</div>` : '') +
     (memo ? `<div style="color:var(--tx);white-space:pre-wrap;font-size:14px">${memo}</div>` : '');
 
@@ -3676,13 +3694,14 @@ function renderTable(){
   wds.forEach(({d,ds,dow})=>{
     const hname=getHoliday(ds);
     const isHol=!!hname;
+    const isCustomHol=isCustomHoliday(ds);
     const isWeekStart = dow===1;
     const isMonthStart = d===1;
     const hasMemo = !!dateMemos[ds];
     const dmProjs = (typeof dateMemos[ds]==='object'&&dateMemos[ds]?.projs)||[];
     // 직접 지정한 프로젝트만 바로 표시
     const dateProjs = dmProjs.map(pid=>getProj(pid)?.bar).filter(Boolean);
-    h+=`<th class="cd${ds===td0?' today':''}${isHol?' holiday':''}${isWeekStart?' week-start':''}${isMonthStart?' month-start':''}"
+    h+=`<th class="cd${ds===td0?' today':''}${isHol&&!isCustomHol?' holiday':''}${isCustomHol?' custom-holiday':''}${isWeekStart?' week-start':''}${isMonthStart?' month-start':''}"
       onclick="openDateMemo('${ds}')"
       onmouseenter="showDateMemoBub(this,'${ds}')"
       onmouseleave="hideDateMemoBub()">
@@ -3732,7 +3751,7 @@ function renderTable(){
         
 
         wds.forEach(({ds:dateStr, dow},idx)=>{
-          const isToday=dateStr===td0, n=dn(dateStr), isHolCell=!!getHoliday(dateStr);
+          const isToday=dateStr===td0, n=dn(dateStr), isHolCell=!!KR_HOLIDAYS[dateStr], isCustomHolCell=isCustomHoliday(dateStr);
           const isWeekStart = dow===1;
           const rs=tR.filter(r=>n>=dn(r.start)&&n<=dn(r.end)); // 이 날짜에 걸치는 모든 범위
           const r=rs[0]||null; // 첫 번째 (하위호환)
@@ -3745,7 +3764,7 @@ function renderTable(){
             const li=(leaves[person.id]||[]).indexOf(lv);
             const lt=LEAVE_TYPES[lv.type]||LEAVE_TYPES.off;
             const lvS=n===dn(lv.start),lvE=n===dn(lv.end);
-            b+=`<td class="cell leave${isToday?' today':''}${isHolCell?' holiday-cell':''}${lvS?' lv-s':''}${lvE?' lv-e':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-idx="${idx}" data-ds="${dateStr}"
+            b+=`<td class="cell leave${isToday?' today':''}${isHolCell?' holiday-cell':''}${isCustomHolCell?' custom-holiday-cell':''}${lvS?' lv-s':''}${lvE?' lv-e':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-idx="${idx}" data-ds="${dateStr}"
               draggable="true"
               ondragstart="lvGanttDragStart(event,'${person.id}',${li})"
               ondragover="event.preventDefault()"
@@ -3790,7 +3809,7 @@ function renderTable(){
               </div>`;
             }).join('');
             const hasBar = rs.length>0;
-            const cls=`cell bar${isToday?' today':''}${isHolCell?' holiday-cell':''}${isWeekStart?' week-start':''}`;
+            const cls=`cell bar${isToday?' today':''}${isHolCell?' holiday-cell':''}${isCustomHolCell?' custom-holiday-cell':''}${isWeekStart?' week-start':''}`;
             b+=`<td class="${cls}" data-task="${task.id}" data-person="${person.id}" data-ri="${tR.indexOf(rs[0])}" data-idx="${idx}" data-ds="${dateStr}"
               onclick="barTdClick(event,'${task.id}',${tR.indexOf(rs[0])},'${dateStr}')"
 >
@@ -3802,12 +3821,16 @@ function renderTable(){
             </td>`;
           } else {
             // 빈 셀
-            b+=`<td class="cell empty${isToday?' today':''}${isHolCell?' holiday-cell':''}${hasMs?' has-ms':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-person="${person.id}" data-idx="${idx}" data-ds="${dateStr}"
+            const chFill = isCustomHolCell
+              ? `<div class="ch-fill ch-fill-s"><span class="ch-fill-lbl">🟠 ${customHolidays[dateStr]||'휴일'}</span></div>`
+              : '';
+            b+=`<td class="cell empty${isToday?' today':''}${isHolCell?' holiday-cell':''}${isCustomHolCell?' custom-holiday-cell':''}${hasMs?' has-ms':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-person="${person.id}" data-idx="${idx}" data-ds="${dateStr}"
                 onmousedown="createMD(event,'${task.id}',${idx})"
                 onclick="emptyCellClick(event,'${task.id}','${dateStr}')"
                 ondrop="if(_msDrag&&_msDrag.taskId)msDrop(event,'${task.id}','${dateStr}')"
                 ondragover="event.preventDefault()"
 >
+                ${chFill}
                 ${msHtml?`<div style="position:absolute;bottom:3px;left:2px;right:2px;display:flex;flex-direction:column;gap:2px;pointer-events:none">${msHtml}</div>`:''}
               </td>`;
           }
@@ -4556,7 +4579,14 @@ function saveTask(){
 let selLv='off';let pendingLv=null;
 function selLvType(type){
   selLv=type;
-  document.querySelectorAll('.lv-pill').forEach(p=>{const t=p.dataset.type,lt=LEAVE_TYPES[t];p.style.borderColor=t===type?lt.color:'transparent';p.style.fontWeight=t===type?'700':'600'});
+  document.querySelectorAll('.lv-pill').forEach(p=>{const t=p.dataset.type,lt=LEAVE_TYPES[t];if(!lt)return;p.style.borderColor=t===type?lt.color:'transparent';p.style.fontWeight=t===type?'700':'600'});
+  const isAlloff = type==='alloff';
+  const personRow=document.getElementById('lm-person-row');
+  const alloffRow=document.getElementById('lm-alloff-row');
+  const delBtn=document.getElementById('lm-del');
+  if(personRow) personRow.style.display = isAlloff ? 'none' : '';
+  if(alloffRow) alloffRow.style.display = isAlloff ? '' : 'none';
+  if(isAlloff && delBtn) delBtn.style.display = '';
 }
 function openLeaveModal(personId,editIdx,dateStr){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;}
   document.getElementById('lm-person').innerHTML=getPeople().map(p=>`<option value="${p.id}"${p.id===personId?' selected':''}>${p.name} (${p.role})</option>`).join('');
@@ -4575,8 +4605,16 @@ function openLeaveModal(personId,editIdx,dateStr){ if(!_isAdmin){showToast('관�
 }
 function closeLmod(){document.getElementById('lmod').classList.remove('open');pendingLv=null}
 function saveLeave(){
-  const pid=document.getElementById('lm-person').value,start=document.getElementById('lm-start').value,end=document.getElementById('lm-end').value,note=document.getElementById('lm-note').value;
+  const start=document.getElementById('lm-start').value,end=document.getElementById('lm-end').value;
   if(!start||!end)return;
+  if(selLv==='alloff'){
+    const label=(document.getElementById('lm-alloff-label')?.value.trim())||'지정 휴일';
+    let d=new Date(start+'T00:00:00');
+    const eDate=new Date(end+'T00:00:00');
+    while(d<=eDate){customHolidays[d.toISOString().slice(0,10)]=label;d.setDate(d.getDate()+1);}
+    closeLmod();renderTable();fbPush();return;
+  }
+  const pid=document.getElementById('lm-person').value,note=document.getElementById('lm-note').value;
   if(!leaves[pid])leaves[pid]=[];
   const entry={start,end,type:selLv,note};const{editIdx}=pendingLv||{};
   if(editIdx!=null) leaves[pid][editIdx]=entry;
@@ -4584,6 +4622,14 @@ function saveLeave(){
   closeLmod();renderTable();renderStats();if(curSubTab===2)renderLeaveList();fbPush();
 }
 function deleteLeave(){
+  if(selLv==='alloff'){
+    const start=document.getElementById('lm-start').value,end=document.getElementById('lm-end').value;
+    if(!start||!end)return;
+    let d=new Date(start+'T00:00:00');
+    const eDate=new Date(end+'T00:00:00');
+    while(d<=eDate){delete customHolidays[d.toISOString().slice(0,10)];d.setDate(d.getDate()+1);}
+    closeLmod();renderTable();fbPush();return;
+  }
   if(!pendingLv||pendingLv.editIdx==null)return;
   leaves[pendingLv.personId]?.splice(pendingLv.editIdx,1);
   closeLmod();renderTable();renderStats();if(curSubTab===2)renderLeaveList();fbPush();
@@ -5553,6 +5599,7 @@ function loadFromSbData(payload){
   if(payload.p1Sub){   const e=document.getElementById('p1-sub');   if(e) e.value=payload.p1Sub;   }
   if(payload.grmAdj)   grmAdj   = payload.grmAdj;
   if(payload.dateMemos) dateMemos = payload.dateMemos;
+  if(payload.customHolidays) customHolidays = payload.customHolidays;
 
   renderLegend(); renderHeader(); renderTable(); renderStats();
   applyAdminMode();
@@ -5572,7 +5619,7 @@ async function pushAllToSb(){
     ideaCards, toolRows, MS_TYPES, activityLog, votes,
     p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
     grmNote: document.getElementById('grm-note')?.innerText||'',
-    dateMemos, grmAdj,
+    dateMemos, grmAdj, customHolidays,
     _updated: _lastPushTime
   };
   try{
