@@ -4606,10 +4606,11 @@ function renderCustomHolList(){
     </div>`;
   }).join('');
 }
-function isNextDay(ds,next){const d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+1);return d.toISOString().slice(0,10)===next;}
+function localDateStr(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function isNextDay(ds,next){const d=new Date(ds+'T12:00:00');d.setDate(d.getDate()+1);return localDateStr(d)===next;}
 function deleteCustomHolGroup(start,end){
-  let d=new Date(start+'T00:00:00');const eDate=new Date(end+'T00:00:00');
-  while(d<=eDate){delete customHolidays[d.toISOString().slice(0,10)];d.setDate(d.getDate()+1);}
+  let d=new Date(start+'T12:00:00');const eDate=new Date(end+'T12:00:00');
+  while(d<=eDate){delete customHolidays[localDateStr(d)];d.setDate(d.getDate()+1);}
   renderCustomHolList();renderTable();fbPush();
 }
 function openLeaveModal(personId,editIdx,dateStr){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;}
@@ -4633,9 +4634,9 @@ function saveLeave(){
   if(!start||!end)return;
   if(selLv==='alloff'){
     const label=(document.getElementById('lm-alloff-label')?.value.trim())||'지정 휴일';
-    let d=new Date(start+'T00:00:00');
-    const eDate=new Date(end+'T00:00:00');
-    while(d<=eDate){customHolidays[d.toISOString().slice(0,10)]=label;d.setDate(d.getDate()+1);}
+    let d=new Date(start+'T12:00:00');
+    const eDate=new Date(end+'T12:00:00');
+    while(d<=eDate){customHolidays[localDateStr(d)]=label;d.setDate(d.getDate()+1);}
     closeLmod();renderTable();fbPush();return;
   }
   const pid=document.getElementById('lm-person').value,note=document.getElementById('lm-note').value;
