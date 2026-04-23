@@ -4921,10 +4921,13 @@ function renderGRM(){
         const clr=person?.color||'#94a3b8';
         return `<div class="grm-seg" title="${person?.name}: ${d}일 (${w}%)" style="width:${w}%;background:${clr}"></div>`;
       }).join('');
-      const teamPct=totalWD>0?Math.round(totalProjDays/(people.length*totalWD)*100):0;
-      // 합산 퍼센트 (영업일 기준 개인별 합산)
-      const pctSum = memberEntries.reduce((s,[,d])=>s+(totalWD>0?Math.round(d/totalWD*100):0),0);
-      const adjSum = getProjAdj(proj.id);
+      // 합산 퍼센트: 반올림 오차 줄이기 위해 합산 후 한번에 반올림
+      const pctSum = totalWD>0?Math.round(memberEntries.reduce((s,[,d])=>s+d,0)/totalWD*100):0;
+      const hasAdj = memberEntries.some(([personId])=>getAdj(personId,proj.id)!=null);
+      const adjSum = hasAdj ? memberEntries.reduce((s,[personId,d])=>{
+        const v=getAdj(personId,proj.id);
+        return s+(v!=null?v:(totalWD>0?Math.round(d/totalWD*100):0));
+      },0) : null;
       const adjBadge = adjSum!=null
         ? `<div style="font-size:15px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:#fef3c7;color:#b45309;border:1px solid #fcd34d">보정 ${adjSum}%</div>`
         : '';
