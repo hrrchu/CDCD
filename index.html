@@ -3556,7 +3556,7 @@ function getWeekdays(y,m){
 }
 // 공휴일 제외 실제 근무일 수
 function getWorkingDays(y,m){
-  return getWeekdays(y,m).filter(({ds})=>!KR_HOLIDAYS[ds]).length;
+  return getWeekdays(y,m).filter(({ds})=>!KR_HOLIDAYS[ds]&&!customHolidays[ds]).length;
 }
 function addWeekdays(dateStr,delta){
   const d=new Date(dateStr);const sign=delta>0?1:-1;let rem=Math.abs(delta);
@@ -4612,7 +4612,7 @@ function isNextDay(ds,next){const d=new Date(ds+'T12:00:00');d.setDate(d.getDate
 function deleteCustomHolGroup(start,end){
   let d=new Date(start+'T12:00:00');const eDate=new Date(end+'T12:00:00');
   while(d<=eDate){delete customHolidays[localDateStr(d)];d.setDate(d.getDate()+1);}
-  renderCustomHolList();renderTable();fbPush();
+  renderCustomHolList();renderTable();renderStats();fbPush();
 }
 function openLeaveModal(personId,editIdx,dateStr){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;}
   document.getElementById('lm-person').innerHTML=getPeople().map(p=>`<option value="${p.id}"${p.id===personId?' selected':''}>${p.name} (${p.role})</option>`).join('');
@@ -4638,7 +4638,7 @@ function saveLeave(){
     let d=new Date(start+'T12:00:00');
     const eDate=new Date(end+'T12:00:00');
     while(d<=eDate){customHolidays[localDateStr(d)]=label;d.setDate(d.getDate()+1);}
-    closeLmod();renderTable();fbPush();return;
+    closeLmod();renderTable();renderStats();fbPush();return;
   }
   const pid=document.getElementById('lm-person').value,note=document.getElementById('lm-note').value;
   if(!leaves[pid])leaves[pid]=[];
@@ -4654,7 +4654,7 @@ function deleteLeave(){
     let d=new Date(start+'T00:00:00');
     const eDate=new Date(end+'T00:00:00');
     while(d<=eDate){delete customHolidays[d.toISOString().slice(0,10)];d.setDate(d.getDate()+1);}
-    closeLmod();renderTable();fbPush();return;
+    closeLmod();renderTable();renderStats();fbPush();return;
   }
   if(!pendingLv||pendingLv.editIdx==null)return;
   leaves[pendingLv.personId]?.splice(pendingLv.editIdx,1);
@@ -4814,6 +4814,7 @@ function renderStats(){
     <div class="sc"><div class="sl">휴가</div><div class="sv">${lvT}</div></div>
     ${tp?`<div class="sc"><div class="sl">TOP 프로젝트</div><div class="sv" style="font-size:15px;color:${tp.bar}">${tp.name} (${top[1]})</div></div>`:''}
   `;
+  if(curSubTab===1) renderGRM();
 }
 
 // ════════════════════════════════════════════
@@ -4842,8 +4843,8 @@ function renderGRM(){
     const pid=task.personId;
     (ranges[task.id]||[]).forEach(r=>{
       const proj=r.projectId;
-      // count overlap with this month's weekdays
       wds.forEach(({ds})=>{
+        if(KR_HOLIDAYS[ds]||customHolidays[ds]) return;
         if(dn(ds)>=dn(r.start)&&dn(ds)<=dn(r.end)){
           if(!personDays[pid][proj])personDays[pid][proj]=0;
           personDays[pid][proj]++;
@@ -4876,6 +4877,7 @@ function renderGRM(){
         if(!r.projectId) return;
         if(!projDays[r.projectId]) projDays[r.projectId]={};
         wds.forEach(({ds})=>{
+          if(KR_HOLIDAYS[ds]||customHolidays[ds]) return;
           if(dn(ds)>=dn(r.start)&&dn(ds)<=dn(r.end)){
             if(!projDays[r.projectId][pid]) projDays[r.projectId][pid]=0;
             projDays[r.projectId][pid]++;
