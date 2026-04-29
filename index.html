@@ -3777,6 +3777,26 @@ function renderTable(){
             const lt=LEAVE_TYPES[lv.type]||LEAVE_TYPES.off;
             const lvS=n===dn(lv.start),lvE=n===dn(lv.end);
             const lvHalfAm=lv.type==='halfday_am',lvHalfPm=lv.type==='halfday_pm';
+            const isHalfday=lvHalfAm||lvHalfPm;
+            // 반차일 때 일정 바를 반대쪽 절반에 렌더링
+            let halfBarsHtml='';
+            if(isHalfday&&rs.length>0){
+              const barTop=lvHalfAm?'50%':'0',barBottom=lvHalfPm?'50%':'0';
+              halfBarsHtml=rs.map(rv=>{
+                const ri=tR.indexOf(rv);
+                const proj=getProj(rv.projectId);
+                const bs=getBarStyle(proj,rv.status);
+                const isS=n===dn(rv.start),isE=n===dn(rv.end);
+                const _wg=['wip','variation','revision'];
+                const sm=!_filterStatus||(_filterStatus==='wip'?_wg.includes(rv.status):rv.status===_filterStatus);
+                const dm=(_filterProjId&&rv.projectId!==_filterProjId)||!sm;
+                return `<div style="position:absolute;top:${barTop};bottom:${barBottom};left:0;right:0;overflow:hidden;cursor:pointer;${dm?'opacity:0;':''}"
+                  onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
+                  onclick="barBfClick(event,'${task.id}',${ri})">
+                  <div class="bf" style="position:absolute;inset:0;background:${bs.bg};opacity:${bs.op||1};${isS?'border-radius:8px 0 0 8px;margin-left:2px;left:2px;':''}${isE?'border-radius:0 8px 8px 0;margin-right:2px;right:2px;':''}${isS&&isE?'border-radius:8px;margin:0 2px;left:2px;right:2px;':''}"></div>
+                </div>`;
+              }).join('');
+            }
             b+=`<td class="cell leave${isToday?' today':''}${isHolCell?' holiday-cell':''}${isCustomHolCell?' custom-holiday-cell':''}${lvS?' lv-s':''}${lvE?' lv-e':''}${lvHalfAm?' lv-half-am':''}${lvHalfPm?' lv-half-pm':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-idx="${idx}" data-ds="${dateStr}"
               draggable="true"
               ondragstart="lvGanttDragStart(event,'${person.id}',${li})"
@@ -3788,6 +3808,7 @@ function renderTable(){
               <div class="lv-fill" style="background:${lt.bg};color:${lt.color}">
                 ${lvS?`<span class="lv-icon">${lt.icon}</span><span class="lv-lbl">${lt.label}</span>`:''}
               </div>
+              ${halfBarsHtml}
               ${msHtml?`<div style="position:absolute;bottom:3px;left:2px;right:2px;display:flex;flex-direction:column;gap:2px;pointer-events:none">${msHtml}</div>`:''}
               <div class="bub"></div>
             </td>`;
