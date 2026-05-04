@@ -3618,11 +3618,22 @@ function initAutoMultiMonth(){
     _multiMonths=[{y:ny,m:nm}];
   }
 }
+function scrollToToday(){
+  const gs = document.querySelector('.gs');
+  const todayTh = gs?.querySelector('th.cd.today');
+  if(!gs || !todayTh) return;
+  const nc = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nc'))||90;
+  const visWidth = gs.clientWidth - nc;
+  gs.scrollLeft = Math.max(0, todayTh.offsetLeft - nc - visWidth/2 + todayTh.offsetWidth/2);
+}
+let _scrolledToToday = false;
+
 function init(){
   initAutoMultiMonth();
   renderLegend();renderHeader();renderTable();renderStats();renderGRM();
   applyAdminMode();
   autoFitNc();
+  requestAnimationFrame(scrollToToday);
 }
 function autoFitNc(){} // 고정값 사용
 
@@ -5671,6 +5682,7 @@ function loadFromSbData(payload){
   if(payload.customHolidays) customHolidays = payload.customHolidays;
 
   renderLegend(); renderHeader(); renderTable(); renderStats();
+  if(!_scrolledToToday){ requestAnimationFrame(scrollToToday); _scrolledToToday=true; }
   applyAdminMode();
   if(curSubTab===1) renderGRM();
   if(curSubTab===2) renderLeaveList();
