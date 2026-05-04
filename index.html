@@ -3621,14 +3621,13 @@ function initAutoMultiMonth(){
 function scrollToToday(){
   const gs = document.querySelector('.gs');
   if(!gs) return;
-  const todayTh = gs.querySelector('th.cd.today');
-  if(!todayTh) return;
-  const nc = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nc'))||90;
-  const gsRect = gs.getBoundingClientRect();
-  const thRect = todayTh.getBoundingClientRect();
+  const ths = Array.from(gs.querySelectorAll('th.cd'));
+  const todayIdx = ths.findIndex(th => th.classList.contains('today'));
+  if(todayIdx < 0) return;
+  const cell = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cell')) || 40;
+  const nc   = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nc'))   || 90;
   const visWidth = gs.clientWidth - nc;
-  const currentOffset = thRect.left - gsRect.left - nc;
-  gs.scrollLeft += currentOffset - visWidth/4;
+  gs.scrollLeft = Math.max(0, todayIdx * cell - visWidth / 4);
 }
 let _scrolledToToday = false;
 
