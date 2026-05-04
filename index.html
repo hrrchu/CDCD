@@ -3620,11 +3620,15 @@ function initAutoMultiMonth(){
 }
 function scrollToToday(){
   const gs = document.querySelector('.gs');
-  const todayTh = gs?.querySelector('th.cd.today');
-  if(!gs || !todayTh) return;
+  if(!gs) return;
+  const todayTh = gs.querySelector('th.cd.today');
+  if(!todayTh) return;
   const nc = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nc'))||90;
+  const gsRect = gs.getBoundingClientRect();
+  const thRect = todayTh.getBoundingClientRect();
   const visWidth = gs.clientWidth - nc;
-  gs.scrollLeft = Math.max(0, todayTh.offsetLeft - nc - visWidth/4 + todayTh.offsetWidth/2);
+  const currentOffset = thRect.left - gsRect.left - nc;
+  gs.scrollLeft += currentOffset - visWidth/4;
 }
 let _scrolledToToday = false;
 
@@ -3633,7 +3637,7 @@ function init(){
   renderLegend();renderHeader();renderTable();renderStats();renderGRM();
   applyAdminMode();
   autoFitNc();
-  requestAnimationFrame(scrollToToday);
+  setTimeout(scrollToToday, 50);
 }
 function autoFitNc(){} // 고정값 사용
 
@@ -5682,7 +5686,7 @@ function loadFromSbData(payload){
   if(payload.customHolidays) customHolidays = payload.customHolidays;
 
   renderLegend(); renderHeader(); renderTable(); renderStats();
-  if(!_scrolledToToday){ requestAnimationFrame(scrollToToday); _scrolledToToday=true; }
+  if(!_scrolledToToday){ setTimeout(scrollToToday, 50); _scrolledToToday=true; }
   applyAdminMode();
   if(curSubTab===1) renderGRM();
   if(curSubTab===2) renderLeaveList();
