@@ -3627,7 +3627,7 @@ function scrollToToday(){
   const cell = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cell')) || 40;
   const nc   = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nc'))   || 90;
   const visWidth = gs.clientWidth - nc;
-  gs.scrollLeft = Math.max(0, todayIdx * cell - visWidth / 4);
+  gs.scrollLeft = Math.max(0, (todayIdx - 5) * cell);
 }
 let _scrolledToToday = false;
 
