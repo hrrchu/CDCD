@@ -3605,18 +3605,12 @@ function statusBadge(s){return{plan:'',wip:'',done:'',blocked:'⛔',variation:''
 //  RENDER
 // ════════════════════════════════════════════
 function initAutoMultiMonth(){
-  const day = today.getDate();
-  if(day <= 5){
-    // 5일 이전: 전달 모아보기
-    let py=CY, pm=CM-1;
-    if(pm<0){pm=11;py--}
-    _multiMonths=[{y:py,m:pm}];
-  } else {
-    // 6일 이후: 다음달 모아보기
-    let ny=CY, nm=CM+1;
-    if(nm>11){nm=0;ny++}
-    _multiMonths=[{y:ny,m:nm}];
-  }
+  // 이전 달은 항상 포함 (오늘 앞에 충분한 칸 확보)
+  let py=CY, pm=CM-1;
+  if(pm<0){pm=11;py--}
+  let ny=CY, nm=CM+1;
+  if(nm>11){nm=0;ny++}
+  _multiMonths=[{y:py,m:pm},{y:ny,m:nm}];
 }
 function scrollToToday(){
   const gs = document.querySelector('.gs');
