@@ -3636,7 +3636,7 @@ function init(){
   renderLegend();renderHeader();renderTable();renderStats();renderGRM();
   applyAdminMode();
   autoFitNc();
-  setTimeout(scrollToToday, 50);
+  scrollToToday();
 }
 function autoFitNc(){} // 고정값 사용
 
@@ -3705,6 +3705,8 @@ function msBarsHtml(taskId, dateStr){
 }
 
 function renderTable(){
+  const _gs = document.querySelector('.gs');
+  const _savedScroll = _gs ? _gs.scrollLeft : 0;
   // 멀티 월: 현재 달 + 선택 달을 날짜 순서로 합산
   const allMonths = [{y:CY,m:CM}, ..._multiMonths].sort((a,b)=>a.y!==b.y?a.y-b.y:a.m-b.m);
   // 중복 제거
@@ -3886,6 +3888,7 @@ function renderTable(){
     });
   });
   document.getElementById('tbody').innerHTML=b;
+  if(_gs) _gs.scrollLeft = _savedScroll;
   autoFitNc();
 }
 
@@ -5685,7 +5688,7 @@ function loadFromSbData(payload){
   if(payload.customHolidays) customHolidays = payload.customHolidays;
 
   renderLegend(); renderHeader(); renderTable(); renderStats();
-  if(!_scrolledToToday){ setTimeout(scrollToToday, 50); _scrolledToToday=true; }
+  if(!_scrolledToToday){ scrollToToday(); _scrolledToToday=true; }
   applyAdminMode();
   if(curSubTab===1) renderGRM();
   if(curSubTab===2) renderLeaveList();
