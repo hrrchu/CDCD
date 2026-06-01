@@ -1480,7 +1480,13 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 <!-- Leave Modal -->
 <div class="mb" id="lmod">
   <div class="modal" style="width:600px;max-width:98vw">
-    <div class="mt">휴가 등록</div>
+    <div class="mt">🏖️ 휴가 / 임시공휴일 등록</div>
+    <div style="display:flex;gap:6px;margin-bottom:14px">
+      <button type="button" id="lmod-tab-leave" onclick="switchLmodTab('leave')" class="btn btn-p" style="font-size:14px;padding:4px 14px">🏖️ 휴가 등록</button>
+      <button type="button" id="lmod-tab-hol" onclick="switchLmodTab('hol')" class="btn btn-g" style="font-size:14px;padding:4px 14px">🎌 임시공휴일 지정</button>
+    </div>
+    <!-- 휴가 섹션 -->
+    <div id="lmod-leave-section">
     <div class="mss">담당자와 기간을 선택하세요</div>
     <div class="fg"><label>담당자</label><select id="lm-person"></select></div>
     <div class="fg" style="display:flex;gap:10px">
@@ -1522,6 +1528,29 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <button class="btn btn-p" onclick="saveLeave()">저장</button>
       <button class="btn btn-g" onclick="closeLmod()">취소</button>
       <button class="btn btn-danger" id="lm-del" onclick="deleteLeave()">삭제</button>
+    </div>
+    </div><!-- /lmod-leave-section -->
+    <!-- 임시공휴일 섹션 -->
+    <div id="lmod-hol-section" style="display:none">
+      <div class="mss">지정된 날짜는 영업일에서 제외돼요</div>
+      <div class="fg">
+        <label>날짜</label>
+        <div class="date-spinner" style="margin-top:4px">
+          <input type="number" id="hol-y" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('hol')">
+          <span class="ds-sep">-</span>
+          <input type="number" id="hol-m" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('hol')">
+          <span class="ds-sep">-</span>
+          <input type="number" id="hol-d" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('hol')">
+          <div class="ds-arrow"><span onclick="shiftSpinnerDate('hol-start',1)">▲</span><span onclick="shiftSpinnerDate('hol-start',-1)">▼</span></div>
+        </div>
+        <input type="hidden" id="hol-start">
+      </div>
+      <div class="fg"><label>공휴일 이름</label><input type="text" id="hol-name" placeholder="예: 임시공휴일, 창립기념일..."></div>
+      <div style="margin-top:10px;max-height:160px;overflow-y:auto" id="custom-hol-list"></div>
+      <div class="ma">
+        <button class="btn btn-p" onclick="saveCustomHoliday()">추가</button>
+        <button class="btn btn-g" onclick="closeLmod()">닫기</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1655,7 +1684,7 @@ const KR_HOLIDAYS = {
   '2027-10-11':'한글날 대체공휴일',
   '2027-12-25':'크리스마스',
 };
-function getHoliday(ds){ return KR_HOLIDAYS[ds]||null; }
+function getHoliday(ds){ return customHolidays[ds] || KR_HOLIDAYS[ds] || null; }
 
 
 
@@ -1666,7 +1695,8 @@ let leaves = {};
 let dateMemos = {};
 let grmAdj = {}; // grmAdj[ym][personId][projId] = 보정% (수기)
 let activityLog = [];
-let otData = {}; // otData[ym][personId] = hours (number) // [{ts, type, personName, projName, start, end, action}]
+let otData = {};
+let customHolidays = {}; // customHolidays[dateStr] = name // otData[ym][personId] = hours (number) // [{ts, type, personName, projName, start, end, action}]
 // milestones[taskId][dateStr] = {report:bool, variation:bool, storyboard:bool, note:string}
 // dateMemos[dateStr] = {text:string, projs:[projId,...]} (또는 하위호환 string)
 let milestones = {};
@@ -2455,15 +2485,50 @@ function revealAllLadder(){
       <div style="font-size:15px;color:${COLS[startCol%COLS.length]};font-weight:700;margin-bottom:2px">${_ladderPlayers[startCol].name}</div>
       <div style="font-size:15px;font-weight:700;color:var(--tx)">${result.label||'?'}</div>
     </div>`).join('');
+  // 결과 저장
+  const rec = {
+    ts: Date.now(),
+    players: _ladderPaths.map(({startCol,result})=>({name:_ladderPlayers[startCol].name, result:result.label||'?'}))
+  };
+  ladderHistory.unshift(rec);
+  if(ladderHistory.length>50) ladderHistory.pop();
+  fbPush();
+  renderLadderHistory();
 }
 
 
 
+
+function renderLadderHistory(){
+  const wrap = document.getElementById('ladder-history');
+  if(!wrap) return;
+  if(!ladderHistory.length){ wrap.innerHTML='<div style="font-size:14px;color:var(--tx3);padding:8px 0">아직 결과가 없어요</div>'; return; }
+  const COLS=['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4','#84cc16','#f97316','#6366f1','#14b8a6','#a855f7'];
+  wrap.innerHTML = ladderHistory.map((rec,i)=>{
+    const d = new Date(rec.ts);
+    const dateStr = d.toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `<div style="border:1px solid var(--bd);border-radius:9px;padding:10px 12px;margin-bottom:8px;background:var(--sur)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:var(--tx3)">${dateStr}</span>
+        <button onclick="ladderHistory.splice(${i},1);renderLadderHistory();fbPush()" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:15px">×</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${rec.players.map((p,j)=>`
+          <div style="background:var(--sf2);border:1px solid ${COLS[j%COLS.length]}55;border-radius:7px;padding:4px 10px;font-size:14px">
+            <span style="color:${COLS[j%COLS.length]};font-weight:700">${p.name}</span>
+            <span style="color:var(--tx3);margin:0 4px">→</span>
+            <span style="font-weight:700;color:var(--tx)">${p.result}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
 // ════════════════════════════════════════════
 //  VOTE SYSTEM
 // ════════════════════════════════════════════
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
+let ladderHistory = []; // [{ts, players:[{name,result}]}]
 let votes = []; // [{id,q,type,opts:[{id,label,voters:[]}],due,anon,closed,createdBy,ts}]
 let _vEditId = null;
 
@@ -2888,6 +2953,58 @@ function saveOtModal(){
   renderOtPage();
   fbPush();
   showToast('✅ 연장근로 저장 완료');
+}
+
+// ════════════════════════════════════════════
+//  CUSTOM HOLIDAYS
+// ════════════════════════════════════════════
+function switchLmodTab(tab){
+  const isLeave = tab==='leave';
+  document.getElementById('lmod-leave-section').style.display = isLeave ? '' : 'none';
+  document.getElementById('lmod-hol-section').style.display   = isLeave ? 'none' : '';
+  document.getElementById('lmod-tab-leave').className = isLeave ? 'btn btn-p' : 'btn btn-g';
+  document.getElementById('lmod-tab-hol').className   = isLeave ? 'btn btn-g' : 'btn btn-p';
+  document.getElementById('lmod-tab-leave').style.fontSize='14px'; document.getElementById('lmod-tab-leave').style.padding='4px 14px';
+  document.getElementById('lmod-tab-hol').style.fontSize='14px';   document.getElementById('lmod-tab-hol').style.padding='4px 14px';
+  if(!isLeave){
+    // 날짜 스피너 초기화
+    const today = new Date();
+    const ds = today.toISOString().slice(0,10);
+    initSpinner('hol', ds, ds);
+    renderCustomHolList();
+  }
+}
+
+function saveCustomHoliday(){
+  const ds = document.getElementById('hol-start')?.value;
+  const name = document.getElementById('hol-name')?.value.trim() || '임시공휴일';
+  if(!ds){ showToast('날짜를 입력해주세요','error'); return; }
+  customHolidays[ds] = name;
+  document.getElementById('hol-name').value = '';
+  renderCustomHolList();
+  renderTable(); renderStats();
+  fbPush();
+  showToast(`✅ ${ds} 임시공휴일 지정됨`);
+}
+
+function deleteCustomHoliday(ds){
+  delete customHolidays[ds];
+  renderCustomHolList();
+  renderTable(); renderStats();
+  fbPush();
+}
+
+function renderCustomHolList(){
+  const wrap = document.getElementById('custom-hol-list');
+  if(!wrap) return;
+  const entries = Object.entries(customHolidays).sort(([a],[b])=>a>b?1:-1);
+  if(!entries.length){ wrap.innerHTML='<div style="font-size:14px;color:var(--tx3);padding:8px 0">지정된 임시공휴일이 없어요</div>'; return; }
+  wrap.innerHTML = entries.map(([ds,name])=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)">
+      <span style="font-size:14px;font-family:'Space Mono',monospace;color:var(--tx3)">${ds}</span>
+      <span style="font-size:15px;font-weight:600;color:var(--tx);flex:1">🎌 ${name}</span>
+      <button onclick="deleteCustomHoliday('${ds}')" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:18px;padding:0">×</button>
+    </div>`).join('');
 }
 // ════════════════════════════════════════════
 //  TOOL INFO TABLE
@@ -3761,7 +3878,7 @@ function getWeekdays(y,m){
 }
 // 공휴일 제외 실제 근무일 수
 function getWorkingDays(y,m){
-  return getWeekdays(y,m).filter(({ds})=>!KR_HOLIDAYS[ds]).length;
+  return getWeekdays(y,m).filter(({ds})=>!KR_HOLIDAYS[ds]&&!customHolidays[ds]).length;
 }
 function addWeekdays(dateStr,delta){
   const d=new Date(dateStr);const sign=delta>0?1:-1;let rem=Math.abs(delta);
@@ -3856,6 +3973,7 @@ function chM(d){
   CM+=d; if(CM>11){CM=0;CY++} if(CM<0){CM=11;CY--}
   renderHeader();
   set3MonthView();
+  if(curSubTab===1) renderGRM();
   if(curSubTab===2){if(_leaveTab==='year')renderLeaveListYear();else renderLeaveList();}
   if(curSubTab===3)renderOtPage();
 }
@@ -4774,7 +4892,12 @@ function selLvType(type){
   selLv=type;
   document.querySelectorAll('.lv-pill').forEach(p=>{const t=p.dataset.type,lt=LEAVE_TYPES[t];p.style.borderColor=t===type?lt.color:'transparent';p.style.fontWeight=t===type?'700':'600'});
 }
-function openLeaveModal(personId,editIdx,dateStr){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;}
+function openLeaveModal(personId, editIdx){
+  // 항상 휴가 탭으로 초기화
+  switchLmodTab('leave');
+  _openLeaveModal_orig(personId, editIdx);
+}
+function _openLeaveModal_orig(personId,editIdx,dateStr){ if(!_isAdmin){showToast('관리자만 사용할 수 있어요 🔒','error');return;}
   document.getElementById('lm-person').innerHTML=getPeople().map(p=>`<option value="${p.id}"${p.id===personId?' selected':''}>${p.name} (${p.role})</option>`).join('');
   const lv=editIdx!=null?(leaves[personId]||[])[editIdx]:null;
   const _lvStart=lv?.start||dateStr||todayStr();
@@ -5680,11 +5803,11 @@ let _sbChannel = null;
 let _sbConnected = false;
 let _sbIgnoreNext = false;
 let _sbPushTimer = null;
-let _lastPushTime = 0; // 마지막으로 내가 push한 시각
+let _lastPushTime = 0;
+let _pendingPushId = null; // 저장 중 여부 추적
 
 async function initSupabase(){
   try{
-    // Wait for supabase SDK
     let attempts = 0;
     while(!window.supabase && attempts < 50){ await new Promise(r=>setTimeout(r,100)); attempts++; }
     if(!window.supabase) throw new Error('Supabase SDK 로드 실패');
@@ -5692,7 +5815,6 @@ async function initSupabase(){
     _sb = window.supabase.createClient(SB_URL, SB_KEY);
     setFbIndicator('connecting');
 
-    // Check if table exists and has data
     const { data, error } = await _sb.from(SB_TABLE).select('*').eq('id', SB_ROW_ID).single();
 
     if(error && error.code === '42P01'){
@@ -5709,7 +5831,6 @@ async function initSupabase(){
       showToast('✅ Supabase 연결 완료! 팀 데이터를 불러왔어요.');
     }
 
-    // Subscribe to realtime changes
     _sbChannel = _sb.channel(SB_CHANNEL)
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -5720,11 +5841,16 @@ async function initSupabase(){
         if(!payload.new?.payload) return;
         const incoming = payload.new.payload;
         const incomingTime = incoming._updated || 0;
-        // 내가 push한 직후(2초 이내)면 무시 (내 데이터가 돌아온 것)
-        if(Date.now() - _lastPushTime < 2000) return;
-        // 들어온 데이터가 내 로컬보다 오래됐으면 무시
-        if(incomingTime < _lastPushTime) return;
-        loadFromSbData(incoming);
+        // 내가 방금 push한 데이터면 → 저장 확인됨, 로컬 반영
+        if(_pendingPushId && incomingTime === _lastPushTime){
+          _pendingPushId = null;
+          setFbIndicator('on');
+          return; // 이미 로컬에 반영됐으니 loadFromSbData 불필요
+        }
+        // 다른 사람이 저장한 더 최신 데이터면 반영
+        if(incomingTime > _lastPushTime){
+          loadFromSbData(incoming);
+        }
       })
       .subscribe((status) => {
         if(status === 'SUBSCRIBED'){
@@ -5770,6 +5896,8 @@ function loadFromSbData(payload){
   if(payload.grmAdj)   grmAdj   = payload.grmAdj;
   if(payload.dateMemos) dateMemos = payload.dateMemos;
   if(payload.otData)   otData   = payload.otData;
+  if(payload.customHolidays) customHolidays = payload.customHolidays;
+  if(payload.ladderHistory)  ladderHistory  = payload.ladderHistory;
 
   renderLegend(); renderHeader(); renderTable(); renderStats();
   applyAdminMode();
@@ -5784,9 +5912,10 @@ function loadFromSbData(payload){
 async function pushAllToSb(){
   if(!_sb) return;
   _lastPushTime = Date.now();
+  _pendingPushId = _lastPushTime;
   const payload = {
     PROJECTS, GROUPS, ranges, leaves, milestones,
-    ideaCards, toolRows, MS_TYPES, activityLog, votes, otData, otData,
+    ideaCards, toolRows, MS_TYPES, activityLog, votes, otData, customHolidays, ladderHistory,
     p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
     grmNote: document.getElementById('grm-note')?.innerText||'',
     dateMemos, grmAdj,
@@ -5795,7 +5924,24 @@ async function pushAllToSb(){
   try{
     const { error } = await _sb.from(SB_TABLE).upsert({ id: SB_ROW_ID, payload });
     if(error) throw error;
-  } catch(e){ console.error('SB write error', e); }
+    setFbIndicator('on');
+    // 3초 후에도 realtime 확인이 없으면 직접 DB에서 읽어서 확인
+    setTimeout(async ()=>{
+      if(_pendingPushId !== _lastPushTime) return; // 이미 확인됨
+      const { data } = await _sb.from(SB_TABLE).select('payload').eq('id', SB_ROW_ID).single();
+      if(data?.payload?._updated === _lastPushTime){
+        _pendingPushId = null;
+      } else {
+        // DB에 다른 사람 데이터가 최신이면 반영
+        if(data?.payload?._updated > _lastPushTime) loadFromSbData(data.payload);
+      }
+    }, 3000);
+  } catch(e){
+    console.error('SB write error', e);
+    setFbIndicator('off');
+    showToast('❌ 저장 실패. 재시도 중...', 'error');
+    setTimeout(pushAllToSb, 2000); // 실패 시 2초 후 재시도
+  }
 }
 
 function fbPush(){
