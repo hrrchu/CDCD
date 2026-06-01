@@ -49,7 +49,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tx);mi
 .btn-danger{background:#fff5f5;color:#e74c3c;border:1px solid #fcc}.btn-danger:hover{background:#fee2e2}
 
 /* ── LEGEND ── */
-.legend{display:flex;gap:5px;padding:7px 22px;background:var(--sur);border-bottom:1px solid var(--bd);overflow-x:auto;flex-wrap:wrap;align-items:center}
+.legend{display:flex;gap:5px;padding:5px 22px;background:var(--sur);border-top:1px solid var(--bd);overflow-x:auto;flex-wrap:nowrap;align-items:center;position:fixed;bottom:0;left:0;right:0;z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:15px;color:var(--tx2);font-weight:500;padding:3px 9px;border-radius:20px;border:1px solid var(--bd);background:var(--sur);white-space:nowrap;cursor:pointer;transition:.12s}
 .legend-item:hover{border-color:#aaa}
 .legend-active{font-weight:700!important}
@@ -810,11 +810,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 <div id="g-bub"></div>
 
 <!-- ── NAVIGATION ── -->
-<div class="nav-tabs" id="nav-tabs">
-  <div class="nav-tab active" onclick="switchPage(0)" id="tab-0">📅 schedule</div>
-  <div class="nav-tab" onclick="switchPage(1)" id="tab-1">📋 process</div>
-  <div class="nav-tab" onclick="switchPage(2)" id="tab-2">🛠 tool</div>
-  <div class="nav-tab" onclick="switchPage(3)" id="tab-3">💡 idea</div>
+<div class="nav-tabs" id="nav-tabs" style="justify-content:flex-end">
 
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding-right:8px;flex-shrink:0">
     <div id="fb-indicator" onclick="openFbSetup()" title="Supabase 연결 상태" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:15px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none">
@@ -856,16 +852,16 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     </div>
   </div>
 
-  <div class="legend" id="legend"></div>
 
   <!-- SUB TABS -->
-  <div class="sub-tabs">
+  <div class="sub-tabs" id="schedule-subtabs">
     <div class="sub-tab active" id="stab-0" onclick="switchSubTab(0)">📅 스케줄 차트</div>
     <div class="sub-tab" id="stab-1" onclick="switchSubTab(1)">📊 GRM 공수</div>
-    <div class="sub-tab" id="stab-2" onclick="switchSubTab(2)">🏖️ 휴가 목록</div>
-    <div class="sub-tab" id="stab-3" onclick="switchSubTab(3)">⏱ 연장근로</div>
-    <div class="sub-tab" id="stab-4" onclick="switchSubTab(4)">📝 월간 리뷰</div>
-    <div class="sub-tab" id="stab-5" onclick="switchSubTab(5)">📋 활동 기록</div>
+    <div class="sub-tab" id="stab-2" onclick="switchSubTab(2)">🗓 근태</div>
+    <div class="sub-tab" id="stab-3" onclick="switchSubTab(3)">📝 리뷰</div>
+    <div class="sub-tab" id="stab-4" onclick="switchSubTab(4)">📋 프로세스</div>
+    <div class="sub-tab" id="stab-5" onclick="switchSubTab(5)">🛠 툴</div>
+    <div class="sub-tab" id="stab-6" onclick="switchSubTab(6)">💡 아이디어</div>
   </div>
 
   <!-- SUB 0: GANTT -->
@@ -917,51 +913,42 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   </div>
 
   <!-- SUB 2: LEAVE LIST -->
+  <!-- SUB 2: 근태 -->
   <div class="sub-content" id="scontent-2">
-    <div class="grm-wrap">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-        <div class="grm-title" style="margin-bottom:0">🏖️ 휴가 목록 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="leave-list-label"></span></div>
-        <div style="display:flex;gap:6px;margin-left:auto">
-          <button id="lv-tab-month" onclick="switchLeaveTab('month')" class="btn btn-p" style="font-size:13px;padding:4px 12px">📅 월간</button>
-          <button id="lv-tab-year"  onclick="switchLeaveTab('year')"  class="btn btn-g" style="font-size:13px;padding:4px 12px">📆 연간</button>
-        </div>
-      </div>
-      <div class="grm-sub">등록된 모든 휴가를 날짜 순으로 확인하고 관리할 수 있어요.</div>
-      <div id="leave-list-wrap"></div>
+    <div style="display:flex;gap:6px;padding:16px 22px 0" id="kintai-tabs">
+      <button id="kt-tab-leave" onclick="switchKintaiTab('leave')" class="btn btn-p" style="font-size:13px;padding:4px 14px">🏖️ 휴가 목록</button>
+      <button id="kt-tab-ot"    onclick="switchKintaiTab('ot')"    class="btn btn-g" style="font-size:13px;padding:4px 14px">⏱ 연장근로</button>
     </div>
-  </div>
-
-
-  <!-- SUB 3: ACTIVITY LOG -->
-  <div class="sub-content" id="scontent-5">
-    <div class="grm-wrap">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div>
-          <div class="grm-title">📋 활동 기록</div>
-          <div class="grm-sub">일정 등록·수정·삭제 내역이 자동으로 기록돼요.</div>
+    <!-- 휴가 섹션 -->
+    <div id="kintai-leave-wrap">
+      <div class="grm-wrap">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+          <div class="grm-title" style="margin-bottom:0">🏖️ 휴가 목록 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="leave-list-label"></span></div>
+          <div style="display:flex;gap:6px;margin-left:auto">
+            <button id="lv-tab-month" onclick="switchLeaveTab('month')" class="btn btn-p" style="font-size:13px;padding:4px 12px">📅 월간</button>
+            <button id="lv-tab-year"  onclick="switchLeaveTab('year')"  class="btn btn-g" style="font-size:13px;padding:4px 12px">📆 연간</button>
+          </div>
         </div>
-        <button class="btn btn-g" onclick="clearActivityLog()" style="font-size:15px">🗑 전체 삭제</button>
+        <div class="grm-sub">등록된 모든 휴가를 날짜 순으로 확인하고 관리할 수 있어요.</div>
+        <div id="leave-list-wrap"></div>
       </div>
-      <div id="activity-log-wrap"></div>
     </div>
-  </div>
-
-
-  <!-- SUB 4: OVERTIME -->
-  <div class="sub-content" id="scontent-3">
-    <div class="grm-wrap">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
-        <div>
-          <div class="grm-title">⏱ 연장근로 기록 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="ot-label"></span></div>
-          <div class="grm-sub">팀원별 월간 연장근로 시간을 입력해요. 순위순으로 정렬돼요.</div>
+    <!-- 연장근로 섹션 -->
+    <div id="kintai-ot-wrap" style="display:none">
+      <div class="grm-wrap">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="grm-title">⏱ 연장근로 기록 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="ot-label"></span></div>
+            <div class="grm-sub">팀원별 월간 연장근로 시간을 입력해요. 순위순으로 정렬돼요.</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-p" onclick="openOtModal()" style="font-size:15px" id="ot-input-btn">✏️ 입력</button>
+            <button id="ot-tab-month" onclick="switchOtTab('month')" class="btn btn-p" style="font-size:13px;padding:4px 12px">📅 월간</button>
+            <button id="ot-tab-year"  onclick="switchOtTab('year')"  class="btn btn-g" style="font-size:13px;padding:4px 12px">📆 연간</button>
+          </div>
         </div>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-p" onclick="openOtModal()" style="font-size:15px" id="ot-input-btn">✏️ 입력</button>
-          <button id="ot-tab-month" onclick="switchOtTab('month')" class="btn btn-p" style="font-size:13px;padding:4px 12px">📅 월간</button>
-          <button id="ot-tab-year"  onclick="switchOtTab('year')"  class="btn btn-g" style="font-size:13px;padding:4px 12px">📆 연간</button>
-        </div>
+        <div id="ot-wrap" style="margin-top:12px"></div>
       </div>
-      <div id="ot-wrap" style="margin-top:12px"></div>
     </div>
   </div>
 
@@ -979,12 +966,12 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   </div>
 </div>
 
-  <!-- SUB 5: MONTHLY REVIEW -->
-  <div class="sub-content" id="scontent-4">
+  <!-- SUB 3: REVIEW -->
+  <div class="sub-content" id="scontent-3">
     <div class="grm-wrap">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
         <div>
-          <div class="grm-title">📝 월간 리뷰 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="rv-label"></span></div>
+          <div class="grm-title">📝 리뷰 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="rv-label"></span></div>
           <div class="grm-sub">팀원들이 한 달을 돌아보며 작성해요. 내용은 관리자만 볼 수 있어요.</div>
         </div>
       </div>
@@ -1026,11 +1013,9 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       </div>
     </div>
   </div>
-</div><!-- /page-0 -->
 
-<!-- ══ PAGE 1: 백서 ══ -->
-<div class="page" id="page-1">
-  <div class="free-page">
+  <div class="sub-content" id="scontent-4">
+    <div class="free-page">
     <input class="free-page-title" id="p1-title" value="제작 프로세스 백서" placeholder="페이지 제목">
     <input class="free-page-subtitle" id="p1-sub" value="팀 내 제작 프로세스 및 가이드라인을 기록합니다." placeholder="부제목 / 설명">
 
@@ -1108,11 +1093,10 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     ></div>
     <div class="free-tip">💡 제목을 클릭해서 수정할 수 있어요. 내용은 자동 저장됩니다.</div>
   </div>
-</div>
+  </div>
 
-<!-- ══ PAGE 2: 툴 정보 ══ -->
-<div class="page" id="page-2">
-  <div class="tool-page">
+  <div class="sub-content" id="scontent-5">
+    <div class="tool-page">
     <div class="tool-page-header">
       <div>
         <input class="free-page-title" id="p2-title" value="🛠 tool" placeholder="페이지 제목">
@@ -1138,11 +1122,10 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     </div>
     <div class="free-tip" style="margin-top:12px">💡 행을 드래그해서 순서를 바꿀 수 있어요. 비밀번호는 👁 버튼으로 확인하세요.</div>
   </div>
-</div>
+  </div>
 
-<!-- ══ PAGE 3: 아이디어 게시판 ══ -->
-<div class="page" id="page-3">
-  <!-- 서브탭 -->
+  <div class="sub-content" id="scontent-6">
+    <!-- 서브탭 -->
   <div class="sub-tabs">
     <div class="sub-tab active" id="p3tab-0" onclick="switchP3Tab(0)">💡 메모</div>
     <div class="sub-tab" id="p3tab-1" onclick="switchP3Tab(1)">🗳 투표</div>
@@ -1244,8 +1227,11 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 <div class="page" id="page-4" style="display:none">
   <div id="p4-ladder" style="display:none"><div id="p4-vote" style="display:none"></div></div>
-</div>
+  </div>
+  <div class="legend" id="legend"></div>
+</div><!-- /page-0 -->
 
+<!-- ══ PAGE 1: 백서 ══ -->
 
 <!-- ══ MODALS ══ -->
 
@@ -2865,6 +2851,20 @@ function editVote(voteId){
 // ── NAME COLUMN RESIZE ──
 
 
+
+let _kintaiTab = 'leave';
+function switchKintaiTab(tab){
+  _kintaiTab = tab;
+  document.getElementById('kt-tab-leave').className = tab==='leave'?'btn btn-p':'btn btn-g';
+  document.getElementById('kt-tab-ot').className    = tab==='ot'   ?'btn btn-p':'btn btn-g';
+  ['kt-tab-leave','kt-tab-ot'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.fontSize='13px';b.style.padding='4px 14px';}});
+  const leaveEl = document.getElementById('kintai-leave-wrap');
+  const otEl    = document.getElementById('kintai-ot-wrap');
+  if(leaveEl) leaveEl.style.display = tab==='leave' ? '' : 'none';
+  if(otEl)    otEl.style.display    = tab==='ot'    ? '' : 'none';
+  if(tab==='leave'){ if(_leaveTab==='year') renderLeaveListYear(); else renderLeaveList(); }
+  if(tab==='ot') renderOtPage();
+}
 // ════════════════════════════════════════════
 //  OVERTIME
 // ════════════════════════════════════════════
@@ -3636,16 +3636,17 @@ let curSubTab=0;
 function switchSubTab(idx){
   hideBubNow();
   curSubTab=idx;
-  document.querySelectorAll('.sub-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
-  [0,1,2,3,4,5].forEach(i=>{
+  document.querySelectorAll('#schedule-subtabs .sub-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  [0,1,2,3,4,5,6].forEach(i=>{
     const el=document.getElementById('scontent-'+i);
     if(el) el.classList.toggle('active',i===idx);
   });
   if(idx===1) renderGRM();
-  if(idx===2){ if(_leaveTab==='year') renderLeaveListYear(); else renderLeaveList(); }
-  if(idx===3) renderOtPage();
-  if(idx===4) renderReviewPage();
-  if(idx===5) renderActivityLog();
+  if(idx===2) switchKintaiTab('leave');
+  if(idx===3) renderReviewPage();
+  if(idx===4){ const tb=document.getElementById('p1-toolbar'); if(tb) tb.style.display=_isAdmin?'flex':'none'; }
+  if(idx===5) renderToolTable();
+  if(idx===6){ renderIdeaBoard(); renderVotePage(); switchP3Tab(0); }
 }
 
 // ════════════════════════════════════════════
@@ -6185,9 +6186,8 @@ function loadFromSbData(payload){
   applyAdminMode();
   if(curSubTab===1) renderGRM();
   if(curSubTab===2) renderLeaveList();
-  if(curPage===2) renderToolTable();
-  if(curPage===3) renderIdeaBoard();
-  if(curPage===3) renderVotePage();
+  if(curSubTab===5) renderToolTable();
+  if(curSubTab===6){ renderIdeaBoard(); renderVotePage(); }
   showSyncPulse();
 }
 
