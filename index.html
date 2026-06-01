@@ -4694,23 +4694,29 @@ function emptyCellClick(e,taskId,dateStr){
 }
 
 // ── TOOLTIP ──
+let _bubLastKey = null;
 document.addEventListener('mouseover',e=>{
   if(e.target.closest('#g-bub')){ clearTimeout(bTimeout); return; }
   const td=e.target.closest('td.bar');if(!td||iMode)return;
   const {task:taskId,ri}=td.dataset;
-  const r=(ranges[taskId]||[])[+ri];if(!r)return;
+  const key = taskId+'_'+ri;
   clearTimeout(bTimeout);
-  const proj=getProj(r.projectId);
+  // 같은 바면 위치만 업데이트 (innerHTML 재생성 안 함)
   const gbub=document.getElementById('g-bub');
-  gbub.innerHTML=`
-    <div class="bd2t">${r.start}${r.start!==r.end?' → '+r.end:''} ${statusBadge(r.status)}</div>
-    <div class="bpp" style="color:${proj.bar}">● ${proj.name}</div>
-    ${r.text?`<div class="bt2">${linkify(r.text)}</div>`:''}
-    ${r.link?`<div style="display:flex;align-items:center;gap:5px;margin-top:4px">
-      <a class="blink" href="${r.link}" target="_blank" rel="noopener" style="flex:1;min-width:0;pointer-events:auto;cursor:pointer">🔗 링크</a>
-      <button onclick="navigator.clipboard.writeText('${r.link.replace(/'/g,"\'")}').then(()=>showToast('URL 복사됨 ✓'))" title="URL 복사" style="flex-shrink:0;border:1px solid var(--bd2);background:#f8fafc;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:15px;color:var(--tx2)">📋</button>
-    </div>`:''}
-  `;
+  if(_bubLastKey !== key){
+    _bubLastKey = key;
+    const r=(ranges[taskId]||[])[+ri];if(!r)return;
+    const proj=getProj(r.projectId);
+    gbub.innerHTML=`
+      <div class="bd2t">${r.start}${r.start!==r.end?' → '+r.end:''} ${statusBadge(r.status)}</div>
+      <div class="bpp" style="color:${proj.bar}">● ${proj.name}</div>
+      ${r.text?`<div class="bt2">${linkify(r.text)}</div>`:''}
+      ${r.link?`<div style="display:flex;align-items:center;gap:5px;margin-top:4px">
+        <a class="blink" href="${r.link}" target="_blank" rel="noopener" style="flex:1;min-width:0;pointer-events:auto;cursor:pointer">🔗 링크</a>
+        <button onclick="navigator.clipboard.writeText('${r.link.replace(/'/g,"\'")}').then(()=>showToast('URL 복사됨 ✓'))" title="URL 복사" style="flex-shrink:0;border:1px solid var(--bd2);background:#f8fafc;border-radius:5px;padding:3px 7px;cursor:pointer;font-size:15px;color:var(--tx2)">📋</button>
+      </div>`:''}
+    `;
+  }
   const rect=td.getBoundingClientRect();
   const gw=gbub.offsetWidth||220;
   let left=rect.left+rect.width/2-gw/2;
@@ -4728,8 +4734,7 @@ document.addEventListener('mouseout',e=>{
   if(!fromBar && !fromBub) return;
   const toBub = e.relatedTarget?.closest('#g-bub');
   const toBar = e.relatedTarget?.closest('td.bar');
-  // 버블→셀, 셀→버블 이동은 유지. 둘 다 벗어나면 닫기
-  if(!toBub && !toBar) hideBub();
+  if(!toBub && !toBar){ _bubLastKey=null; hideBub(); }
   else clearTimeout(bTimeout);
 });
 function hideBub(){
