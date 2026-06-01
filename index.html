@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: wss:;">
-<title>스케줄 매니저</title>
+<title>NHN MD</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💿</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
 <!-- Supabase SDK -->
@@ -14,7 +15,7 @@
   --bg:#f5f6f8;--sur:#fff;--sf2:#f0f1f4;
   --bd:#e2e4ea;--bd2:#d0d3dd;
   --acc:#4f8cff;--tx:#1a1d27;--tx2:#2d3348;--tx3:#5a6072;
-  --cell:40px;--nc:90px;
+  --cell:40px;--nc:105px;
   --sh:0 1px 4px rgba(0,0,0,.07);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -810,16 +811,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 <div id="g-bub"></div>
 
 <!-- ── NAVIGATION ── -->
-<div class="nav-tabs" id="nav-tabs" style="justify-content:flex-end">
-
-  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding-right:8px;flex-shrink:0">
-    <div id="fb-indicator" onclick="openFbSetup()" title="Supabase 연결 상태" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:15px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none">
-      <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
-      <span id="fb-label">⚪ 오프라인</span>
-    </div>
-    <div class="nav-logo">CD<span>.schedule</span></div>
-  </div>
-</div>
+<div class="nav-tabs" id="nav-tabs" style="display:none"></div>
 
 
 
@@ -827,7 +819,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 <div class="page active" id="page-0">
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:6px;padding:8px 14px">
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
       <div class="mnav">
         <button onclick="chM(-1)">‹</button>
         <span id="cur-month"></span>
@@ -835,9 +827,10 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       </div>
       <div class="month-picker" id="month-picker"></div>
       <button onclick="set3MonthView()" style="font-size:15px;padding:3px 8px;border-radius:6px;border:1px solid var(--bd2);background:var(--sf2);color:var(--tx2);cursor:pointer;white-space:nowrap">3달 보기</button>
-      <button id="multi-month-clear" onclick="clearMultiMonth()" style="display:none;font-size:15px;padding:3px 8px;border-radius:6px;border:1px solid #fca5a5;background:#fff5f5;color:#e53e3e;cursor:pointer">✕ 해제</button>
+      <button id="multi-month-clear" onclick="clearMultiMonth()" style="display:none;font-size:15px;padding:3px 8px;border-radius:6px;border:1px solid #fca5a5;background:#fff5f5;color:#e53e3e;cursor:pointer;white-space:nowrap">✕ 해제</button>
+      <div class="nav-logo" style="margin-left:auto;flex-shrink:0">MD<span>.schedule</span></div>
     </div>
-    <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center" id="schedule-btn-row">
+    <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <button id="darkmode-btn" onclick="toggleDarkMode()" title="다크모드 전환" style="font-size:17px;padding:4px 8px;border-radius:6px;border:1px solid var(--bd2);background:transparent;cursor:pointer">🌙</button>
       <button id="admin-btn" onclick="toggleAdmin()" style="font-size:15px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bd2);background:#f8fafc;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:4px">🔒 <span id="admin-label">관리자</span></button>
       <button class="btn btn-g" onclick="openProjMgr()">🎨 프로젝트 관리</button>
@@ -849,6 +842,10 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <button id="sf-done" onclick="toggleStatusFilter('done')" class="btn btn-g">✅ 완료</button>
       <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5;padding:4px 8px" onclick="openBulkDelete()" title="일괄 삭제">🗑</button>
       <button class="btn btn-g" onclick="openMsMgr()" style="padding:4px 8px;font-size:15px" title="마일스톤 관리">🏁</button>
+      <div id="fb-indicator" onclick="openFbSetup()" title="Supabase 연결 상태" style="margin-left:auto;display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:15px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none;flex-shrink:0">
+        <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
+        <span id="fb-label">⚪ 오프라인</span>
+      </div>
     </div>
   </div>
 
@@ -872,16 +869,9 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <tbody id="tbody"></tbody>
       </table>
     </div>
-    <button class="arb" onclick="openAddTask()">+ 새 일정 행 추가</button>
+
     <div class="stats" id="stats" style="padding:8px 16px 4px;border-top:1px solid var(--bd)"></div>
-    <div class="hint" style="margin-top:6px;border-top:1px solid var(--bd);border-bottom:none">
-      <span>✏️ <b>빈 셀 드래그</b> 기간 생성</span>
-      <span>↔️ <b>바 드래그</b> 이동 (다른 행도 가능)</span>
-      <span>⟺ <b>양끝 핸들</b> 기간 조절</span>
-      <span>🖱 <b>바 클릭</b> 일정 편집</span>
-      <span class="sep">│</span>
-      <span>✅📁📑 <b>바 위 또는 빈 셀 클릭</b> → 중간보고·베리에이션·스토리보드 등록</span>
-    </div>
+
   </div>
 
   <!-- SUB 1: GRM -->
@@ -916,8 +906,8 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   <!-- SUB 2: 근태 -->
   <div class="sub-content" id="scontent-2">
     <div style="display:flex;gap:6px;padding:16px 22px 0" id="kintai-tabs">
-      <button id="kt-tab-leave" onclick="switchKintaiTab('leave')" class="btn btn-p" style="font-size:13px;padding:4px 14px">🏖️ 휴가 목록</button>
-      <button id="kt-tab-ot"    onclick="switchKintaiTab('ot')"    class="btn btn-g" style="font-size:13px;padding:4px 14px">⏱ 연장근로</button>
+      <button id="kt-tab-leave" onclick="switchKintaiTab('leave')" class="btn btn-p" style="font-size:15px;padding:7px 20px">🏖️ 휴가 목록</button>
+      <button id="kt-tab-ot"    onclick="switchKintaiTab('ot')"    class="btn btn-g" style="font-size:15px;padding:7px 20px">⏱ 연장근로</button>
     </div>
     <!-- 휴가 섹션 -->
     <div id="kintai-leave-wrap">
@@ -1004,12 +994,14 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       </div>
       <!-- 관리자: 전체 리뷰 목록 -->
       <div id="rv-admin-section" style="display:none">
-        <div style="display:flex;gap:6px;margin-bottom:12px">
-          <button id="rv-tab-month" onclick="switchRvTab('month')" class="btn btn-p" style="font-size:13px;padding:4px 12px">📅 월간</button>
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+          <button id="rv-tab-month" onclick="switchRvTab('month')" class="btn btn-p" style="font-size:13px;padding:4px 12px">📅 월간 리뷰</button>
           <button id="rv-tab-year"  onclick="switchRvTab('year')"  class="btn btn-g" style="font-size:13px;padding:4px 12px">📆 연간 써머리</button>
+          <button id="rv-tab-stats" onclick="switchRvTab('stats')" class="btn btn-g" style="font-size:13px;padding:4px 12px">📊 통계</button>
         </div>
         <div id="rv-admin-list"></div>
         <div id="rv-admin-year" style="display:none"></div>
+        <div id="rv-admin-stats" style="display:none"></div>
       </div>
     </div>
   </div>
@@ -2857,7 +2849,7 @@ function switchKintaiTab(tab){
   _kintaiTab = tab;
   document.getElementById('kt-tab-leave').className = tab==='leave'?'btn btn-p':'btn btn-g';
   document.getElementById('kt-tab-ot').className    = tab==='ot'   ?'btn btn-p':'btn btn-g';
-  ['kt-tab-leave','kt-tab-ot'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.fontSize='13px';b.style.padding='4px 14px';}});
+  ['kt-tab-leave','kt-tab-ot'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.fontSize='15px';b.style.padding='7px 20px';}});
   const leaveEl = document.getElementById('kintai-leave-wrap');
   const otEl    = document.getElementById('kintai-ot-wrap');
   if(leaveEl) leaveEl.style.display = tab==='leave' ? '' : 'none';
@@ -3116,14 +3108,16 @@ let _rvPersonId = null;
 
 function switchRvTab(tab){
   _rvTab = tab;
-  document.getElementById('rv-tab-month').className = tab==='month' ? 'btn btn-p' : 'btn btn-g';
-  document.getElementById('rv-tab-year').className  = tab==='year'  ? 'btn btn-p' : 'btn btn-g';
-  document.getElementById('rv-tab-month').style.cssText += ';font-size:13px;padding:4px 12px';
-  document.getElementById('rv-tab-year').style.cssText  += ';font-size:13px;padding:4px 12px';
+  ['month','year','stats'].forEach(t=>{
+    const btn = document.getElementById('rv-tab-'+t);
+    if(btn){ btn.className = tab===t?'btn btn-p':'btn btn-g'; btn.style.fontSize='13px'; btn.style.padding='4px 12px'; }
+  });
   document.getElementById('rv-admin-list').style.display  = tab==='month' ? '' : 'none';
   document.getElementById('rv-admin-year').style.display  = tab==='year'  ? '' : 'none';
+  document.getElementById('rv-admin-stats').style.display = tab==='stats' ? '' : 'none';
   if(tab==='month') renderReviewAdmin();
-  else renderReviewYear();
+  else if(tab==='year') renderReviewYear();
+  else renderReviewStats();
 }
 
 function renderReviewPage(){
@@ -3297,6 +3291,143 @@ function renderReviewAdmin(){
   }).join('');
 }
 
+
+function renderReviewStats(){
+  const wrap = document.getElementById('rv-admin-stats');
+  if(!wrap) return;
+  const people = getPeople();
+  const M2b=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+  // 월간 or 연간 선택 UI
+  const ym = `${CY}-${String(CM+1).padStart(2,'0')}`;
+  const isYearView = wrap.dataset.view === 'year';
+
+  // 현재 달 통계
+  const wds = getWeekdays(CY, CM);
+  const workDays = getWorkingDays(CY, CM);
+
+  // 등록 일정 수 (현재 달에 걸친 것)
+  let totalRanges = 0;
+  tasks.forEach(task=>{
+    (ranges[task.id]||[]).forEach(r=>{
+      const rStart = dn(r.start), rEnd = dn(r.end);
+      wds.forEach(({ds})=>{ if(dn(ds)>=rStart && dn(ds)<=rEnd) totalRanges++; });
+    });
+  });
+  totalRanges = Math.round(totalRanges / Math.max(workDays,1) * workDays / workDays); 
+  // 일정 건수
+  let schedCount = 0;
+  tasks.forEach(task=>{
+    (ranges[task.id]||[]).forEach(r=>{
+      if(dn(r.end)>=dn(wds[0]?.ds||ym+'-01') && dn(r.start)<=dn(wds[wds.length-1]?.ds||ym+'-31')) schedCount++;
+    });
+  });
+
+  // 휴가 건수 & 일수
+  let leaveCount=0, leaveDays=0;
+  Object.values(leaves).forEach(arr=>(arr||[]).forEach(lv=>{
+    const d = wds.filter(({ds})=>dn(ds)>=dn(lv.start)&&dn(ds)<=dn(lv.end)).length;
+    if(d>0){ leaveCount++; leaveDays+=d; }
+  }));
+
+  // 팀원별 상세
+  const rows = people.map(p=>{
+    const task = tasks.find(t=>t.personId===p.id);
+    const pRanges = (task ? ranges[task.id]||[] : []).filter(r=>
+      dn(r.end)>=dn(wds[0]?.ds||ym+'-01') && dn(r.start)<=dn(wds[wds.length-1]?.ds||ym+'-31')
+    );
+    const pLeaveDays = (leaves[p.id]||[]).reduce((s,lv)=>{
+      return s + wds.filter(({ds})=>dn(ds)>=dn(lv.start)&&dn(ds)<=dn(lv.end)).length;
+    },0);
+    return {p, schedCount:pRanges.length, leaveDays:pLeaveDays};
+  });
+
+  wrap.innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <button onclick="document.getElementById('rv-admin-stats').dataset.view='month';renderReviewStats()"
+        style="font-size:13px;padding:4px 12px;border-radius:7px;border:1px solid var(--bd2);cursor:pointer;background:${!isYearView?'var(--acc)':'var(--sf2)'};color:${!isYearView?'#fff':'var(--tx2)'}">📅 월간</button>
+      <button onclick="document.getElementById('rv-admin-stats').dataset.view='year';renderReviewStats()"
+        style="font-size:13px;padding:4px 12px;border-radius:7px;border:1px solid var(--bd2);cursor:pointer;background:${isYearView?'var(--acc)':'var(--sf2)'};color:${isYearView?'#fff':'var(--tx2)'}">📆 연간</button>
+    </div>
+    ${!isYearView ? renderStatsMonth(schedCount, workDays, leaveDays, leaveCount, rows, M2b) : renderStatsYear(people, M2b)}
+  `;
+}
+
+function renderStatsMonth(schedCount, workDays, leaveDays, leaveCount, rows, M2b){
+  const M2b2 = M2b;
+  return `
+    <!-- 요약 카드 -->
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+      <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
+        <div style="font-size:28px;font-weight:700;color:var(--acc)">${schedCount}</div>
+        <div style="font-size:13px;color:var(--tx3);margin-top:4px">📅 등록 일정</div>
+      </div>
+      <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
+        <div style="font-size:28px;font-weight:700;color:#059669">${workDays}</div>
+        <div style="font-size:13px;color:var(--tx3);margin-top:4px">💼 총 영업일</div>
+      </div>
+      <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
+        <div style="font-size:28px;font-weight:700;color:#f59e0b">${leaveDays}</div>
+        <div style="font-size:13px;color:var(--tx3);margin-top:4px">🏖️ 휴가 일수 (${leaveCount}건)</div>
+      </div>
+    </div>
+    <!-- 팀원별 테이블 -->
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="border-bottom:2px solid var(--bd)">
+        <th style="text-align:left;padding:8px 10px;font-size:13px;color:var(--tx3)">팀원</th>
+        <th style="text-align:center;padding:8px 10px;font-size:13px;color:var(--tx3)">등록 일정</th>
+        <th style="text-align:center;padding:8px 10px;font-size:13px;color:var(--tx3)">휴가 일수</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(({p,schedCount:sc,leaveDays:ld})=>`
+          <tr style="border-bottom:1px solid var(--bd)">
+            <td style="padding:9px 10px;font-size:15px;font-weight:600;color:var(--tx)">${p.name}</td>
+            <td style="padding:9px 10px;text-align:center;font-size:15px;font-family:'Space Mono',monospace;color:${sc>0?'var(--acc)':'var(--tx3)'}">${sc||'-'}</td>
+            <td style="padding:9px 10px;text-align:center;font-size:15px;font-family:'Space Mono',monospace;color:${ld>0?'#f59e0b':'var(--tx3)'}">${ld||'-'}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function renderStatsYear(people, M2b){
+  const months = Array.from({length:12},(_,i)=>({y:CY,m:i}));
+  return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:600px">
+    <thead><tr style="border-bottom:2px solid var(--bd)">
+      <th style="text-align:left;padding:8px 10px;font-size:13px;color:var(--tx3)">팀원</th>
+      ${M2b.map(m=>`<th style="text-align:center;padding:6px 4px;font-size:12px;color:var(--tx3)">${m}</th>`).join('')}
+    </tr></thead>
+    <tbody>
+      <!-- 영업일 행 -->
+      <tr style="border-bottom:1px solid var(--bd);background:var(--sf2)">
+        <td style="padding:8px 10px;font-size:13px;font-weight:700;color:var(--tx2)">💼 영업일</td>
+        ${months.map(({y,m})=>`<td style="text-align:center;padding:6px 4px;font-size:13px;font-family:'Space Mono',monospace;color:#059669">${getWorkingDays(y,m)}</td>`).join('')}
+      </tr>
+      <!-- 휴가 행 -->
+      <tr style="border-bottom:2px solid var(--bd);background:var(--sf2)">
+        <td style="padding:8px 10px;font-size:13px;font-weight:700;color:var(--tx2)">🏖️ 전체 휴가</td>
+        ${months.map(({y,m})=>{
+          const wds=getWeekdays(y,m);
+          let d=0;
+          Object.values(leaves).forEach(arr=>(arr||[]).forEach(lv=>{
+            d+=wds.filter(({ds})=>dn(ds)>=dn(lv.start)&&dn(ds)<=dn(lv.end)).length;
+          }));
+          return `<td style="text-align:center;padding:6px 4px;font-size:13px;font-family:'Space Mono',monospace;color:${d>0?'#f59e0b':'var(--tx3)'}">${d||'-'}</td>`;
+        }).join('')}
+      </tr>
+      ${people.map(p=>{
+        const task = tasks.find(t=>t.personId===p.id);
+        return `<tr style="border-bottom:1px solid var(--bd)">
+          <td style="padding:8px 10px;font-size:14px;font-weight:600;color:var(--tx)">${p.name}</td>
+          ${months.map(({y,m})=>{
+            const wds=getWeekdays(y,m);
+            const sc=(task?ranges[task.id]||[]:[]).filter(r=>dn(r.end)>=dn(wds[0]?.ds||y+'-'+(m+1).toString().padStart(2,'0')+'-01')&&dn(r.start)<=dn(wds[wds.length-1]?.ds||y+'-'+(m+1).toString().padStart(2,'0')+'-31')).length;
+            return `<td style="text-align:center;padding:6px 4px;font-size:13px;font-family:'Space Mono',monospace;color:${sc>0?'var(--acc)':'var(--tx3)'}">${sc||'-'}</td>`;
+          }).join('')}
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table></div>`;
+}
 function addReviewComment(personId, ym){
   const inp = document.getElementById(`rv-cmt-${personId}`);
   const text = inp?.value.trim();
@@ -4318,7 +4449,7 @@ function renderTable(){
   const td0=todayStr();
   const DAY=['일','월','화','수','목','금','토'];
 
-  let h=`<tr><th class="cn">이름</th>`;
+  let h=`<tr><th class="cn"></th>`;
   const M2=['1','2','3','4','5','6','7','8','9','10','11','12'];
   wds.forEach(({d,ds,dow})=>{
     const hname=getHoliday(ds);
