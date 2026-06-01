@@ -864,7 +864,8 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     <div class="sub-tab" id="stab-1" onclick="switchSubTab(1)">📊 GRM 공수</div>
     <div class="sub-tab" id="stab-2" onclick="switchSubTab(2)">🏖️ 휴가 목록</div>
     <div class="sub-tab" id="stab-3" onclick="switchSubTab(3)">⏱ 연장근로</div>
-    <div class="sub-tab" id="stab-4" onclick="switchSubTab(4)">📋 활동 기록</div>
+    <div class="sub-tab" id="stab-4" onclick="switchSubTab(4)">📝 월간 리뷰</div>
+    <div class="sub-tab" id="stab-5" onclick="switchSubTab(5)">📋 활동 기록</div>
   </div>
 
   <!-- SUB 0: GANTT -->
@@ -932,7 +933,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 
   <!-- SUB 3: ACTIVITY LOG -->
-  <div class="sub-content" id="scontent-4">
+  <div class="sub-content" id="scontent-5">
     <div class="grm-wrap">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
         <div>
@@ -977,6 +978,46 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     </div>
   </div>
 </div>
+
+  <!-- SUB 5: MONTHLY REVIEW -->
+  <div class="sub-content" id="scontent-4">
+    <div class="grm-wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="grm-title">📝 월간 리뷰 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="rv-label"></span></div>
+          <div class="grm-sub">팀원들이 한 달을 돌아보며 작성해요. 내용은 관리자만 볼 수 있어요.</div>
+        </div>
+      </div>
+      <!-- 비관리자: 본인 입력 영역 -->
+      <div id="rv-member-section">
+        <div id="rv-login-wrap" style="max-width:340px;margin:24px auto;text-align:center">
+          <div style="font-size:16px;font-weight:700;color:var(--tx2);margin-bottom:12px">🔒 본인 확인</div>
+          <select id="rv-login-person" style="width:100%;border:1px solid var(--bd2);border-radius:7px;padding:8px 10px;font-size:15px;margin-bottom:8px;background:var(--sur);color:var(--tx);outline:none"></select>
+          <input type="password" id="rv-login-pw" placeholder="개인 비밀번호 입력" style="width:100%;border:1px solid var(--bd2);border-radius:7px;padding:8px 10px;font-size:15px;margin-bottom:8px;box-sizing:border-box;background:var(--sur);color:var(--tx);outline:none" onkeydown="if(event.key==='Enter')event.preventDefault()">
+          <button class="btn btn-p" onclick="loginReview()" style="width:100%">확인</button>
+          <div id="rv-login-err" style="color:#e53e3e;font-size:13px;margin-top:6px;display:none">비밀번호가 올바르지 않아요</div>
+        </div>
+        <div id="rv-write-wrap" style="display:none;max-width:600px">
+          <div style="font-size:15px;font-weight:700;color:var(--tx2);margin-bottom:8px" id="rv-write-title"></div>
+          <textarea id="rv-write-text" rows="6" placeholder="이번 달을 돌아보며 자유롭게 작성해주세요..." style="width:100%;border:1px solid var(--bd2);border-radius:8px;padding:10px 12px;font-size:15px;font-family:'Pretendard',sans-serif;line-height:1.7;outline:none;resize:vertical;box-sizing:border-box;background:var(--sur);color:var(--tx)"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn btn-p" onclick="saveReview()">저장</button>
+            <button class="btn btn-g" onclick="logoutReview()">나가기</button>
+          </div>
+          <div style="font-size:13px;color:var(--tx3);margin-top:6px">저장하면 관리자에게 전달돼요 🔒</div>
+        </div>
+      </div>
+      <!-- 관리자: 전체 리뷰 목록 -->
+      <div id="rv-admin-section" style="display:none">
+        <div style="display:flex;gap:6px;margin-bottom:12px">
+          <button id="rv-tab-month" onclick="switchRvTab('month')" class="btn btn-p" style="font-size:13px;padding:4px 12px">📅 월간</button>
+          <button id="rv-tab-year"  onclick="switchRvTab('year')"  class="btn btn-g" style="font-size:13px;padding:4px 12px">📆 연간 써머리</button>
+        </div>
+        <div id="rv-admin-list"></div>
+        <div id="rv-admin-year" style="display:none"></div>
+      </div>
+    </div>
+  </div>
 </div><!-- /page-0 -->
 
 <!-- ══ PAGE 1: 백서 ══ -->
@@ -1610,15 +1651,15 @@ let PROJECTS = [
 
 let GROUPS = [
   {id:'grp_d', label:'디자인 파트', gc:'#2563eb', members:[
-    {id:'d1',name:'정지예',role:'디자인'},{id:'d2',name:'임석환',role:'디자인'},
-    {id:'d3',name:'최희영',role:'디자인'},{id:'d4',name:'한승연',role:'디자인'},
+    {id:'d1',pw:'v4apbp',name:'정지예',role:'디자인'},{id:'d2',pw:'55i4mi',name:'임석환',role:'디자인'},
+    {id:'d3',pw:'efpe7i',name:'최희영',role:'디자인'},{id:'d4',pw:'jnfp7c',name:'한승연',role:'디자인'},
   ]},
   {id:'grp_v', label:'영상 파트',  gc:'#059669', members:[
-    {id:'g1',name:'현희진',role:'팀장', ac:'#7c3aed'},
-    {id:'v1',name:'양아름솔',role:'영상'},{id:'v2',name:'신창준',role:'영상'},
-    {id:'v3',name:'김지혜',role:'영상'},{id:'v4',name:'배강현',role:'영상'},
-    {id:'v5',name:'임성환',role:'영상'},{id:'v6',name:'남가운',role:'영상'},
-    {id:'v7',name:'김나현',role:'영상'},
+    {id:'g1',pw:'vcdii7',name:'현희진',role:'팀장', ac:'#7c3aed'},
+    {id:'v1',pw:'et3e1y',name:'양아름솔',role:'영상'},{id:'v2',pw:'38wtux',name:'신창준',role:'영상'},
+    {id:'v3',pw:'277i1n',name:'김지혜',role:'영상'},{id:'v4',pw:'69wud2',name:'배강현',role:'영상'},
+    {id:'v5',pw:'fd9fjk',name:'임성환',role:'영상'},{id:'v6',pw:'9yrbu8',name:'남가운',role:'영상'},
+    {id:'v7',pw:'i8guad',name:'김나현',role:'영상'},
   ]},
 ];
 function getPeople(){ return GROUPS.flatMap(g=>g.members); }
@@ -2558,7 +2599,8 @@ function renderLadderHistory(){
 // ════════════════════════════════════════════
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
-let ladderHistory = []; // [{ts, players:[{name,result}]}]
+let ladderHistory = [];
+let monthlyReviews = {}; // monthlyReviews[ym][personId] = {text, comments:[{ts,text}]} // [{ts, players:[{name,result}]}]
 let votes = []; // [{id,q,type,opts:[{id,label,voters:[]}],due,anon,closed,createdBy,ts}]
 let _vEditId = null;
 
@@ -3059,6 +3101,177 @@ function saveCustomHolEdit(btn, oldDs){
   showToast('✅ 수정됨');
 }
 // ════════════════════════════════════════════
+//  MONTHLY REVIEW
+// ════════════════════════════════════════════
+let _rvTab = 'month';
+
+function switchRvTab(tab){
+  _rvTab = tab;
+  document.getElementById('rv-tab-month').className = tab==='month' ? 'btn btn-p' : 'btn btn-g';
+  document.getElementById('rv-tab-year').className  = tab==='year'  ? 'btn btn-p' : 'btn btn-g';
+  document.getElementById('rv-tab-month').style.cssText += ';font-size:13px;padding:4px 12px';
+  document.getElementById('rv-tab-year').style.cssText  += ';font-size:13px;padding:4px 12px';
+  document.getElementById('rv-admin-list').style.display  = tab==='month' ? '' : 'none';
+  document.getElementById('rv-admin-year').style.display  = tab==='year'  ? '' : 'none';
+  if(tab==='month') renderReviewAdmin();
+  else renderReviewYear();
+}
+
+function renderReviewPage(){
+  const label = document.getElementById('rv-label');
+  const M2b=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  if(label) label.textContent = `${CY}년 ${M2b[CM]}`;
+  if(_isAdmin){
+    document.getElementById('rv-member-section').style.display='none';
+    document.getElementById('rv-admin-section').style.display='';
+    if(_rvTab==='year') renderReviewYear();
+    else renderReviewAdmin();
+  } else {
+    document.getElementById('rv-member-section').style.display='';
+    document.getElementById('rv-admin-section').style.display='none';
+    if(_rvPersonId){
+      showReviewWrite(_rvPersonId);
+    } else {
+      document.getElementById('rv-login-wrap').style.display='';
+      document.getElementById('rv-write-wrap').style.display='none';
+      const sel = document.getElementById('rv-login-person');
+      const people = getPeople();
+      sel.innerHTML = '<option value="">이름 선택...</option>' +
+        people.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+    }
+  }
+}
+
+function renderReviewYear(){
+  const wrap = document.getElementById('rv-admin-year');
+  if(!wrap) return;
+  const people = getPeople();
+  const M2b=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const months = Array.from({length:12},(_,i)=>({
+    ym:`${CY}-${String(i+1).padStart(2,'0')}`, label:M2b[i]
+  }));
+
+  wrap.innerHTML = people.map(p=>{
+    const hasAny = months.some(({ym})=>monthlyReviews[ym]?.[p.id]?.text);
+    return `<div style="border:1px solid var(--bd);border-radius:10px;margin-bottom:14px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--sf2);border-bottom:1px solid var(--bd)">
+        <span style="font-size:15px;font-weight:700;color:var(--tx)">${p.name}</span>
+        <span style="font-size:13px;color:var(--tx3)">${p.role}</span>
+        <span style="font-size:12px;color:var(--tx3);margin-left:auto">${CY}년 작성: ${months.filter(({ym})=>monthlyReviews[ym]?.[p.id]?.text).length}/12개월</span>
+      </div>
+      ${months.map(({ym,label})=>{
+        const rv = monthlyReviews[ym]?.[p.id];
+        const text = rv?.text||'';
+        const cmts = rv?.comments?.length||0;
+        if(!text) return `<div style="display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--bd)">
+          <span style="font-size:13px;font-weight:700;color:var(--tx3);min-width:36px">${label}</span>
+          <span style="font-size:13px;color:var(--tx3)">미작성</span>
+        </div>`;
+        return `<div style="padding:10px 16px;border-bottom:1px solid var(--bd)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:700;color:var(--acc);min-width:36px">${label}</span>
+            ${cmts?`<span style="font-size:12px;background:#dbeafe;color:#1d4ed8;border-radius:8px;padding:1px 7px">댓글 ${cmts}</span>`:''}
+          </div>
+          <div style="font-size:14px;color:var(--tx);line-height:1.7;white-space:pre-wrap;background:var(--sf2);border-radius:7px;padding:8px 12px">${text}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function loginReview(){
+  const personId = document.getElementById('rv-login-person')?.value;
+  const pw = document.getElementById('rv-login-pw')?.value;
+  const errEl = document.getElementById('rv-login-err');
+  if(!personId){ errEl.textContent='이름을 선택해주세요'; errEl.style.display=''; return; }
+  const person = getPeople().find(p=>p.id===personId);
+  if(!person||person.pw!==pw){ errEl.textContent='비밀번호가 올바르지 않아요'; errEl.style.display=''; return; }
+  errEl.style.display='none';
+  _rvPersonId = personId;
+  document.getElementById('rv-login-pw').value='';
+  showReviewWrite(personId);
+}
+
+function logoutReview(){
+  _rvPersonId = null;
+  document.getElementById('rv-login-wrap').style.display='';
+  document.getElementById('rv-write-wrap').style.display='none';
+  document.getElementById('rv-login-pw').value='';
+}
+
+function showReviewWrite(personId){
+  const ym = `${CY}-${String(CM+1).padStart(2,'0')}`;
+  const person = getPeople().find(p=>p.id===personId);
+  const existing = monthlyReviews[ym]?.[personId]?.text||'';
+  document.getElementById('rv-login-wrap').style.display='none';
+  document.getElementById('rv-write-wrap').style.display='';
+  document.getElementById('rv-write-title').textContent = `${person?.name}님의 ${CY}년 ${ym.slice(5,7)}월 리뷰`;
+  document.getElementById('rv-write-text').value = existing;
+}
+
+function saveReview(){
+  if(!_rvPersonId){ showToast('로그인이 필요해요','error'); return; }
+  const ym = `${CY}-${String(CM+1).padStart(2,'0')}`;
+  const text = document.getElementById('rv-write-text')?.value||'';
+  if(!monthlyReviews[ym]) monthlyReviews[ym]={};
+  if(!monthlyReviews[ym][_rvPersonId]) monthlyReviews[ym][_rvPersonId]={text:'',comments:[]};
+  monthlyReviews[ym][_rvPersonId].text = text;
+  fbPush();
+  showToast('✅ 리뷰 저장 완료!');
+}
+
+function renderReviewAdmin(){
+  const ym = `${CY}-${String(CM+1).padStart(2,'0')}`;
+  const people = getPeople();
+  const wrap = document.getElementById('rv-admin-list');
+  if(!wrap) return;
+  const monthData = monthlyReviews[ym]||{};
+  wrap.innerHTML = people.map(p=>{
+    const rv = monthData[p.id]||{text:'',comments:[]};
+    const comments = rv.comments||[];
+    return `<div style="border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin-bottom:12px;background:var(--sur)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:15px;font-weight:700;color:var(--tx)">${p.name}</span>
+        <span style="font-size:13px;color:var(--tx3)">${p.role}</span>
+        ${rv.text?'<span style="font-size:12px;background:#d1fae5;color:#065f46;border-radius:10px;padding:2px 8px">✅ 작성됨</span>':'<span style="font-size:12px;background:#f1f5f9;color:#94a3b8;border-radius:10px;padding:2px 8px">미작성</span>'}
+      </div>
+      ${rv.text?`<div style="font-size:14px;color:var(--tx);line-height:1.7;background:var(--sf2);border-radius:7px;padding:10px 12px;margin-bottom:10px;white-space:pre-wrap">${rv.text}</div>`:'<div style="font-size:14px;color:var(--tx3);margin-bottom:10px">아직 작성하지 않았어요</div>'}
+      <div style="font-size:13px;font-weight:700;color:var(--tx3);margin-bottom:6px">💬 관리자 댓글${comments.length?' ('+comments.length+')':''}</div>
+      ${comments.map((c,ci)=>`
+        <div style="display:flex;align-items:flex-start;gap:8px;background:var(--sf2);border-radius:7px;padding:8px 10px;margin-bottom:6px">
+          <span style="font-size:12px;color:var(--tx3);white-space:nowrap;padding-top:2px">${new Date(c.ts).toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit'})}</span>
+          <span style="font-size:14px;color:var(--tx);flex:1;white-space:pre-wrap">${c.text}</span>
+          <button onclick="deleteReviewComment('${p.id}','${ym}',${ci})" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:15px;padding:0;flex-shrink:0">×</button>
+        </div>`).join('')}
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <input type="text" id="rv-cmt-${p.id}" placeholder="댓글 달기..." onkeydown="if(event.key==='Enter')event.preventDefault()"
+          style="flex:1;border:1px solid var(--bd2);border-radius:7px;padding:6px 10px;font-size:14px;outline:none;background:var(--sur);color:var(--tx)">
+        <button onclick="addReviewComment('${p.id}','${ym}')" class="btn btn-p" style="font-size:14px;padding:5px 12px">등록</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addReviewComment(personId, ym){
+  const inp = document.getElementById(`rv-cmt-${personId}`);
+  const text = inp?.value.trim();
+  if(!text){ showToast('댓글을 입력해주세요','error'); return; }
+  if(!monthlyReviews[ym]) monthlyReviews[ym]={};
+  if(!monthlyReviews[ym][personId]) monthlyReviews[ym][personId]={text:'',comments:[]};
+  monthlyReviews[ym][personId].comments.push({ts:Date.now(),text});
+  inp.value='';
+  fbPush();
+  renderReviewAdmin();
+  showToast('✅ 댓글 등록됨');
+}
+
+function deleteReviewComment(personId, ym, idx){
+  monthlyReviews[ym]?.[personId]?.comments.splice(idx,1);
+  fbPush();
+  renderReviewAdmin();
+}
+
+// ════════════════════════════════════════════
 //  TOOL INFO TABLE
 // ════════════════════════════════════════════
 let toolRows = [
@@ -3379,14 +3592,15 @@ function switchSubTab(idx){
   hideBubNow();
   curSubTab=idx;
   document.querySelectorAll('.sub-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
-  [0,1,2,3,4].forEach(i=>{
+  [0,1,2,3,4,5].forEach(i=>{
     const el=document.getElementById('scontent-'+i);
     if(el) el.classList.toggle('active',i===idx);
   });
   if(idx===1) renderGRM();
   if(idx===2){ if(_leaveTab==='year') renderLeaveListYear(); else renderLeaveList(); }
   if(idx===3) renderOtPage();
-  if(idx===4) renderActivityLog();
+  if(idx===4) renderReviewPage();
+  if(idx===5) renderActivityLog();
 }
 
 // ════════════════════════════════════════════
@@ -4027,7 +4241,8 @@ function chM(d){
   set3MonthView();
   if(curSubTab===1) renderGRM();
   if(curSubTab===2){if(_leaveTab==='year')renderLeaveListYear();else renderLeaveList();}
-  if(curSubTab===3)renderOtPage();
+  if(curSubTab===3) renderOtPage();
+  if(curSubTab===4) renderReviewPage();
 }
 
 function getMsForCell(taskId, dateStr){
@@ -5586,6 +5801,12 @@ function renderTeamList(){
           <input class="tm-name-input" value="${m.name}" placeholder="이름" draggable="false" oninput="updateMember('${g.id}','${m.id}','name',this.value)">
           <input class="tm-role-input" value="${m.role}" placeholder="역할" draggable="false" oninput="updateMember('${g.id}','${m.id}','role',this.value)">
         </div>
+        <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">
+          <div style="font-size:11px;color:var(--tx3)">비밀번호</div>
+          <input type="text" value="${m.pw||''}" placeholder="비번" draggable="false"
+            oninput="updateMember('${g.id}','${m.id}','pw',this.value)"
+            style="width:72px;border:1px solid var(--bd2);border-radius:6px;padding:3px 6px;font-size:13px;font-family:'Space Mono',monospace;background:var(--sf2);color:var(--tx);outline:none">
+        </div>
         <div class="color-input-wrap" title="개인 컬러">
           <div class="color-swatch" style="background:${ac};width:18px;height:18px;border-radius:50%;border:2px solid rgba(0,0,0,.1)" id="ac-sw-${m.id}"></div>
           <input type="color" value="${ac}" oninput="updateMemberColor('${g.id}','${m.id}',this.value)">
@@ -5951,6 +6172,7 @@ function loadFromSbData(payload){
   if(payload.otData)   otData   = payload.otData;
   if(payload.customHolidays) customHolidays = payload.customHolidays;
   if(payload.ladderHistory)  ladderHistory  = payload.ladderHistory;
+  if(payload.monthlyReviews) monthlyReviews = payload.monthlyReviews;
 
   renderLegend(); renderHeader(); renderTable(); renderStats();
   applyAdminMode();
@@ -5968,7 +6190,7 @@ async function pushAllToSb(){
   _pendingPushId = _lastPushTime;
   const payload = {
     PROJECTS, GROUPS, ranges, leaves, milestones,
-    ideaCards, toolRows, MS_TYPES, activityLog, votes, otData, customHolidays, ladderHistory,
+    ideaCards, toolRows, MS_TYPES, activityLog, votes, otData, customHolidays, ladderHistory, monthlyReviews,
     p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
     grmNote: document.getElementById('grm-note')?.innerText||'',
     dateMemos, grmAdj,
