@@ -240,6 +240,8 @@ th.ct{display:none}
 th.cd{width:var(--cell);min-width:var(--cell);text-align:center;font-family:'Space Mono',monospace;font-size:15px;color:var(--tx3);padding:4px 0 10px;vertical-align:bottom}
 th.week-start, td.week-start{border-left:2px solid #cbd5e1!important}
 th.month-start, td.month-start{border-left:2.5px solid var(--acc)!important}
+th.custom-holiday .dn, th.custom-holiday .dl{color:#e53e3e!important}
+th.custom-holiday{background:rgba(229,62,62,.06)}
 th.cd .dn{display:block;font-size:15px;color:var(--tx2);padding-bottom:2px;font-weight:600}
 th.cd .dl{display:block;font-size:15px;color:var(--tx3)}
 th.cd.today .dn{color:var(--acc);background:rgba(79,140,255,.12);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 2px}
@@ -1841,7 +1843,21 @@ function setSpinnerDate(prefix, dateStr){
 }
 
 function syncSpinnerDate(prefix){
-  // prefix: 'cm' | 'lm' | 'msreg'
+  // prefix: 'cm' | 'lm' | 'msreg' | 'hol'
+  if(prefix==='hol'){
+    const y = +document.getElementById('hol-y')?.value||0;
+    const m = +document.getElementById('hol-m')?.value||0;
+    const d = +document.getElementById('hol-d')?.value||0;
+    if(!y||!m||!d) return;
+    const dt = new Date(y,m-1,d);
+    const ds = dt.toISOString().slice(0,10);
+    document.getElementById('hol-y').value = dt.getFullYear();
+    document.getElementById('hol-m').value = dt.getMonth()+1;
+    document.getElementById('hol-d').value = dt.getDate();
+    const hEl = document.getElementById('hol-start');
+    if(hEl) hEl.value = ds;
+    return;
+  }
   const sides = prefix==='msreg' ? ['start'] : ['start','end'];
   sides.forEach(side=>{
     const s = side==='start'?'s':'e';
@@ -1862,6 +1878,20 @@ function syncSpinnerDate(prefix){
 }
 
 function shiftSpinnerDate(fieldId, delta){
+  // hol 전용 처리
+  if(fieldId==='hol-start'){
+    const hEl = document.getElementById('hol-start');
+    const cur = hEl?.value || todayStr();
+    const dt = new Date(cur);
+    dt.setDate(dt.getDate()+delta);
+    const ds = dt.toISOString().slice(0,10);
+    if(hEl) hEl.value = ds;
+    const [y,m,d] = ds.split('-').map(Number);
+    document.getElementById('hol-y').value = y;
+    document.getElementById('hol-m').value = m;
+    document.getElementById('hol-d').value = d;
+    return;
+  }
   const hEl = document.getElementById(fieldId);
   if(!hEl) return;
   const cur = hEl.value || todayStr();
@@ -3000,11 +3030,33 @@ function renderCustomHolList(){
   const entries = Object.entries(customHolidays).sort(([a],[b])=>a>b?1:-1);
   if(!entries.length){ wrap.innerHTML='<div style="font-size:14px;color:var(--tx3);padding:8px 0">지정된 임시공휴일이 없어요</div>'; return; }
   wrap.innerHTML = entries.map(([ds,name])=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)">
-      <span style="font-size:14px;font-family:'Space Mono',monospace;color:var(--tx3)">${ds}</span>
-      <span style="font-size:15px;font-weight:600;color:var(--tx);flex:1">🎌 ${name}</span>
-      <button onclick="deleteCustomHoliday('${ds}')" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:18px;padding:0">×</button>
+    <div style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--bd)">
+      <input type="text" value="${ds}" onchange="updateCustomHolDate('${ds}',this.value)"
+        style="width:100px;border:1px solid var(--bd2);border-radius:6px;padding:4px 6px;font-size:13px;font-family:'Space Mono',monospace;color:#e53e3e;background:var(--sur);outline:none">
+      <input type="text" value="${name}" onchange="updateCustomHolName('${ds}',this.value)"
+        style="flex:1;border:1px solid var(--bd2);border-radius:6px;padding:4px 8px;font-size:14px;font-weight:600;color:var(--tx);background:var(--sur);outline:none" placeholder="공휴일 이름">
+      <button onclick="saveCustomHolEdit(this,'${ds}')" style="background:var(--acc);color:#fff;border:none;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:13px">저장</button>
+      <button onclick="deleteCustomHoliday('${ds}')" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:18px;padding:0 2px">×</button>
     </div>`).join('');
+}
+
+function updateCustomHolDate(oldDs, newDs){
+  // 날짜 변경 시 key 교체 (저장 버튼 클릭 시 처리)
+}
+function updateCustomHolName(ds, name){
+  // 이름 변경 시 (저장 버튼 클릭 시 처리)
+}
+function saveCustomHolEdit(btn, oldDs){
+  const row = btn.closest('div');
+  const newDs   = row.querySelectorAll('input')[0].value.trim();
+  const newName = row.querySelectorAll('input')[1].value.trim()||'임시공휴일';
+  if(!newDs.match(/^\d{4}-\d{2}-\d{2}$/)){ showToast('날짜 형식이 올바르지 않아요 (YYYY-MM-DD)','error'); return; }
+  if(newDs !== oldDs) delete customHolidays[oldDs];
+  customHolidays[newDs] = newName;
+  renderCustomHolList();
+  renderTable(); renderStats();
+  fbPush();
+  showToast('✅ 수정됨');
 }
 // ════════════════════════════════════════════
 //  TOOL INFO TABLE
@@ -4010,20 +4062,21 @@ function renderTable(){
   wds.forEach(({d,ds,dow})=>{
     const hname=getHoliday(ds);
     const isHol=!!hname;
+    const isCustomHol=!!customHolidays[ds]&&!KR_HOLIDAYS[ds];
     const isWeekStart = dow===1;
     const isMonthStart = d===1;
     const hasMemo = !!dateMemos[ds];
     const dmProjs = (typeof dateMemos[ds]==='object'&&dateMemos[ds]?.projs)||[];
     // 직접 지정한 프로젝트만 바로 표시
     const dateProjs = dmProjs.map(pid=>getProj(pid)?.bar).filter(Boolean);
-    h+=`<th class="cd${ds===td0?' today':''}${isHol?' holiday':''}${isWeekStart?' week-start':''}${isMonthStart?' month-start':''}"
+    h+=`<th class="cd${ds===td0?' today':''}${isHol?' holiday':''}${isCustomHol?' custom-holiday':''}${isWeekStart?' week-start':''}${isMonthStart?' month-start':''}"
       onclick="openDateMemo('${ds}')"
       onmouseenter="showDateMemoBub(this,'${ds}')"
       onmouseleave="hideDateMemoBub()">
       ${isMonthStart?`<span style="font-size:15px;color:var(--acc);font-weight:700;display:block;line-height:1">${M2[+ds.slice(5,7)-1]}월</span>`:''}
       <span class="dn">${d}</span>
       <span class="dl">${DAY[dow]}</span>
-      ${isHol?`<span class="hd-name">${hname}</span>`:''}
+      ${isHol&&!isCustomHol?`<span class="hd-name">${hname}</span>`:''}
       ${dateProjs.length?`<div class="dm-bar-wrap">${dateProjs.slice(0,5).map(c=>`<div class="dm-bar" style="background:${c}"></div>`).join('')}</div>`:''}
       ${hasMemo&&!dateProjs.length?`<div class="dm-bar-wrap"><div class="dm-bar" style="background:var(--acc)"></div></div>`:''}
     </th>`;
