@@ -5768,6 +5768,7 @@ function loadFromSbData(payload){
   if(payload.p1Sub){   const e=document.getElementById('p1-sub');   if(e) e.value=payload.p1Sub;   }
   if(payload.grmAdj)   grmAdj   = payload.grmAdj;
   if(payload.dateMemos) dateMemos = payload.dateMemos;
+  if(payload.otData)   otData   = payload.otData;
 
   renderLegend(); renderHeader(); renderTable(); renderStats();
   applyAdminMode();
@@ -5784,7 +5785,7 @@ async function pushAllToSb(){
   _lastPushTime = Date.now();
   const payload = {
     PROJECTS, GROUPS, ranges, leaves, milestones,
-    ideaCards, toolRows, MS_TYPES, activityLog, votes, otData,
+    ideaCards, toolRows, MS_TYPES, activityLog, votes, otData, otData,
     p1Html: p1GetHtml(), p1Title: document.getElementById('p1-title')?.value||'', p1Sub: document.getElementById('p1-sub')?.value||'',
     grmNote: document.getElementById('grm-note')?.innerText||'',
     dateMemos, grmAdj,
