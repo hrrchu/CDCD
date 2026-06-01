@@ -836,7 +836,8 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <button onclick="chM(1)">›</button>
       </div>
       <div class="month-picker" id="month-picker"></div>
-      <button id="multi-month-clear" onclick="clearMultiMonth()" style="display:none;font-size:15px;padding:3px 8px;border-radius:6px;border:1px solid #fca5a5;background:#fff5f5;color:#e53e3e;cursor:pointer">✕ 모아보기 해제</button>
+      <button onclick="set3MonthView()" style="font-size:15px;padding:3px 8px;border-radius:6px;border:1px solid var(--bd2);background:var(--sf2);color:var(--tx2);cursor:pointer;white-space:nowrap">3달 보기</button>
+      <button id="multi-month-clear" onclick="clearMultiMonth()" style="display:none;font-size:15px;padding:3px 8px;border-radius:6px;border:1px solid #fca5a5;background:#fff5f5;color:#e53e3e;cursor:pointer">✕ 해제</button>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center" id="schedule-btn-row">
       <button id="darkmode-btn" onclick="toggleDarkMode()" title="다크모드 전환" style="font-size:17px;padding:4px 8px;border-radius:6px;border:1px solid var(--bd2);background:transparent;cursor:pointer">🌙</button>
@@ -1770,6 +1771,21 @@ function toggleMultiMonth(y,m){
 
 function clearMultiMonth(){
   _multiMonths=[];
+  renderMonthPicker();
+  renderTable();
+  renderStats();
+}
+
+function set3MonthView(){
+  _multiMonths=[];
+  // 이전 달 1개 + 다음 달 1개 자동 설정
+  for(let delta=-1; delta<=1; delta++){
+    if(delta===0) continue;
+    let y=CY, m=CM+delta;
+    if(m<0){y--;m+=12} if(m>11){y++;m-=12}
+    _multiMonths.push({y,m});
+  }
+  _multiMonths.sort((a,b)=>a.y!==b.y?a.y-b.y:a.m-b.m);
   renderMonthPicker();
   renderTable();
   renderStats();
@@ -3779,7 +3795,8 @@ function statusBadge(s){return{plan:'',wip:'',done:'',blocked:'⛔',variation:''
 //  RENDER
 // ════════════════════════════════════════════
 function init(){
-  renderLegend();renderHeader();renderTable();renderStats();renderGRM();
+  set3MonthView();
+  renderLegend();renderGRM();
   applyAdminMode();
   autoFitNc();
 }
@@ -3831,7 +3848,12 @@ function renderHeader(){
   document.getElementById('cur-month').textContent=`${M[CM]} ${CY}`;
   renderMonthPicker();
 }
-function chM(d){CM+=d;if(CM>11){CM=0;CY++}if(CM<0){CM=11;CY--}renderHeader();renderTable();renderStats();if(curSubTab===1)renderGRM();if(curSubTab===2){if(_leaveTab==='year')renderLeaveListYear();else renderLeaveList();}if(curSubTab===3)renderOtPage();}
+function chM(d){
+  CM+=d; if(CM>11){CM=0;CY++} if(CM<0){CM=11;CY--}
+  set3MonthView();
+  if(curSubTab===2){if(_leaveTab==='year')renderLeaveListYear();else renderLeaveList();}
+  if(curSubTab===3)renderOtPage();
+}
 
 function getMsForCell(taskId, dateStr){
   return milestones[taskId]?.[dateStr]||null;
