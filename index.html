@@ -227,7 +227,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 .sub-tabs{display:flex;gap:2px;padding:10px 22px 0}
 .sub-tab{padding:6px 14px;font-size:15px;font-weight:600;border-radius:8px 8px 0 0;border:1px solid var(--bd);border-bottom:none;cursor:pointer;background:var(--sf2);color:var(--tx3);transition:.13s}
 .sub-tab.active{background:var(--sur);color:var(--acc);border-color:var(--bd)}
-.sub-content{display:none;background:var(--sur);border:1px solid var(--bd);border-radius:0 11px 11px 11px;margin:0 22px;box-shadow:var(--sh)}
+.sub-content{display:none;background:var(--sur);border:1px solid var(--bd);border-radius:0 11px 11px 11px;margin:0 22px;box-shadow:var(--sh);overflow:auto}
 .sub-content.active{display:block}
 
 /* ── GANTT TABLE ── */
@@ -990,12 +990,20 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       </div>
       <!-- 비관리자: 본인 입력 영역 -->
       <div id="rv-member-section">
-        <div id="rv-login-wrap" style="max-width:340px;margin:24px auto;text-align:center">
-          <div style="font-size:16px;font-weight:700;color:var(--tx2);margin-bottom:12px">🔒 본인 확인</div>
-          <select id="rv-login-person" style="width:100%;border:1px solid var(--bd2);border-radius:7px;padding:8px 10px;font-size:15px;margin-bottom:8px;background:var(--sur);color:var(--tx);outline:none"></select>
-          <input type="password" id="rv-login-pw" placeholder="개인 비밀번호 입력" style="width:100%;border:1px solid var(--bd2);border-radius:7px;padding:8px 10px;font-size:15px;margin-bottom:8px;box-sizing:border-box;background:var(--sur);color:var(--tx);outline:none" onkeydown="if(event.key==='Enter')event.preventDefault()">
-          <button class="btn btn-p" onclick="loginReview()" style="width:100%">확인</button>
-          <div id="rv-login-err" style="color:#e53e3e;font-size:13px;margin-top:6px;display:none">비밀번호가 올바르지 않아요</div>
+        <div id="rv-login-wrap" style="max-width:480px;margin:24px auto">
+          <div style="font-size:15px;font-weight:700;color:var(--tx2);margin-bottom:14px;text-align:center">👤 본인 이름을 선택하세요</div>
+          <div id="rv-name-tags" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px"></div>
+          <div id="rv-pw-wrap" style="display:none;max-width:300px;margin:0 auto;text-align:center">
+            <div style="font-size:15px;font-weight:700;color:var(--acc);margin-bottom:10px" id="rv-pw-name"></div>
+            <input type="password" id="rv-login-pw" placeholder="비밀번호 입력" autocomplete="off"
+              style="width:100%;border:1px solid var(--bd2);border-radius:7px;padding:9px 12px;font-size:15px;margin-bottom:8px;box-sizing:border-box;background:var(--sur);color:var(--tx);outline:none;text-align:center"
+              onkeydown="if(event.key==='Enter')event.preventDefault()">
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-g" onclick="cancelRvLogin()" style="flex:1">취소</button>
+              <button class="btn btn-p" onclick="loginReview()" style="flex:1">확인</button>
+            </div>
+            <div id="rv-login-err" style="color:#e53e3e;font-size:13px;margin-top:6px;display:none">비밀번호가 올바르지 않아요</div>
+          </div>
         </div>
         <div id="rv-write-wrap" style="display:none;max-width:600px">
           <div style="font-size:15px;font-weight:700;color:var(--tx2);margin-bottom:8px" id="rv-write-title"></div>
@@ -3104,6 +3112,7 @@ function saveCustomHolEdit(btn, oldDs){
 //  MONTHLY REVIEW
 // ════════════════════════════════════════════
 let _rvTab = 'month';
+let _rvPersonId = null;
 
 function switchRvTab(tab){
   _rvTab = tab;
@@ -3134,10 +3143,22 @@ function renderReviewPage(){
     } else {
       document.getElementById('rv-login-wrap').style.display='';
       document.getElementById('rv-write-wrap').style.display='none';
-      const sel = document.getElementById('rv-login-person');
+      document.getElementById('rv-pw-wrap').style.display='none';
+      // 이름 태그 렌더링
+      const tags = document.getElementById('rv-name-tags');
       const people = getPeople();
-      sel.innerHTML = '<option value="">이름 선택...</option>' +
-        people.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+      if(tags){
+        const ym = `${CY}-${String(CM+1).padStart(2,'0')}`;
+        tags.innerHTML = people.map(p=>{
+          const hasDraft = !!monthlyReviews[ym]?.[p.id]?.text;
+          return `<button onclick="selectRvPerson('${p.id}')"
+            style="padding:8px 18px;border-radius:20px;border:2px solid var(--bd2);background:var(--sf2);color:var(--tx);font-size:15px;font-weight:600;cursor:pointer;position:relative;transition:.1s"
+            onmouseover="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'"
+            onmouseout="this.style.borderColor='var(--bd2)';this.style.color='var(--tx)'">
+            ${p.name}${hasDraft?'<span style="position:absolute;top:-4px;right:-4px;width:8px;height:8px;border-radius:50%;background:#10b981;border:2px solid var(--sur)"></span>':''}
+          </button>`;
+        }).join('');
+      }
     }
   }
 }
@@ -3179,8 +3200,27 @@ function renderReviewYear(){
   }).join('');
 }
 
+let _rvSelectedId = null;
+
+function selectRvPerson(personId){
+  _rvSelectedId = personId;
+  const person = getPeople().find(p=>p.id===personId);
+  document.getElementById('rv-pw-wrap').style.display='';
+  document.getElementById('rv-pw-name').textContent = `${person?.name}님의 비밀번호를 입력하세요`;
+  document.getElementById('rv-login-pw').value='';
+  document.getElementById('rv-login-err').style.display='none';
+  setTimeout(()=>document.getElementById('rv-login-pw').focus(), 100);
+}
+
+function cancelRvLogin(){
+  _rvSelectedId = null;
+  document.getElementById('rv-pw-wrap').style.display='none';
+  document.getElementById('rv-login-pw').value='';
+  document.getElementById('rv-login-err').style.display='none';
+}
+
 function loginReview(){
-  const personId = document.getElementById('rv-login-person')?.value;
+  const personId = _rvSelectedId;
   const pw = document.getElementById('rv-login-pw')?.value;
   const errEl = document.getElementById('rv-login-err');
   if(!personId){ errEl.textContent='이름을 선택해주세요'; errEl.style.display=''; return; }
@@ -3188,15 +3228,20 @@ function loginReview(){
   if(!person||person.pw!==pw){ errEl.textContent='비밀번호가 올바르지 않아요'; errEl.style.display=''; return; }
   errEl.style.display='none';
   _rvPersonId = personId;
+  _rvSelectedId = null;
   document.getElementById('rv-login-pw').value='';
   showReviewWrite(personId);
 }
 
 function logoutReview(){
   _rvPersonId = null;
+  _rvSelectedId = null;
   document.getElementById('rv-login-wrap').style.display='';
   document.getElementById('rv-write-wrap').style.display='none';
+  document.getElementById('rv-pw-wrap').style.display='none';
   document.getElementById('rv-login-pw').value='';
+  // 태그 재렌더
+  renderReviewPage();
 }
 
 function showReviewWrite(personId){
