@@ -856,9 +856,9 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     <div class="sub-tab" id="stab-1" onclick="switchSubTab(1)">📊 GRM 공수</div>
     <div class="sub-tab" id="stab-2" onclick="switchSubTab(2)">🗓 근태</div>
     <div class="sub-tab" id="stab-3" onclick="switchSubTab(3)">📝 리뷰</div>
-    <div class="sub-tab" id="stab-4" onclick="switchSubTab(4)">📋 프로세스</div>
-    <div class="sub-tab" id="stab-5" onclick="switchSubTab(5)">🛠 툴</div>
-    <div class="sub-tab" id="stab-6" onclick="switchSubTab(6)">💡 아이디어</div>
+    <div class="sub-tab" id="stab-4" onclick="switchSubTab(4)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">📋 프로세스</div>
+    <div class="sub-tab" id="stab-5" onclick="switchSubTab(5)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">🛠 툴</div>
+    <div class="sub-tab" id="stab-6" onclick="switchSubTab(6)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">💡 아이디어</div>
   </div>
 
   <!-- SUB 0: GANTT -->
@@ -3130,6 +3130,8 @@ function renderReviewPage(){
     document.getElementById('rv-member-section').style.display='none';
     document.getElementById('rv-admin-section').style.display='';
     if(_rvTab==='year') renderReviewYear();
+    else if(_rvTab==='stats-month') renderReviewStats('month');
+    else if(_rvTab==='stats-year')  renderReviewStats('year');
     else renderReviewAdmin();
   } else {
     document.getElementById('rv-member-section').style.display='';
@@ -3796,6 +3798,16 @@ function switchSubTab(idx){
   hideBubNow();
   curSubTab=idx;
   document.querySelectorAll('#schedule-subtabs .sub-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  // 노란 탭(4,5,6) 스타일 유지
+  [4,5,6].forEach(i=>{
+    const t=document.getElementById('stab-'+i);
+    if(!t) return;
+    if(i===idx){
+      t.style.background='#fbbf24'; t.style.color='#78350f'; t.style.borderColor='#f59e0b';
+    } else {
+      t.style.background='#fef9c3'; t.style.color='#854d0e'; t.style.borderColor='#fde68a';
+    }
+  });
   [0,1,2,3,4,5,6].forEach(i=>{
     const el=document.getElementById('scontent-'+i);
     if(el) el.classList.toggle('active',i===idx);
