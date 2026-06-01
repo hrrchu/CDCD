@@ -2757,7 +2757,7 @@ function renderOtMonth(wrap, label){
     </tr></thead><tbody>`;
 
   sorted.forEach((p, i) => {
-    const h = monthData[p.id] || 0;
+    const h = Math.round((monthData[p.id] || 0)*10)/10;
     const rank = i + 1;
     const rankBadge = rank===1&&h>0 ? '🥇' : rank===2&&h>0 ? '🥈' : rank===3&&h>0 ? '🥉' : `${rank}`;
     html += `<tr style="border-bottom:1px solid var(--bd);${h>0?'background:var(--sf2)':''}">
@@ -2776,7 +2776,7 @@ function renderOtMonth(wrap, label){
     </tr>`;
   });
 
-  const total = sorted.reduce((s,p)=>s+(monthData[p.id]||0),0);
+  const total = Math.round(sorted.reduce((s,p)=>s+(monthData[p.id]||0),0)*10)/10;
   html += `<tr style="border-top:2px solid var(--bd);background:var(--sf2)">
     <td colspan="2" style="padding:10px">
       <div style="display:flex;align-items:center;gap:10px">
@@ -2798,10 +2798,10 @@ function renderOtYear(wrap, label){
   // 연간 합계 계산
   const yearTotal = {};
   people.forEach(p=>{
-    yearTotal[p.id] = months.reduce((s,mm)=>{
+    yearTotal[p.id] = Math.round(months.reduce((s,mm)=>{
       const ym=`${CY}-${mm}`;
       return s + (otData[ym]?.[p.id]||0);
-    },0);
+    },0)*10)/10;
   });
   const sorted = [...people].sort((a,b)=>yearTotal[b.id]-yearTotal[a.id]);
 
@@ -2819,19 +2819,19 @@ function renderOtYear(wrap, label){
       <td style="padding:9px 10px;font-size:15px;font-weight:600;color:var(--tx)">${rankBadge}${p.name}</td>
       ${months.map(mm=>{
         const ym=`${CY}-${mm}`;
-        const h=otData[ym]?.[p.id]||0;
+        const h=Math.round((otData[ym]?.[p.id]||0)*10)/10;
         return `<td style="padding:9px 6px;text-align:center;font-size:14px;font-family:'Space Mono',monospace;color:${h>0?'var(--acc)':'var(--tx3)'}">${h>0?h:'-'}</td>`;
       }).join('')}
-      <td style="padding:9px 10px;text-align:right;font-size:15px;font-weight:700;font-family:'Space Mono',monospace;color:${yearTotal[p.id]>0?'var(--acc)':'var(--tx3)'}">${yearTotal[p.id]||'-'}</td>
+      <td style="padding:9px 10px;text-align:right;font-size:15px;font-weight:700;font-family:'Space Mono',monospace;color:${yearTotal[p.id]>0?'var(--acc)':'var(--tx3)'}">${yearTotal[p.id]>0?yearTotal[p.id]:'-'}</td>
     </tr>`;
   });
 
   // 월별 합계 행
   const monthTotals = months.map(mm=>{
     const ym=`${CY}-${mm}`;
-    return people.reduce((s,p)=>s+(otData[ym]?.[p.id]||0),0);
+    return Math.round(people.reduce((s,p)=>s+(otData[ym]?.[p.id]||0),0)*10)/10;
   });
-  const grandTotal = monthTotals.reduce((s,v)=>s+v,0);
+  const grandTotal = Math.round(monthTotals.reduce((s,v)=>s+v,0)*10)/10;
   html += `<tr style="border-top:2px solid var(--bd);background:var(--sf2)">
     <td style="padding:10px;font-size:15px;font-weight:700;color:var(--tx2)">합계</td>
     ${monthTotals.map(t=>`<td style="padding:10px 6px;text-align:center;font-size:14px;font-weight:700;font-family:'Space Mono',monospace;color:${t>0?'var(--acc)':'var(--tx3)'}">${t>0?t:'-'}</td>`).join('')}
@@ -3854,6 +3854,7 @@ function renderHeader(){
 }
 function chM(d){
   CM+=d; if(CM>11){CM=0;CY++} if(CM<0){CM=11;CY--}
+  renderHeader();
   set3MonthView();
   if(curSubTab===2){if(_leaveTab==='year')renderLeaveListYear();else renderLeaveList();}
   if(curSubTab===3)renderOtPage();
