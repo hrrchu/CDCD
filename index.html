@@ -851,11 +851,10 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   <div class="sub-tabs" id="schedule-subtabs">
     <div class="sub-tab active" id="stab-0" onclick="switchSubTab(0)">📅 Schedule</div>
     <div class="sub-tab" id="stab-1" onclick="switchSubTab(1)">🤑 GRM</div>
-    <div class="sub-tab" id="stab-2" onclick="switchSubTab(2)">⌚ Time</div>
-    <div class="sub-tab" id="stab-3" onclick="switchSubTab(3)">📒 Review</div>
-    <div class="sub-tab" id="stab-4" onclick="switchSubTab(4)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">✏️ Wiki</div>
-    <div class="sub-tab" id="stab-5" onclick="switchSubTab(5)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">⛏️ Tool</div>
-    <div class="sub-tab" id="stab-6" onclick="switchSubTab(6)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">💡 idea</div>
+    <div class="sub-tab" id="stab-2" onclick="switchSubTab(2)">👀 Review</div>
+    <div class="sub-tab" id="stab-3" onclick="switchSubTab(3)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">✏️ Wiki</div>
+    <div class="sub-tab" id="stab-4" onclick="switchSubTab(4)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">⛏️ Tool</div>
+    <div class="sub-tab" id="stab-5" onclick="switchSubTab(5)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">💡 idea</div>
   </div>
 
   <!-- SUB 0: GANTT -->
@@ -901,59 +900,28 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   <!-- SUB 2: LEAVE LIST -->
   <!-- SUB 2: 근태 -->
   <div class="sub-content" id="scontent-2">
-    <div style="display:flex;gap:6px;padding:16px 22px 0" id="kintai-tabs">
-      <button id="kt-tab-leave" onclick="switchKintaiTab('leave')" class="btn btn-p" style="font-size:15px;padding:7px 20px">🏖️ 휴가 목록</button>
+    <div style="display:flex;gap:6px;padding:16px 22px 0;flex-wrap:wrap" id="kintai-tabs">
+      <button id="kt-tab-leave" onclick="switchKintaiTab('leave')" class="btn btn-p" style="font-size:15px;padding:7px 20px">🏖️ 휴가목록</button>
       <button id="kt-tab-ot"    onclick="switchKintaiTab('ot')"    class="btn btn-g" style="font-size:15px;padding:7px 20px">⏱ 연장근로</button>
+      <button id="kt-tab-rv-month" onclick="switchKintaiTab('rv-month')" class="btn btn-g" style="font-size:15px;padding:7px 20px">📒 리뷰</button>
+      <button id="kt-tab-rv-stats-month" onclick="switchKintaiTab('rv-stats-month')" class="btn btn-g" style="font-size:15px;padding:7px 20px">📊 통계</button>
     </div>
     <!-- 휴가 섹션 -->
     <div id="kintai-leave-wrap">
       <div class="grm-wrap">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
           <div class="grm-title" style="margin-bottom:0">🏖️ 휴가 목록 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="leave-list-label"></span></div>
-          <div style="display:flex;gap:6px;margin-left:auto">
-            <button id="lv-tab-month" onclick="switchLeaveTab('month')" class="btn btn-p" style="font-size:13px;padding:4px 12px">📅 월간</button>
-            <button id="lv-tab-year"  onclick="switchLeaveTab('year')"  class="btn btn-g" style="font-size:13px;padding:4px 12px">📆 연간</button>
+          <div class="grm-sub">등록된 모든 휴가를 날짜 순으로 확인하고 관리할 수 있어요.</div>
+          <div style="display:flex;gap:6px">
+            <button id="lv-tab-month" onclick="switchLeaveTab('month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">📅 월간</button>
+            <button id="lv-tab-year"  onclick="switchLeaveTab('year')"  class="btn btn-g" style="font-size:14px;padding:5px 14px">📆 연간</button>
           </div>
         </div>
-        <div class="grm-sub">등록된 모든 휴가를 날짜 순으로 확인하고 관리할 수 있어요.</div>
         <div id="leave-list-wrap"></div>
       </div>
     </div>
-    <!-- 연장근로 섹션 -->
-    <div id="kintai-ot-wrap" style="display:none">
-      <div class="grm-wrap">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
-          <div>
-            <div class="grm-title">⏱ 연장근로 기록 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="ot-label"></span></div>
-            <div class="grm-sub">팀원별 월간 연장근로 시간을 입력해요. 순위순으로 정렬돼요.</div>
-          </div>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-p" onclick="openOtModal()" style="font-size:15px" id="ot-input-btn">✏️ 입력</button>
-            <button id="ot-tab-month" onclick="switchOtTab('month')" class="btn btn-p" style="font-size:13px;padding:4px 12px">📅 월간</button>
-            <button id="ot-tab-year"  onclick="switchOtTab('year')"  class="btn btn-g" style="font-size:13px;padding:4px 12px">📆 연간</button>
-          </div>
-        </div>
-        <div id="ot-wrap" style="margin-top:12px"></div>
-      </div>
-    </div>
-  </div>
-
-
-<!-- Overtime Input Modal -->
-<div class="mb" id="ot-modal">
-  <div class="modal" style="width:400px">
-    <div class="mt">⏱ 연장근로 입력</div>
-    <div class="mss" id="ot-modal-label"></div>
-    <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px" id="ot-modal-inputs"></div>
-    <div class="ma" style="margin-top:16px">
-      <button class="btn btn-p" onclick="saveOtModal()">저장</button>
-      <button class="btn btn-g" onclick="closeOtModal()">닫기</button>
-    </div>
-  </div>
-</div>
-
-  <!-- SUB 3: REVIEW -->
-  <div class="sub-content" id="scontent-3">
+    <!-- Review 섹션 -->
+    <div id="kintai-rv-wrap" style="display:none">
     <div class="grm-wrap">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
         <div>
@@ -991,19 +959,56 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <!-- 관리자: 전체 리뷰 목록 -->
       <div id="rv-admin-section" style="display:none">
         <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-          <button id="rv-tab-month" onclick="switchRvTab('month')" class="btn btn-p" style="font-size:15px;padding:7px 18px">📅 월간 리뷰</button>
-          <button id="rv-tab-year"  onclick="switchRvTab('year')"  class="btn btn-g" style="font-size:15px;padding:7px 18px">📆 연간 리뷰</button>
-          <button id="rv-tab-stats-month" onclick="switchRvTab('stats-month')" class="btn btn-g" style="font-size:15px;padding:7px 18px">📊 월간 통계</button>
-          <button id="rv-tab-stats-year"  onclick="switchRvTab('stats-year')"  class="btn btn-g" style="font-size:15px;padding:7px 18px">📊 연간 통계</button>
+          <!-- 리뷰 서브탭 -->
+          <div id="rv-sub-review" style="display:flex;gap:6px">
+            <button id="rv-tab-month" onclick="switchRvTab('month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">📅 월간 리뷰</button>
+            <button id="rv-tab-year"  onclick="switchRvTab('year')"  class="btn btn-g" style="font-size:15px;padding:7px 18px">📆 연간 리뷰</button>
+          </div>
+          <!-- 통계 서브탭 -->
+          <div id="rv-sub-stats" style="display:none;gap:6px">
+            <button id="rv-tab-stats-month" onclick="switchRvTab('stats-month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">📊 월간 통계</button>
+            <button id="rv-tab-stats-year"  onclick="switchRvTab('stats-year')"  class="btn btn-g" style="font-size:15px;padding:7px 18px">📊 연간 통계</button>
+          </div>
         </div>
         <div id="rv-admin-list"></div>
         <div id="rv-admin-year" style="display:none"></div>
         <div id="rv-admin-stats" style="display:none"></div>
       </div>
     </div>
+    </div>
+    <!-- 연장근로 섹션 -->
+    <div id="kintai-ot-wrap" style="display:none">
+      <div class="grm-wrap">
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px">
+          <div>
+            <div class="grm-title">⏱ 연장근로 기록 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="ot-label"></span></div>
+            <div class="grm-sub">팀원별 월간 연장근로 시간을 입력해요. 순위순으로 정렬돼요.</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button id="ot-tab-month" onclick="switchOtTab('month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">📅 월간</button>
+            <button id="ot-tab-year"  onclick="switchOtTab('year')"  class="btn btn-g" style="font-size:14px;padding:5px 14px">📆 연간</button>
+          </div>
+        </div>
+        <div id="ot-wrap" style="margin-top:12px"></div>
+      </div>
+    </div>
   </div>
 
-  <div class="sub-content" id="scontent-4">
+
+<!-- Overtime Input Modal -->
+<div class="mb" id="ot-modal">
+  <div class="modal" style="width:400px">
+    <div class="mt">⏱ 연장근로 입력</div>
+    <div class="mss" id="ot-modal-label"></div>
+    <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px" id="ot-modal-inputs"></div>
+    <div class="ma" style="margin-top:16px">
+      <button class="btn btn-p" onclick="saveOtModal()">저장</button>
+      <button class="btn btn-g" onclick="closeOtModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+  <div class="sub-content" id="scontent-3">
     <div class="free-page">
     <input class="free-page-title" id="p1-title" value="제작 프로세스 백서" placeholder="페이지 제목">
     <input class="free-page-subtitle" id="p1-sub" value="팀 내 제작 프로세스 및 가이드라인을 기록합니다." placeholder="부제목 / 설명">
@@ -1084,7 +1089,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   </div>
   </div>
 
-  <div class="sub-content" id="scontent-5">
+  <div class="sub-content" id="scontent-4">
     <div class="tool-page">
     <div class="tool-page-header">
       <div>
@@ -1113,7 +1118,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   </div>
   </div>
 
-  <div class="sub-content" id="scontent-6">
+  <div class="sub-content" id="scontent-5">
     <!-- 서브탭 -->
   <div class="sub-tabs">
     <div class="sub-tab active" id="p3tab-0" onclick="switchP3Tab(0)">💡 메모</div>
@@ -2844,15 +2849,31 @@ function editVote(voteId){
 let _kintaiTab = 'leave';
 function switchKintaiTab(tab){
   _kintaiTab = tab;
-  document.getElementById('kt-tab-leave').className = tab==='leave'?'btn btn-p':'btn btn-g';
-  document.getElementById('kt-tab-ot').className    = tab==='ot'   ?'btn btn-p':'btn btn-g';
-  ['kt-tab-leave','kt-tab-ot'].forEach(id=>{const b=document.getElementById(id);if(b){b.style.fontSize='15px';b.style.padding='7px 20px';}});
-  const leaveEl = document.getElementById('kintai-leave-wrap');
-  const otEl    = document.getElementById('kintai-ot-wrap');
-  if(leaveEl) leaveEl.style.display = tab==='leave' ? '' : 'none';
-  if(otEl)    otEl.style.display    = tab==='ot'    ? '' : 'none';
+  const allTabs = ['leave','ot','rv-month','rv-stats-month'];
+  allTabs.forEach(t=>{
+    const b=document.getElementById('kt-tab-'+t);
+    if(b){ b.className=tab===t?'btn btn-p':'btn btn-g'; b.style.fontSize='15px'; b.style.padding='7px 20px'; }
+  });
+  document.getElementById('kintai-leave-wrap').style.display = tab==='leave' ? '' : 'none';
+  document.getElementById('kintai-ot-wrap').style.display    = tab==='ot'    ? '' : 'none';
+  const rvWrap = document.getElementById('kintai-rv-wrap');
+  if(rvWrap) rvWrap.style.display = tab.startsWith('rv-') ? '' : 'none';
   if(tab==='leave'){ if(_leaveTab==='year') renderLeaveListYear(); else renderLeaveList(); }
   if(tab==='ot') renderOtPage();
+  if(tab==='rv-month'){
+    const rs=document.getElementById('rv-sub-review'); const ss=document.getElementById('rv-sub-stats');
+    if(rs) rs.style.display='flex'; if(ss) ss.style.display='none';
+    _rvTab='month'; renderReviewPage();
+    // 리뷰 탭 내 월간 버튼 활성화
+    ['month','year'].forEach(t=>{const b=document.getElementById('rv-tab-'+t);if(b){b.className=t==='month'?'btn btn-p':'btn btn-g';b.style.fontSize='14px';b.style.padding='5px 14px';}});
+  }
+  if(tab==='rv-stats-month'){
+    const rs=document.getElementById('rv-sub-review'); const ss=document.getElementById('rv-sub-stats');
+    if(rs) rs.style.display='none'; if(ss) ss.style.display='flex';
+    _rvTab='stats-month'; renderReviewPage();
+    // 통계 탭 내 월간 버튼 활성화
+    ['stats-month','stats-year'].forEach(t=>{const b=document.getElementById('rv-tab-'+t);if(b){b.className=t==='stats-month'?'btn btn-p':'btn btn-g';b.style.fontSize='14px';b.style.padding='5px 14px';}});
+  }
 }
 // ════════════════════════════════════════════
 //  OVERTIME
@@ -2862,8 +2883,8 @@ function switchOtTab(tab){
   _otTab = tab;
   document.getElementById('ot-tab-month').className = tab==='month' ? 'btn btn-p' : 'btn btn-g';
   document.getElementById('ot-tab-year').className  = tab==='year'  ? 'btn btn-p' : 'btn btn-g';
-  document.getElementById('ot-tab-month').style.fontSize='13px'; document.getElementById('ot-tab-month').style.padding='4px 12px';
-  document.getElementById('ot-tab-year').style.fontSize='13px';  document.getElementById('ot-tab-year').style.padding='4px 12px';
+  document.getElementById('ot-tab-month').style.fontSize='14px'; document.getElementById('ot-tab-month').style.padding='5px 14px';
+  document.getElementById('ot-tab-year').style.fontSize='14px';  document.getElementById('ot-tab-year').style.padding='5px 14px';
   renderOtPage();
 }
 
@@ -3107,7 +3128,7 @@ function switchRvTab(tab){
   _rvTab = tab;
   ['month','year','stats-month','stats-year'].forEach(t=>{
     const btn = document.getElementById('rv-tab-'+t);
-    if(btn){ btn.className = tab===t?'btn btn-p':'btn btn-g'; btn.style.fontSize='15px'; btn.style.padding='7px 18px'; }
+    if(btn){ btn.className = tab===t?'btn btn-p':'btn btn-g'; btn.style.fontSize='14px'; btn.style.padding='5px 14px'; }
   });
   document.getElementById('rv-admin-list').style.display        = tab==='month'       ? '' : 'none';
   document.getElementById('rv-admin-year').style.display        = tab==='year'        ? '' : 'none';
@@ -3125,10 +3146,7 @@ function renderReviewPage(){
   if(_isAdmin){
     document.getElementById('rv-member-section').style.display='none';
     document.getElementById('rv-admin-section').style.display='';
-    if(_rvTab==='year') renderReviewYear();
-    else if(_rvTab==='stats-month') renderReviewStats('month');
-    else if(_rvTab==='stats-year')  renderReviewStats('year');
-    else renderReviewAdmin();
+    switchRvTab(_rvTab||'month');
   } else {
     document.getElementById('rv-member-section').style.display='';
     document.getElementById('rv-admin-section').style.display='none';
@@ -4509,7 +4527,7 @@ function chM(d){
   set3MonthView();
   if(curSubTab===1) renderGRM();
   if(curSubTab===2) switchKintaiTab(_kintaiTab||'leave');
-  if(curSubTab===3) renderReviewPage();
+  if(curSubTab===2&&_kintaiTab.startsWith('rv-')) renderReviewPage();
 }
 
 function getMsForCell(taskId, dateStr){
@@ -5803,8 +5821,8 @@ function switchLeaveTab(tab){
   _leaveTab = tab;
   const mb = document.getElementById('lv-tab-month');
   const yb = document.getElementById('lv-tab-year');
-  if(mb){ mb.className = tab==='month' ? 'btn btn-p' : 'btn btn-g'; mb.style.fontSize='13px'; mb.style.padding='4px 12px'; }
-  if(yb){ yb.className = tab==='year'  ? 'btn btn-p' : 'btn btn-g'; yb.style.fontSize='13px'; yb.style.padding='4px 12px'; }
+  if(mb){ mb.className = tab==='month' ? 'btn btn-p' : 'btn btn-g'; mb.style.fontSize='14px'; mb.style.padding='5px 14px'; }
+  if(yb){ yb.className = tab==='year'  ? 'btn btn-p' : 'btn btn-g'; yb.style.fontSize='14px'; yb.style.padding='5px 14px'; }
   if(tab==='month') renderLeaveList();
   else renderLeaveListYear();
 }
@@ -6389,8 +6407,8 @@ function loadFromSbData(payload){
   applyAdminMode();
   if(curSubTab===1) renderGRM();
   if(curSubTab===2) renderLeaveList();
-  if(curSubTab===5) renderToolTable();
-  if(curSubTab===6){ renderIdeaBoard(); renderVotePage(); }
+  if(curSubTab===4) renderToolTable();
+  if(curSubTab===5){ renderIdeaBoard(); renderVotePage(); }
   showSyncPulse();
 }
 
