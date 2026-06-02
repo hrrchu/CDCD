@@ -62,7 +62,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tx);mi
 
 /* ── MULTI-MONTH ── */
 .month-picker{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-.month-chip{font-size:15px;font-weight:600;padding:3px 9px;border-radius:20px;border:1.5px solid var(--bd2);background:var(--sur);color:var(--tx2);cursor:pointer;transition:.12s;white-space:nowrap;font-family:'Space Mono',monospace}
+.month-chip{font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;border:1.5px solid var(--bd2);background:var(--sur);color:var(--tx2);cursor:pointer;transition:.12s;white-space:nowrap;font-family:'Space Mono',monospace}
 .month-chip.selected{background:var(--acc);color:#fff;border-color:var(--acc)}
 .month-chip:hover:not(.selected){background:var(--sf2)}
 .multi-month-header{font-size:15px;font-weight:700;color:var(--tx3);padding:4px 22px;background:var(--sf2);border-bottom:1px solid var(--bd);letter-spacing:.3px}
@@ -647,7 +647,7 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
   
 /* ── MULTI-MONTH ── */
 .month-picker{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-.month-chip{font-size:15px;font-weight:600;padding:3px 9px;border-radius:20px;border:1.5px solid var(--bd2);background:var(--sur);color:var(--tx2);cursor:pointer;transition:.12s;white-space:nowrap;font-family:'Space Mono',monospace}
+.month-chip{font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;border:1.5px solid var(--bd2);background:var(--sur);color:var(--tx2);cursor:pointer;transition:.12s;white-space:nowrap;font-family:'Space Mono',monospace}
 .month-chip.selected{background:var(--acc);color:#fff;border-color:var(--acc)}
 .month-chip:hover:not(.selected){background:var(--sf2)}
 .multi-month-header{font-size:15px;font-weight:700;color:var(--tx3);padding:4px 22px;background:var(--sf2);border-bottom:1px solid var(--bd);letter-spacing:.3px}
@@ -818,7 +818,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 <!-- ══ PAGE 0: SCHEDULE ══ -->
 <div class="page active" id="page-0">
 
-  <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:6px;padding:8px 14px">
+  <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
       <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span></div>
     </div>
@@ -843,6 +843,11 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
         <span id="fb-label">⚪ 오프라인</span>
       </div>
+    </div>
+    <!-- 월 선택 줄 -->
+    <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+      <div class="month-picker" id="month-picker"></div>
+      <button id="multi-month-clear" onclick="clearMultiMonth()" style="display:none;font-size:12px;padding:2px 8px;border-radius:6px;border:1px solid #fca5a5;background:#fff5f5;color:#e53e3e;cursor:pointer;white-space:nowrap">✕ 모아보기 해제</button>
     </div>
   </div>
 
@@ -1801,16 +1806,13 @@ let _multiMonths = []; // [{y,m}] 선택된 달 목록 (CY,CM 포함)
 function renderMonthPicker(){
   const picker = document.getElementById('month-picker');
   if(!picker) return;
-  // 현재 달 기준 ±5달
+  const M2=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   const chips = [];
-  for(let delta=-2; delta<=5; delta++){
-    let y=CY, m=CM+delta;
-    if(m<0){y--;m+=12} if(m>11){y++;m-=12}
-    const key=`${y}-${m}`;
-    const label=`${['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'][m]} ${y}`;
-    const isCur = delta===0;
+  for(let m=0; m<=11; m++){
+    const y = CY;
+    const isCur = (m===CM && y===CY);
     const isSelected = _multiMonths.some(x=>x.y===y&&x.m===m);
-    chips.push(`<div class="month-chip${isCur?' selected':''}${isSelected&&!isCur?' selected':''}" onclick="toggleMultiMonth(${y},${m})">${label}</div>`);
+    chips.push(`<div class="month-chip${isCur?' selected':''}${isSelected&&!isCur?' selected':''}" onclick="toggleMultiMonth(${y},${m})">${M2[m]}</div>`);
   }
   picker.innerHTML = chips.join('');
   const clearBtn = document.getElementById('multi-month-clear');
