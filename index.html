@@ -930,8 +930,8 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     <div class="grm-wrap">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
         <div>
-          <div class="grm-title">📝 리뷰 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="rv-label"></span></div>
-          <div class="grm-sub">팀별 일정 현황, 영업일, 휴가 통계를 확인할 수 있어요.</div>
+          <div class="grm-title" id="rv-title">📝 리뷰 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="rv-label"></span></div>
+          <div class="grm-sub" id="rv-desc"></div>
         </div>
       </div>
       <!-- 비관리자: 본인 입력 영역 -->
@@ -3151,6 +3151,18 @@ function renderReviewPage(){
   const label = document.getElementById('rv-label');
   const M2b=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   if(label) label.textContent = `${CY}년 ${M2b[CM]}`;
+  const isStats = _rvTab&&(_rvTab==='stats-month'||_rvTab==='stats-year');
+  const titleEl = document.getElementById('rv-title');
+  const descEl  = document.getElementById('rv-desc');
+  if(titleEl) titleEl.innerHTML = isStats
+    ? '📊 통계 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="rv-label"></span>'
+    : '📝 리뷰 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="rv-label"></span>';
+  if(descEl) descEl.textContent = isStats
+    ? '일정 현황을 확인할 수 있어요.'
+    : '한 달간 업무를 진행하며 느낀 점과 아쉬운점, 그리고 개선이 필요한 부분을 자유롭게 기록해 주세요.';
+  // label 재설정 (innerHTML 교체로 사라졌을 수 있음)
+  const label2 = document.getElementById('rv-label');
+  if(label2) label2.textContent = `${CY}년 ${M2b[CM]}`;
   if(_rvTab&&(_rvTab==='stats-month'||_rvTab==='stats-year')){
     // 통계는 관리자/비관리자 모두 표시
     document.getElementById('rv-member-section').style.display='none';
@@ -3380,7 +3392,6 @@ function renderReviewStats(viewArg){
 }
 
 function renderStatsMonth(schedCount, workDays, leaveDays, leaveCount, rows, M2b){
-  // Top 프로젝트 계산 (현재 달)
   const pc={};
   const wds=getWeekdays(CY,CM);
   tasks.forEach(task=>{
@@ -3391,24 +3402,18 @@ function renderStatsMonth(schedCount, workDays, leaveDays, leaveCount, rows, M2b
   });
   const topProjs=Object.entries(pc).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([id,d])=>{const p=getProj(id);return {p,d};});
   return `
-    <!-- 요약 카드 -->
     <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-      <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
-        <div style="font-size:28px;font-weight:700;color:var(--acc)">${schedCount}</div>
-        <div style="font-size:13px;color:var(--tx3);margin-top:4px">📅 등록 일정</div>
-      </div>
       <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
         <div style="font-size:28px;font-weight:700;color:#059669">${workDays}</div>
         <div style="font-size:13px;color:var(--tx3);margin-top:4px">💼 총 영업일</div>
       </div>
       <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
-        <div style="font-size:28px;font-weight:700;color:#f59e0b">${leaveDays}</div>
-        <div style="font-size:13px;color:var(--tx3);margin-top:4px">🏖️ 휴가 일수 (${leaveCount}건)</div>
+        <div style="font-size:28px;font-weight:700;color:var(--acc)">${schedCount}</div>
+        <div style="font-size:13px;color:var(--tx3);margin-top:4px">📅 등록 일정</div>
       </div>
     </div>
-    <!-- Top 프로젝트 -->
     ${topProjs.length?`<div style="background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;margin-bottom:20px">
-      <div style="font-size:14px;font-weight:700;color:var(--tx2);margin-bottom:10px">🏆 TOP 프로젝트</div>
+      <div style="font-size:14px;font-weight:700;color:var(--tx2);margin-bottom:10px">🏆 월간 TOP 프로젝트</div>
       <div style="display:flex;flex-direction:column;gap:8px">
         ${topProjs.map((t,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--sur);border-radius:8px;border:1px solid ${t.p.bar}33">
           <span style="font-size:15px;font-weight:700;color:var(--tx3);min-width:20px">${i+1}</span>
@@ -3418,20 +3423,20 @@ function renderStatsMonth(schedCount, workDays, leaveDays, leaveCount, rows, M2b
         </div>`).join('')}
       </div>
     </div>`:''}
-    <!-- 팀원별 테이블 -->
     <table style="width:100%;border-collapse:collapse">
       <thead><tr style="border-bottom:2px solid var(--bd)">
+        <th style="text-align:center;padding:8px 6px;font-size:13px;color:var(--tx3);width:40px">순위</th>
         <th style="text-align:left;padding:8px 10px;font-size:13px;color:var(--tx3)">팀원</th>
         <th style="text-align:center;padding:8px 10px;font-size:13px;color:var(--tx3)">등록 일정</th>
-        <th style="text-align:center;padding:8px 10px;font-size:13px;color:var(--tx3)">휴가 일수</th>
       </tr></thead>
       <tbody>
-        ${rows.map(({p,schedCount:sc,leaveDays:ld})=>`
-          <tr style="border-bottom:1px solid var(--bd)">
+        ${[...rows].sort((a,b)=>b.schedCount-a.schedCount).map(({p,schedCount:sc},i)=>{
+          const medal = sc>0 ? (i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`) : '-';
+          return `<tr style="border-bottom:1px solid var(--bd)">
+            <td style="padding:9px 6px;text-align:center;font-size:15px">${medal}</td>
             <td style="padding:9px 10px;font-size:15px;font-weight:600;color:var(--tx)">${p.name}</td>
             <td style="padding:9px 10px;text-align:center;font-size:15px;font-family:'Space Mono',monospace;color:${sc>0?'var(--acc)':'var(--tx3)'}">${sc||'-'}</td>
-            <td style="padding:9px 10px;text-align:center;font-size:15px;font-family:'Space Mono',monospace;color:${ld>0?'#f59e0b':'var(--tx3)'}">${ld||'-'}</td>
-          </tr>`).join('')}
+          </tr>`;}).join('')}
       </tbody>
     </table>`;
 }
@@ -3470,28 +3475,14 @@ function renderStatsYear(people, M2b){
   return `
     <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
       <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
-        <div style="font-size:28px;font-weight:700;color:var(--acc)">${yearSchedCount}</div>
-        <div style="font-size:13px;color:var(--tx3);margin-top:4px">📅 총 등록 일정</div>
-      </div>
-      <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
         <div style="font-size:28px;font-weight:700;color:#059669">${yearWorkDays}</div>
         <div style="font-size:13px;color:var(--tx3);margin-top:4px">💼 총 영업일</div>
       </div>
       <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
-        <div style="font-size:28px;font-weight:700;color:#f59e0b">${yearLeaveDays}</div>
-        <div style="font-size:13px;color:var(--tx3);margin-top:4px">🏖️ 총 휴가 일수</div>
+        <div style="font-size:28px;font-weight:700;color:var(--acc)">${yearSchedCount}</div>
+        <div style="font-size:13px;color:var(--tx3);margin-top:4px">📅 총 등록 일정</div>
       </div>
-      ${yearTopProjs.length?`<div style="flex:2;min-width:200px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px">
-        <div style="font-size:13px;color:var(--tx3);margin-bottom:8px">🏆 연간 TOP 프로젝트</div>
-        ${yearTopProjs.map((t,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-          <span style="font-size:13px;color:var(--tx3);min-width:16px">${i+1}</span>
-          <span style="width:8px;height:8px;border-radius:50%;background:${t.p.bar};flex-shrink:0"></span>
-          <span style="font-size:14px;font-weight:600;color:var(--tx);flex:1">${t.p.name}</span>
-          <span style="font-size:13px;font-family:'Space Mono',monospace;color:${t.p.bar}">${t.d}일</span>
-        </div>`).join('')}
-      </div>`:''}
     </div>
-    <!-- 연간 Top 프로젝트 -->
     ${yearTopProjs.length?`<div style="background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;margin-bottom:20px">
       <div style="font-size:14px;font-weight:700;color:var(--tx2);margin-bottom:10px">🏆 연간 TOP 프로젝트</div>
       <div style="display:flex;flex-direction:column;gap:8px">
@@ -3505,38 +3496,33 @@ function renderStatsYear(people, M2b){
     </div>`:''}
     <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:600px">
     <thead><tr style="border-bottom:2px solid var(--bd)">
+      <th style="text-align:center;padding:8px 6px;font-size:13px;color:var(--tx3);width:40px">순위</th>
       <th style="text-align:left;padding:8px 10px;font-size:13px;color:var(--tx3)">팀원</th>
       ${M2b.map(m=>`<th style="text-align:center;padding:6px 4px;font-size:12px;color:var(--tx3)">${m}</th>`).join('')}
     </tr></thead>
     <tbody>
-      <!-- 영업일 행 -->
-      <tr style="border-bottom:1px solid var(--bd);background:var(--sf2)">
-        <td style="padding:8px 10px;font-size:13px;font-weight:700;color:var(--tx2)">💼 영업일</td>
-        ${months.map(({y,m})=>`<td style="text-align:center;padding:6px 4px;font-size:13px;font-family:'Space Mono',monospace;color:#059669">${getWorkingDays(y,m)}</td>`).join('')}
-      </tr>
-      <!-- 휴가 행 -->
-      <tr style="border-bottom:2px solid var(--bd);background:var(--sf2)">
-        <td style="padding:8px 10px;font-size:13px;font-weight:700;color:var(--tx2)">🏖️ 전체 휴가</td>
-        ${months.map(({y,m})=>{
-          const wds=getWeekdays(y,m);
-          let d=0;
-          Object.values(leaves).forEach(arr=>(arr||[]).forEach(lv=>{
-            d+=wds.filter(({ds})=>dn(ds)>=dn(lv.start)&&dn(ds)<=dn(lv.end)).length;
-          }));
-          return `<td style="text-align:center;padding:6px 4px;font-size:13px;font-family:'Space Mono',monospace;color:${d>0?'#f59e0b':'var(--tx3)'}">${d||'-'}</td>`;
-        }).join('')}
-      </tr>
-      ${people.map(p=>{
-        const task = tasks.find(t=>t.personId===p.id);
-        return `<tr style="border-bottom:1px solid var(--bd)">
-          <td style="padding:8px 10px;font-size:14px;font-weight:600;color:var(--tx)">${p.name}</td>
-          ${months.map(({y,m})=>{
+      ${(()=>{
+        const peopleWithTotal = people.map(p=>{
+          const task = tasks.find(t=>t.personId===p.id);
+          const total = months.reduce((s,{y,m})=>{
             const wds=getWeekdays(y,m);
-            const sc=(task?ranges[task.id]||[]:[]).filter(r=>dn(r.end)>=dn(wds[0]?.ds||y+'-'+(m+1).toString().padStart(2,'0')+'-01')&&dn(r.start)<=dn(wds[wds.length-1]?.ds||y+'-'+(m+1).toString().padStart(2,'0')+'-31')).length;
-            return `<td style="text-align:center;padding:6px 4px;font-size:13px;font-family:'Space Mono',monospace;color:${sc>0?'var(--acc)':'var(--tx3)'}">${sc||'-'}</td>`;
-          }).join('')}
-        </tr>`;
-      }).join('')}
+            return s+(task?ranges[task.id]||[]:[]).filter(r=>dn(r.end)>=dn(wds[0]?.ds||y+'-'+(m+1).toString().padStart(2,'0')+'-01')&&dn(r.start)<=dn(wds[wds.length-1]?.ds||y+'-'+(m+1).toString().padStart(2,'0')+'-31')).length;
+          },0);
+          return {p, task, total};
+        }).sort((a,b)=>b.total-a.total);
+        return peopleWithTotal.map(({p,task,total},i)=>{
+          const medal = total>0 ? (i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`) : '-';
+          return `<tr style="border-bottom:1px solid var(--bd)">
+            <td style="padding:8px 6px;text-align:center;font-size:15px;width:40px">${medal}</td>
+            <td style="padding:8px 10px;font-size:14px;font-weight:600;color:var(--tx)">${p.name}</td>
+            ${months.map(({y,m})=>{
+              const wds=getWeekdays(y,m);
+              const sc=(task?ranges[task.id]||[]:[]).filter(r=>dn(r.end)>=dn(wds[0]?.ds||y+'-'+(m+1).toString().padStart(2,'0')+'-01')&&dn(r.start)<=dn(wds[wds.length-1]?.ds||y+'-'+(m+1).toString().padStart(2,'0')+'-31')).length;
+              return `<td style="text-align:center;padding:6px 4px;font-size:13px;font-family:'Space Mono',monospace;color:${sc>0?'var(--acc)':'var(--tx3)'}">${sc||'-'}</td>`;
+            }).join('')}
+          </tr>`;
+        }).join('');
+      })()}
     </tbody>
   </table></div>`;
 }
@@ -4154,7 +4140,8 @@ function renderLeaveList(){
     </div>
     <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">`; 
 
-  summaryList.forEach(s=>{
+  summaryList.forEach((s,ri)=>{
+    const medal = ri===0?'🥇':ri===1?'🥈':ri===2?'🥉':`${ri+1}`;
     const g=getPersonGroup(s.pid);
     const ac=(g?.members.find(m=>m.id===s.pid)?.ac)||g?.gc||'#999';
     const img=avatarImgs[s.pid];
@@ -4168,6 +4155,7 @@ function renderLeaveList(){
     }).join('<span style="color:var(--bd2);margin:0 3px">·</span>');
 
     html+=`<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:var(--sur);border:1px solid var(--bd)">
+      <span style="font-size:16px;min-width:24px;text-align:center">${medal}</span>
       <div style="width:26px;height:26px;border-radius:50%;background:${ac}22;color:${ac};display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-size:15px;font-weight:700">${avHtml}</div>
       <div style="min-width:60px">
         <div style="font-size:15px;font-weight:700;color:var(--tx)">${s.name}</div>
