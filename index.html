@@ -857,9 +857,9 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     <div class="sub-tab active" id="stab-0" onclick="switchSubTab(0)">📅 Schedule</div>
     <div class="sub-tab" id="stab-1" onclick="switchSubTab(1)">🤑 GRM</div>
     <div class="sub-tab" id="stab-2" onclick="switchSubTab(2)">👀 Review</div>
-    <div class="sub-tab" id="stab-3" onclick="switchSubTab(3)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">✏️ Wiki</div>
-    <div class="sub-tab" id="stab-4" onclick="switchSubTab(4)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">⛏️ Tool</div>
-    <div class="sub-tab" id="stab-5" onclick="switchSubTab(5)" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">💡 idea</div>
+    <div class="sub-tab" id="stab-3" onclick="switchSubTab(3)" style="background:#dbeafe;color:#1e40af;border-color:#93c5fd">✏️ Wiki</div>
+    <div class="sub-tab" id="stab-4" onclick="switchSubTab(4)" style="background:#dbeafe;color:#1e40af;border-color:#93c5fd">⛏️ Tool</div>
+    <div class="sub-tab" id="stab-5" onclick="switchSubTab(5)" style="background:#dbeafe;color:#1e40af;border-color:#93c5fd">💡 idea</div>
   </div>
 
   <!-- SUB 0: GANTT -->
@@ -906,10 +906,10 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   <!-- SUB 2: 근태 -->
   <div class="sub-content" id="scontent-2">
     <div style="display:flex;gap:6px;padding:16px 22px 0;flex-wrap:wrap" id="kintai-tabs">
-      <button id="kt-tab-leave" onclick="switchKintaiTab('leave')" class="btn btn-p" style="font-size:15px;padding:7px 20px">🏖️ 휴가목록</button>
+      <button id="kt-tab-leave" onclick="switchKintaiTab('leave')" class="btn btn-p" style="font-size:15px;padding:7px 20px">🏖️ 휴가</button>
       <button id="kt-tab-ot"    onclick="switchKintaiTab('ot')"    class="btn btn-g" style="font-size:15px;padding:7px 20px">⏱ 연장근로</button>
-      <button id="kt-tab-rv-month" onclick="switchKintaiTab('rv-month')" class="btn btn-g" style="font-size:15px;padding:7px 20px">📒 리뷰</button>
       <button id="kt-tab-rv-stats-month" onclick="switchKintaiTab('rv-stats-month')" class="btn btn-g" style="font-size:15px;padding:7px 20px">📊 통계</button>
+      <button id="kt-tab-rv-month" onclick="switchKintaiTab('rv-month')" class="btn btn-g" style="font-size:15px;padding:7px 20px">📒 리뷰</button>
     </div>
     <!-- 휴가 섹션 -->
     <div id="kintai-leave-wrap">
@@ -931,7 +931,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
         <div>
           <div class="grm-title">📝 리뷰 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="rv-label"></span></div>
-          <div class="grm-sub">팀원들이 한 달을 돌아보며 작성해요. 내용은 관리자만 볼 수 있어요.</div>
+          <div class="grm-sub">팀별 일정 현황, 영업일, 휴가 통계를 확인할 수 있어요.</div>
         </div>
       </div>
       <!-- 비관리자: 본인 입력 영역 -->
@@ -2872,8 +2872,11 @@ function switchKintaiTab(tab){
   if(tab==='rv-stats-month'){
     const rs=document.getElementById('rv-sub-review'); const ss=document.getElementById('rv-sub-stats');
     if(rs) rs.style.display='none'; if(ss) ss.style.display='flex';
-    _rvTab='stats-month'; renderReviewPage();
-    // 통계 탭 내 월간 버튼 활성화
+    _rvTab='stats-month';
+    // 통계는 관리자/비관리자 모두 표시
+    document.getElementById('rv-member-section').style.display='none';
+    document.getElementById('rv-admin-section').style.display='';
+    switchRvTab('stats-month');
     ['stats-month','stats-year'].forEach(t=>{const b=document.getElementById('rv-tab-'+t);if(b){b.className=t==='stats-month'?'btn btn-p':'btn btn-g';b.style.fontSize='14px';b.style.padding='5px 14px';}});
   }
 }
@@ -3145,7 +3148,12 @@ function renderReviewPage(){
   const label = document.getElementById('rv-label');
   const M2b=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   if(label) label.textContent = `${CY}년 ${M2b[CM]}`;
-  if(_isAdmin){
+  if(_rvTab&&(_rvTab==='stats-month'||_rvTab==='stats-year')){
+    // 통계는 관리자/비관리자 모두 표시
+    document.getElementById('rv-member-section').style.display='none';
+    document.getElementById('rv-admin-section').style.display='';
+    switchRvTab(_rvTab);
+  } else if(_isAdmin){
     document.getElementById('rv-member-section').style.display='none';
     document.getElementById('rv-admin-section').style.display='';
     switchRvTab(_rvTab||'month');
