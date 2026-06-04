@@ -1071,11 +1071,11 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <!-- 표 편집 (표 안에 커서 있을 때 활성화) -->
       <span id="tb-table-group" style="display:none;align-items:center;gap:3px">
         <span style="font-size:12px;color:var(--tx3);padding:0 4px">표 편집:</span>
-        <button class="tb-btn" onclick="tbTableAddRow()" title="행 추가">행+ </button>
-        <button class="tb-btn" onclick="tbTableDelRow()" title="행 삭제">행−</button>
-        <button class="tb-btn" onclick="tbTableAddCol()" title="열 추가">열+</button>
-        <button class="tb-btn" onclick="tbTableDelCol()" title="열 삭제">열−</button>
-        <button class="tb-btn" onclick="tbTableDelTable()" title="표 삭제" style="color:#e53e3e">표 삭제</button>
+        <button class="tb-btn" onmousedown="event.preventDefault()" onclick="tbTableAddRow()" title="행 추가">행+</button>
+        <button class="tb-btn" onmousedown="event.preventDefault()" onclick="tbTableDelRow()" title="행 삭제">행−</button>
+        <button class="tb-btn" onmousedown="event.preventDefault()" onclick="tbTableAddCol()" title="열 추가">열+</button>
+        <button class="tb-btn" onmousedown="event.preventDefault()" onclick="tbTableDelCol()" title="열 삭제">열−</button>
+        <button class="tb-btn" onmousedown="event.preventDefault()" onclick="tbTableDelTable()" title="표 삭제" style="color:#e53e3e">표 삭제</button>
       </span>
       <div class="tb-sep"></div>
       <button class="tb-btn" onclick="tbExec('removeFormat')" title="서식 초기화" style="color:#e53e3e">✕서식</button>
@@ -2094,7 +2094,15 @@ function tbInsertTable(){
 }
 
 // 현재 커서가 있는 셀/행/표 찾기
-function tbGetCell(){ return window.getSelection()?.anchorNode?.parentElement?.closest('td,th'); }
+let _lastTableCell = null; // 마지막으로 포커스된 셀 저장
+
+function tbGetCell(){
+  const sel = window.getSelection();
+  const node = sel?.anchorNode;
+  const cell = (node ? (node.nodeType===3?node.parentElement:node) : null)?.closest('td,th');
+  if(cell) _lastTableCell = cell;
+  return cell || _lastTableCell;
+}
 function tbGetRow(){ return tbGetCell()?.closest('tr'); }
 function tbGetTable(){ return tbGetCell()?.closest('table'); }
 const CELL_STYLE = 'border:1px solid #cbd5e1;padding:8px 12px;min-width:80px;text-align:left;font-size:15px';
