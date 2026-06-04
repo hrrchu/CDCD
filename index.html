@@ -2082,9 +2082,15 @@ function tbInsertTable(){
     html += `</tr>`;
   }
   html += `</tbody></table><p><br></p>`;
-  document.getElementById('p1-body').focus();
+  const body = document.getElementById('p1-body');
+  body.focus();
   document.execCommand('insertHTML', false, html);
   p1BodyInput();
+  // 표 삽입 후 즉시 첫 셀에 포커스
+  setTimeout(()=>{
+    const firstCell = body.querySelector('table th, table td');
+    if(firstCell){ firstCell.focus(); tbUpdateTableTools(); }
+  }, 50);
 }
 
 // 현재 커서가 있는 셀/행/표 찾기
@@ -2145,7 +2151,9 @@ function tbTableDelTable(){
 
 // 커서가 표 안에 있으면 표 편집 툴바 표시
 function tbUpdateTableTools(){
-  const inTable = !!tbGetCell();
+  const sel = window.getSelection();
+  const node = sel?.anchorNode;
+  const inTable = !!(node && (node.nodeType===3?node.parentElement:node)?.closest('table'));
   const group = document.getElementById('tb-table-group');
   if(group) group.style.display = inTable ? 'flex' : 'none';
 }
@@ -2286,9 +2294,9 @@ function applyAdminMode(){
   if(gs){ gs.style.pointerEvents = ''; gs.style.userSelect = 'text'; }
   // process
   const tb = document.getElementById('p1-toolbar');
-  if(tb) tb.style.display = _isAdmin ? '' : 'none';
+  if(tb) tb.style.display = '';
   const p1 = document.getElementById('p1-body');
-  if(p1){ p1.contentEditable=_isAdmin?'true':'false'; p1.style.userSelect='text'; p1.querySelectorAll('a').forEach(a=>a.style.pointerEvents='auto'); }
+  if(p1){ p1.contentEditable='true'; p1.style.userSelect='text'; p1.querySelectorAll('a').forEach(a=>a.style.pointerEvents='auto'); }
   const p1t = document.getElementById('p1-title'); if(p1t) p1t.readOnly=!_isAdmin;
   const p1s = document.getElementById('p1-sub');   if(p1s) p1s.readOnly=!_isAdmin;
   const gn  = document.getElementById('grm-note'); if(gn){ gn.contentEditable=_isAdmin?'true':'false'; }
@@ -3882,7 +3890,7 @@ function switchSubTab(idx){
   });
   if(idx===1) renderGRM();
   if(idx===2) switchKintaiTab('leave');
-  if(idx===3){ const tb=document.getElementById('p1-toolbar'); if(tb) tb.style.display=_isAdmin?'flex':'none'; }
+  if(idx===3){ const tb=document.getElementById('p1-toolbar'); if(tb) tb.style.display='flex'; }
   if(idx===4) renderToolTable();
   if(idx===5){ renderIdeaBoard(); renderVotePage(); switchP3Tab(0); }
 }
@@ -6676,6 +6684,9 @@ document.addEventListener('click', e=>{
 });
 // 커서 위치에 따라 표 편집 툴 자동 표시
 document.addEventListener('selectionchange', tbUpdateTableTools);
+document.getElementById('p1-body')?.addEventListener('click', tbUpdateTableTools);
+document.getElementById('p1-body')?.addEventListener('mouseup', tbUpdateTableTools);
+document.getElementById('p1-body')?.addEventListener('keyup', tbUpdateTableTools);
 
 init();
 initDarkMode();
