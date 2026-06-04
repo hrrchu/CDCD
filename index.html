@@ -289,7 +289,7 @@ td.cell.bar:active{cursor:crosshair}
 td.cell.bs .bf{border-radius:11px 0 0 11px;margin-left:3px}
 td.cell.be .bf{border-radius:0 11px 11px 0;margin-right:3px}
 td.cell.bs.be .bf{border-radius:11px;margin:0 3px}
-.bl{font-size:15px;font-weight:700;white-space:nowrap;overflow:visible;padding:0 6px;position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;pointer-events:none;opacity:.9;z-index:10}
+.bl{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px;position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;pointer-events:none;opacity:.9;z-index:10}
 .bf:hover{filter:brightness(1.08)}
 td.cell.status-wip .bf{box-shadow:inset 0 0 0 2px rgba(255,255,255,.8)}
 td.cell.bar-ghost .bf{opacity:.35}
@@ -308,7 +308,7 @@ td.cell.bar:active{cursor:crosshair}
 td.cell.bs .bf{border-radius:11px 0 0 11px;margin-left:3px}
 td.cell.be .bf{border-radius:0 11px 11px 0;margin-right:3px}
 td.cell.bs.be .bf{border-radius:11px;margin:0 3px}
-.bl{font-size:15px;font-weight:700;white-space:nowrap;overflow:visible;padding:0 6px;position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;pointer-events:none;opacity:.9;z-index:10}
+.bl{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px;position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;pointer-events:none;opacity:.9;z-index:10}
 .bf:hover{filter:brightness(1.08)}
 td.cell.status-wip .bf{box-shadow:inset 0 0 0 2px rgba(255,255,255,.8)}
 td.cell.bar-ghost .bf{opacity:.35}
@@ -4670,7 +4670,7 @@ function renderTable(){
                 onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
                 onclick="barBfClick(event,'${task.id}',${ri})">
                 <div class="bf" style="position:absolute;top:0;bottom:0;left:0;right:0;height:100%;background:${bs.bg};opacity:${bs.op||1};${isS?'border-radius:8px 0 0 8px;margin-left:2px;left:2px;':''}${isE?'border-radius:0 8px 8px 0;margin-right:2px;right:2px;':''}${isS&&isE?'border-radius:8px;margin:0 2px;left:2px;right:2px;':''}">
-                  ${isS?`<span class="bl" style="color:${bs.tc};width:${lblW}px;font-size:${rs.length>1&&si>0?'10px':'12px'};overflow:visible;white-space:nowrap">${rv.rtitle||proj.name}</span>`:''}
+                  ${isS?`<span class="bl" style="color:${bs.tc};max-width:${lblW}px;font-size:${rs.length>1&&si>0?'10px':'12px'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.rtitle||proj.name}</span>`:''}
                   ${isS?`<div class="rh rh-l" onmousedown="resizeMD(event,'${task.id}',${ri},'left',${idx})"></div>`:''}
                   ${isE?`<div class="rh rh-r" onmousedown="resizeMD(event,'${task.id}',${ri},'right',${idx})"></div>`:''}
                 </div>
