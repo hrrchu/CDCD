@@ -959,6 +959,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
             <button class="btn btn-g" onclick="logoutReview()">나가기</button>
           </div>
           <div style="font-size:13px;color:var(--tx3);margin-top:6px">저장하면 관리자에게 전달돼요 🔒</div>
+          <div id="rv-member-comments" style="display:none;margin-top:12px"></div>
         </div>
       </div>
       <!-- 관리자: 전체 리뷰 목록 -->
@@ -3300,11 +3301,30 @@ function logoutReview(){
 function showReviewWrite(personId){
   const ym = `${CY}-${String(CM+1).padStart(2,'0')}`;
   const person = getPeople().find(p=>p.id===personId);
-  const existing = monthlyReviews[ym]?.[personId]?.text||'';
+  const rv = monthlyReviews[ym]?.[personId]||{};
+  const existing = rv.text||'';
+  const comments = rv.comments||[];
   document.getElementById('rv-login-wrap').style.display='none';
   document.getElementById('rv-write-wrap').style.display='';
   document.getElementById('rv-write-title').textContent = `${person?.name}님의 ${CY}년 ${ym.slice(5,7)}월 리뷰`;
   document.getElementById('rv-write-text').value = existing;
+
+  // 관리자 댓글 표시
+  const cmtWrap = document.getElementById('rv-member-comments');
+  if(cmtWrap){
+    if(comments.length){
+      cmtWrap.style.display='';
+      cmtWrap.innerHTML = `
+        <div style="font-size:13px;font-weight:700;color:var(--tx3);margin:12px 0 6px">💬 관리자 댓글</div>
+        ${comments.map(c=>`
+          <div style="background:var(--sf2);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:14px;color:var(--tx);line-height:1.6">
+            <span style="font-size:12px;color:var(--tx3);margin-right:8px">${new Date(c.ts).toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit'})}</span>
+            ${c.text}
+          </div>`).join('')}`;
+    } else {
+      cmtWrap.style.display='none';
+    }
+  }
 }
 
 function saveReview(){
