@@ -1845,7 +1845,6 @@ function clearMultiMonth(){
 
 function set3MonthView(){
   _multiMonths=[];
-  // 이전 달 1개 + 다음 달 1개 자동 설정
   for(let delta=-1; delta<=1; delta++){
     if(delta===0) continue;
     let y=CY, m=CM+delta;
@@ -1856,6 +1855,26 @@ function set3MonthView(){
   renderMonthPicker();
   renderTable();
   renderStats();
+  // 오늘 날짜가 화면 왼쪽에서 10번째 칸에 오도록
+  requestAnimationFrame(()=>{
+    const gs = document.querySelector('.gs');
+    if(!gs) return;
+    const cellPx = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cell'))||40;
+    const nc = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nc'))||90;
+    // 이전 달 영업일 수
+    let prevY=CY, prevM=CM-1;
+    if(prevM<0){prevY--;prevM+=12;}
+    const prevDays = getWeekdays(prevY,prevM).length;
+    // 오늘이 현재 달 몇 번째 영업일인지
+    const todayDStr = todayStr();
+    const curWds = getWeekdays(CY,CM);
+    const todayIdx = curWds.findIndex(({ds})=>ds===todayDStr);
+    const todayOffset = todayIdx>=0 ? todayIdx : 0;
+    // 오늘 날짜 x 위치
+    const todayX = nc + (prevDays + todayOffset) * cellPx;
+    // 10칸 왼쪽에 오도록
+    gs.scrollLeft = Math.max(0, todayX - (cellPx * 10));
+  });
 }
 
 
