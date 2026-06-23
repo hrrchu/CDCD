@@ -1333,7 +1333,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
     </div>
     <div class="fg">
       <label>상태</label>
-      <input type="hidden" id="cm-status" value="plan">
+      <input type="hidden" id="cm-status" value="wip">
       <div style="display:flex;gap:6px;flex-wrap:wrap" id="cm-status-btns">
           <button type="button" onclick="setCmStatus('wip')"       data-status="wip"       class="status-btn">진행중</button>
           <button type="button" onclick="setCmStatus('variation')" data-status="variation" class="status-btn">베리에이션</button>
@@ -1843,6 +1843,21 @@ function clearMultiMonth(){
   renderStats();
 }
 
+function scrollToToday(){
+  // today 클래스 셀 찾아서 scrollIntoView
+  const todayCell = document.querySelector('th.today, td.today');
+  if(!todayCell) return;
+  const gs = document.querySelector('.gs');
+  if(!gs) return;
+  const cellPx = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cell'))||40;
+  const gsRect = gs.getBoundingClientRect();
+  const cellRect = todayCell.getBoundingClientRect();
+  // 현재 스크롤 위치 기준으로 오늘 셀의 절대 위치 계산
+  const cellAbsLeft = cellRect.left - gsRect.left + gs.scrollLeft;
+  // 오늘이 왼쪽에서 10칸 위치에 오도록
+  gs.scrollLeft = Math.max(0, cellAbsLeft - (cellPx * 10));
+}
+
 function set3MonthView(){
   _multiMonths=[];
   for(let delta=-1; delta<=1; delta++){
@@ -1855,26 +1870,8 @@ function set3MonthView(){
   renderMonthPicker();
   renderTable();
   renderStats();
-  // 오늘 날짜가 화면 왼쪽에서 10번째 칸에 오도록
-  requestAnimationFrame(()=>{
-    const gs = document.querySelector('.gs');
-    if(!gs) return;
-    const cellPx = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cell'))||40;
-    const nc = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nc'))||90;
-    // 이전 달 영업일 수
-    let prevY=CY, prevM=CM-1;
-    if(prevM<0){prevY--;prevM+=12;}
-    const prevDays = getWeekdays(prevY,prevM).length;
-    // 오늘이 현재 달 몇 번째 영업일인지
-    const todayDStr = todayStr();
-    const curWds = getWeekdays(CY,CM);
-    const todayIdx = curWds.findIndex(({ds})=>ds===todayDStr);
-    const todayOffset = todayIdx>=0 ? todayIdx : 0;
-    // 오늘 날짜 x 위치
-    const todayX = nc + (prevDays + todayOffset) * cellPx;
-    // 10칸 왼쪽에 오도록
-    gs.scrollLeft = Math.max(0, todayX - (cellPx * 10));
-  });
+  setTimeout(scrollToToday, 50);
+  setTimeout(scrollToToday, 300);
 }
 
 
@@ -5253,7 +5250,7 @@ function openModal(taskId,start,end,editIdx){
   document.getElementById('cm-rtitle').value=r?.rtitle||'';
   cmSetContent('cm-text', r?.text||'');
   cmSetContent('cm-link', r?.link||'');
-  setCmStatus(r?.status||'plan');
+  setCmStatus(r?.status||'wip');
   document.getElementById('cm-del').style.display=editIdx!=null?'':'none';
   renderPsel(r?.projectId||null);
   // 마일스톤 렌더링 (기존 일정의 시작일 기준)
@@ -6468,6 +6465,9 @@ function loadFromSbData(payload){
   renderToolTable();
   renderIdeaBoard();
   showSyncPulse();
+  // 데이터 로드 후 오늘 날짜 위치로 스크롤
+  setTimeout(scrollToToday, 200);
+  setTimeout(scrollToToday, 600);
 }
 
 async function pushAllToSb(){
