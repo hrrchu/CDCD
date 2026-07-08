@@ -5711,16 +5711,16 @@ function renderGRM(){
         const person=people.find(p=>p.id===personId);
         const pct=totalWD>0?Math.round(d/totalWD*100):0;
         const adjVal=getAdj(personId,proj.id);
-        const adjHtml=`<span style="display:inline-flex;align-items:center;gap:3px;margin-left:6px">
-          <span style="font-size:13px;color:${proj.bar}">보정</span>
+        const adjHtml=`<span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px">
+          <span style="font-size:14px;color:${proj.bar}">보정</span>
           <input type="number" min="0" max="200" placeholder="-"
             value="${adjVal??''}"
             onblur="setAdj('${personId}','${proj.id}',this.value);renderGRM()" ${_isAdmin?'':'disabled'}
             onclick="event.stopPropagation()"
-            style="width:52px;border:1px solid ${proj.bar}66;border-radius:5px;padding:2px 6px;font-size:14px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
-          <span style="font-size:13px;color:${proj.bar}">%</span>
+            style="width:60px;border:1px solid ${proj.bar}66;border-radius:5px;padding:3px 6px;font-size:15px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
+          <span style="font-size:14px;color:${proj.bar}">%</span>
         </span>`;
-        return `<div style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:15px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
+        return `<div style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:16px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
           <span style="width:7px;height:7px;border-radius:50%;background:${proj.bar};flex-shrink:0;display:inline-block"></span>
           ${person?.name||personId} <span style="font-family:'Space Mono',monospace;font-weight:700">${pct}%</span>
           ${adjHtml}
@@ -5738,15 +5738,15 @@ function renderGRM(){
       const pctSum = memberEntries.reduce((s,[,d])=>s+(totalWD>0?Math.round(d/totalWD*100):0),0);
       const adjSum = getProjAdj(proj.id);
       const adjBadge = adjSum!=null
-        ? `<div style="font-size:15px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:#fef3c7;color:#b45309;border:1px solid #fcd34d">보정 ${adjSum}%</div>`
+        ? `<div style="font-size:16px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:#fef3c7;color:#b45309;border:1px solid #fcd34d">보정 ${adjSum}%</div>`
         : '';
       html+=`<div class="grm-card" style="margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
           <div style="width:10px;height:10px;border-radius:3px;background:${proj.bar};flex-shrink:0"></div>
-          <div style="font-size:15px;font-weight:700;color:var(--tx)">${proj.name}</div>
+          <div style="font-size:16px;font-weight:700;color:var(--tx)">${proj.name}</div>
           <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-            <div style="font-size:15px;font-family:'Space Mono',monospace;color:var(--tx2);font-weight:600">${totalProjDays}인·일</div>
-            <div style="font-size:15px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44">실공수 ${pctSum}%</div>
+            <div style="font-size:16px;font-family:'Space Mono',monospace;color:var(--tx2);font-weight:600">${totalProjDays}인·일</div>
+            <div style="font-size:16px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44">실공수 ${pctSum}%</div>
             ${adjBadge}
           </div>
         </div>
@@ -5767,7 +5767,11 @@ function renderGRM(){
     const freeDays=Math.max(0,totalWD-totalPersonDays);
     const usedPct=totalWD>0?Math.round(totalPersonDays/totalWD*100):0;
 
-    // stacked bar segments
+    // 실제 근무일은 없지만 보정공수를 위해 수동으로 추가한 프로젝트도 태그에 표시
+    const manualProjIds = Object.keys(grmAdj?.[grmYM()]?.[person.id]||{}).filter(pid2=>!(pid2 in pd));
+    const tagEntries = [...projEntries, ...manualProjIds.map(pid2=>[pid2,0])];
+
+    // stacked bar segments (실제 근무일 기준)
     const segments=projEntries.map(([projId,d])=>{
       const proj=getProj(projId);
       const w=totalWD>0?(d/totalWD*100).toFixed(1):0;
@@ -5777,20 +5781,20 @@ function renderGRM(){
     const freeBar=freeDays>0?`<div class="grm-seg" style="width:${freeW}%;background:#e8eaf0"></div>`:'';
 
     // project contribution tags
-    const tags=projEntries.map(([projId,d])=>{
+    const tags=tagEntries.map(([projId,d])=>{
       const proj=getProj(projId);
       const pct=totalWD>0?Math.round(d/totalWD*100):0;
       const adjVal=getAdj(person.id,projId);
-      const adjHtml=`<span style="display:inline-flex;align-items:center;gap:3px;margin-left:6px">
-        <span style="font-size:13px;color:${proj.bar}">보정</span>
+      const adjHtml=`<span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px">
+        <span style="font-size:14px;color:${proj.bar}">보정</span>
         <input type="number" min="0" max="200" placeholder="-"
           value="${adjVal??''}"
           onblur="setAdj('${person.id}','${projId}',this.value);renderGRM()" ${_isAdmin?'':'disabled'}
           onclick="event.stopPropagation()"
-          style="width:52px;border:1px solid ${proj.bar}66;border-radius:5px;padding:2px 6px;font-size:14px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
-        <span style="font-size:13px;color:${proj.bar}">%</span>
+          style="width:60px;border:1px solid ${proj.bar}66;border-radius:5px;padding:3px 6px;font-size:15px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
+        <span style="font-size:14px;color:${proj.bar}">%</span>
       </span>`;
-      return `<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:15px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
+      return `<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:16px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
         <span style="width:7px;height:7px;border-radius:50%;background:${proj.bar};flex-shrink:0;display:inline-block"></span>
         ${proj.name} <span style="font-family:'Space Mono',monospace;font-weight:700">${pct}%</span>
         ${adjHtml}
@@ -5798,31 +5802,45 @@ function renderGRM(){
     }).join('');
 
     // 보정 공수 총합
-    const adjTotal = projEntries.reduce((s,[projId])=>{
+    const adjTotal = tagEntries.reduce((s,[projId])=>{
       const v=getAdj(person.id,projId);
       return s+(v!=null?v:0);
     }, 0);
-    const hasAdj = projEntries.some(([projId])=>getAdj(person.id,projId)!=null);
+    const hasAdj = tagEntries.some(([projId])=>getAdj(person.id,projId)!=null);
     const adjBadge = hasAdj
-      ? `<div style="font-family:'Space Mono',monospace;font-size:14px;font-weight:700;padding:2px 10px;border-radius:10px;background:#fef3c7;color:#b45309;border:1px solid #fcd34d">보정 ${adjTotal}%</div>`
+      ? `<div style="font-family:'Space Mono',monospace;font-size:15px;font-weight:700;padding:2px 10px;border-radius:10px;background:#fef3c7;color:#b45309;border:1px solid #fcd34d">보정 ${adjTotal}%</div>`
       : '';
 
-    const emptyMsg=projEntries.length===0
-      ? `<span style="font-size:15px;color:var(--tx2)">이번 달 등록된 일정 없음</span>`
+    const emptyMsg=tagEntries.length===0
+      ? `<span style="font-size:16px;color:var(--tx2)">이번 달 등록된 일정 없음</span>`
       : '';
+
+    // 담당하지 않은 임의의 프로젝트를 추가해 보정공수를 입력할 수 있는 버튼 (관리자 전용)
+    const addableProjs = PROJECTS.filter(p=>!tagEntries.some(([pid2])=>pid2===p.id));
+    const addProjHtml = (_isAdmin && addableProjs.length) ? `
+      <span style="display:inline-flex;align-items:center;gap:4px;margin:2px">
+        <select id="grm-addsel-${person.id}"
+          style="font-size:14px;padding:4px 6px;border-radius:8px;border:1px solid var(--bd2);background:var(--sf2);color:var(--tx2);outline:none;max-width:130px">
+          <option value="">프로젝트 선택</option>
+          ${addableProjs.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}
+        </select>
+        <button type="button" onclick="grmAddProj('${person.id}')" class="btn btn-g" style="font-size:14px;padding:4px 10px;border-radius:8px">+ 프로젝트 추가</button>
+      </span>` : '';
 
     html+=`
     <div class="grm-card" style="margin-bottom:12px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="font-size:15px;font-weight:700;color:var(--tx)">${person.name}</div>
-        <div style="font-size:15px;color:var(--tx2);font-weight:500">${person.role}</div>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-          <div style="font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:${usedPct>=80?'#e53e3e':usedPct>=50?'#d97706':'#059669'}">실공수 ${usedPct}%</div>
+      <div style="margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div style="font-size:17px;font-weight:700;color:var(--tx)">${person.name}</div>
+          <div style="font-size:16px;color:var(--tx2);font-weight:500">${person.role}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:${usedPct>=80?'#e53e3e':usedPct>=50?'#d97706':'#059669'}">실공수 ${usedPct}%</div>
           ${adjBadge}
         </div>
       </div>
       <div class="grm-breakdown" style="height:10px;margin-bottom:10px">${segments}${freeBar}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:2px">${tags}${emptyMsg}</div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:2px">${tags}${emptyMsg}${addProjHtml}</div>
     </div>`;
   });
 
@@ -5848,6 +5866,15 @@ function setAdj(personId, projId, val){
   if(val===''||val===null) delete grmAdj[ym][personId][projId];
   else grmAdj[ym][personId][projId] = Number(val);
   fbPush();
+}
+// 실제 담당하지 않은 임의의 프로젝트를 보정공수 입력용으로 카드에 추가
+function grmAddProj(personId){
+  if(!_isAdmin){ showToast('관리자만 사용할 수 있어요 🔒','error'); return; }
+  const sel = document.getElementById('grm-addsel-'+personId);
+  const projId = sel?.value;
+  if(!projId){ showToast('추가할 프로젝트를 선택해주세요','error'); return; }
+  setAdj(personId, projId, 0);
+  renderGRM();
 }
 function getProjAdj(projId){
   // 프로젝트별 보정 합계
