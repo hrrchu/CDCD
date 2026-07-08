@@ -6713,7 +6713,7 @@ document.addEventListener('keydown', e=>{
     }
     hideBubNow();
   }
-  // 1/2/3: 일정 등록/수정 모달에서 상태 빠르게 전환 (진행중/완료/대기중)
+  // 1/2/3: 일정 등록/수정 모달에서 상태 빠르게 전환하고 바로 저장+닫기 (진행중/완료/대기중)
   if(document.getElementById('cmod')?.classList.contains('open')){
     const statusKeyMap = {'1':'wip','2':'done','3':'plan'};
     const target = e.target;
@@ -6721,9 +6721,19 @@ document.addEventListener('keydown', e=>{
     if(!isEditable && statusKeyMap[e.key]){
       e.preventDefault();
       setCmStatus(statusKeyMap[e.key]);
+      saveComment();
+      return;
+    }
+    // Enter: 메모/링크 등 여러 줄 입력 영역이 아니면 저장(줄바꿈이 필요한 contenteditable/textarea는 제외)
+    if(e.key === 'Enter'){
+      const isMultiline = target.tagName === 'TEXTAREA' || target.isContentEditable;
+      if(!isMultiline){
+        e.preventDefault();
+        saveComment();
+        return;
+      }
     }
   }
-  // Enter는 팝업 닫기 동작 없음 (textarea/input 기본동작만)
 });
 
 
