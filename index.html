@@ -829,7 +829,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <button onclick="chM(1)">›</button>
       </div>
       <button id="darkmode-btn" onclick="toggleDarkMode()" title="다크모드 전환" style="font-size:17px;padding:4px 8px;border-radius:6px;border:1px solid var(--bd2);background:transparent;cursor:pointer">🌙</button>
-      <button id="sf-plan" onclick="toggleStatusFilter('plan')" class="btn btn-g">📋 예정</button>
+      <button id="sf-plan" onclick="toggleStatusFilter('plan')" class="btn btn-g">📋 대기중</button>
       <button id="sf-wip"  onclick="toggleStatusFilter('wip')"  class="btn btn-g">🔄 진행중</button>
       <button id="sf-done" onclick="toggleStatusFilter('done')" class="btn btn-g">✅ 완료</button>
       <button id="admin-btn" onclick="toggleAdmin()" style="font-size:15px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bd2);background:#f8fafc;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:4px">🔒 <span id="admin-label">관리자</span></button>
@@ -1335,11 +1335,9 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <label>상태</label>
       <input type="hidden" id="cm-status" value="wip">
       <div style="display:flex;gap:6px;flex-wrap:wrap" id="cm-status-btns">
-          <button type="button" onclick="setCmStatus('wip')"       data-status="wip"       class="status-btn">진행중</button>
-          <button type="button" onclick="setCmStatus('variation')" data-status="variation" class="status-btn">베리에이션</button>
-          <button type="button" onclick="setCmStatus('revision')"  data-status="revision"  class="status-btn">수정중</button>
-          <button type="button" onclick="setCmStatus('plan')"      data-status="plan"      class="status-btn" style="opacity:0.3">예정</button>
-          <button type="button" onclick="setCmStatus('done')"      data-status="done"      class="status-btn" style="opacity:0.3">완료</button>
+          <button type="button" onclick="setCmStatus('wip')"  data-status="wip"  class="status-btn">진행중 <span style="opacity:.5;font-size:12px">1</span></button>
+          <button type="button" onclick="setCmStatus('done')" data-status="done" class="status-btn">완료 <span style="opacity:.5;font-size:12px">2</span></button>
+          <button type="button" onclick="setCmStatus('plan')" data-status="plan" class="status-btn">대기중 <span style="opacity:.5;font-size:12px">3</span></button>
       </div>
     </div>
     <!-- 마일스톤 -->
@@ -4978,7 +4976,7 @@ function emptyCellClick(e,taskId,dateStr){
   document.getElementById('cm-rtitle').value='';
   cmSetContent('cm-text','');
   cmSetContent('cm-link','');
-  setCmStatus('plan');
+  setCmStatus('wip');
   document.getElementById('cm-del').style.display='none';
   renderPsel(null);
   pending={taskId, start:dateStr, end:dateStr, editIdx:null, isNew:false};
@@ -5206,7 +5204,7 @@ function openScheduleAdd(){ if(!_isAdmin){showToast('관리자만 사용할 수 
   document.getElementById('cm-rtitle').value = '';
   cmSetContent('cm-text','');
   cmSetContent('cm-link','');
-  setCmStatus('plan');
+  setCmStatus('wip');
   document.getElementById('cm-del').style.display = 'none';
   renderPsel(null);
   // 작업항목 초기화
@@ -6714,6 +6712,16 @@ document.addEventListener('keydown', e=>{
       return;
     }
     hideBubNow();
+  }
+  // 1/2/3: 일정 등록/수정 모달에서 상태 빠르게 전환 (진행중/완료/대기중)
+  if(document.getElementById('cmod')?.classList.contains('open')){
+    const statusKeyMap = {'1':'wip','2':'done','3':'plan'};
+    const target = e.target;
+    const isEditable = target.tagName==='INPUT' || target.tagName==='TEXTAREA' || target.isContentEditable;
+    if(!isEditable && statusKeyMap[e.key]){
+      e.preventDefault();
+      setCmStatus(statusKeyMap[e.key]);
+    }
   }
   // Enter는 팝업 닫기 동작 없음 (textarea/input 기본동작만)
 });
