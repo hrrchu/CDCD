@@ -5581,12 +5581,22 @@ function renderProjList(){
   if(!table) return;
   table.innerHTML = `
     <thead><tr>
+      <th style="padding:6px 4px;width:26px"></th>
       <th style="padding:6px 8px;font-size:13px;color:var(--tx3);font-weight:600;text-align:left">색상</th>
       <th style="padding:6px 8px;font-size:13px;color:var(--tx3);font-weight:600;text-align:left">프로젝트명</th>
       <th style="padding:6px 8px;width:40px"></th>
     </tr></thead>
     <tbody>${PROJECTS.map((p,i)=>`
-      <tr>
+      <tr id="projrow-${p.id}"
+        ondragover="projRowDragOver(event)"
+        ondragleave="projRowDragLeave(event)"
+        ondrop="projRowDrop(event,'${p.id}')">
+        <td style="padding:5px 4px;text-align:center">
+          <div class="drag-handle" title="드래그로 순서 변경 (자주 쓰는 프로젝트를 위로)"
+            draggable="true"
+            ondragstart="projRowDragStart(event,'${p.id}')"
+            ondragend="projRowDragEnd()"><span></span><span></span><span></span></div>
+        </td>
         <td style="padding:5px 8px">
           <div style="display:flex;align-items:center;gap:6px">
             <input type="color" id="sw-${i}" value="${p.bar}" oninput="pjCol(${i},this.value)"
@@ -5605,6 +5615,46 @@ function renderProjList(){
         </td>
       </tr>`).join('')}
     </tbody>`;
+}
+
+// ── PROJECT DRAG & DROP (순서 변경) ──
+let _pDrag={pid:null};
+function projRowDragStart(e,pid){
+  _pDrag={pid};
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain', pid);
+  setTimeout(()=>{ const el=document.getElementById('projrow-'+pid); if(el) el.classList.add('tm-dragging'); },0);
+}
+function projRowDragOver(e){
+  e.preventDefault();
+  const row=e.currentTarget;
+  const rect=row.getBoundingClientRect();
+  const before=e.clientY-rect.top < rect.height/2;
+  row.classList.toggle('tm-drag-over-top', before);
+  row.classList.toggle('tm-drag-over-bottom', !before);
+}
+function projRowDragLeave(e){
+  e.currentTarget.classList.remove('tm-drag-over-top','tm-drag-over-bottom');
+}
+function projRowDrop(e, targetPid){
+  e.preventDefault();
+  const row=e.currentTarget;
+  const rect=row.getBoundingClientRect();
+  const dropBefore=e.clientY-rect.top < rect.height/2;
+  row.classList.remove('tm-drag-over-top','tm-drag-over-bottom');
+  const {pid:srcPid}=_pDrag;
+  if(!srcPid||srcPid===targetPid) return;
+  const srcIdx=PROJECTS.findIndex(p=>p.id===srcPid); if(srcIdx<0) return;
+  const [srcProj]=PROJECTS.splice(srcIdx,1);
+  let tgtIdx=PROJECTS.findIndex(p=>p.id===targetPid);
+  if(!dropBefore) tgtIdx++;
+  PROJECTS.splice(Math.max(0,tgtIdx),0,srcProj);
+  renderProjList();
+}
+function projRowDragEnd(){
+  _pDrag={pid:null};
+  document.querySelectorAll('.tm-dragging,.tm-drag-over-top,.tm-drag-over-bottom')
+    .forEach(el=>el.classList.remove('tm-dragging','tm-drag-over-top','tm-drag-over-bottom'));
 }
 function pjCol(i,val){
   PROJECTS[i].bar=val;
