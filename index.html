@@ -115,13 +115,13 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 /* ── DARK MODE ── */
 :root[data-theme="dark"]{
-  --bg:#141518;--sur:#1e2025;--sf2:#25272e;
-  --bd:#2e3140;--bd2:#3a3d50;
+  --bg:#1c1e24;--sur:#262932;--sf2:#2e313c;
+  --bd:#3a3e4c;--bd2:#484c5c;
   --acc:#5c9fff;--tx:#e8eaf0;--tx2:#b0b7cc;--tx3:#6b7290;
   --sh:0 1px 4px rgba(0,0,0,.3);
 }
 :root[data-theme="dark"] .gs{background:var(--bg)}
-:root[data-theme="dark"] tr.gr td{background:#1a1c22}
+:root[data-theme="dark"] tr.gr td{background:#22242c}
 :root[data-theme="dark"] td.cell.today{background:rgba(92,159,255,.05)}
 :root[data-theme="dark"] td.cell.empty:hover{background:rgba(255,255,255,.06)!important}
 
@@ -197,19 +197,19 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 :root[data-theme="dark"] #cm-text,
 :root[data-theme="dark"] #cm-link,
 :root[data-theme="dark"] .fg [contenteditable]{background:var(--sf2)!important;color:var(--tx)!important;border-color:var(--bd2)!important}
-:root[data-theme="dark"] .bub{background:#1e2025;border-color:#3a3d50;color:#e8eaf0}
+:root[data-theme="dark"] .bub{background:#262932;border-color:#484c5c;color:#e8eaf0}
 :root[data-theme="dark"] .bub *{color:#e8eaf0}
 :root[data-theme="dark"] .legend{background:var(--sur);border-color:var(--bd)}
 :root[data-theme="dark"] .legend-item{background:var(--sf2)!important;border-color:var(--bd2)!important;color:var(--tx2)!important}
-:root[data-theme="dark"] #g-bub{background:#1e2025!important;border-color:#3a3d50!important;color:#e8eaf0!important}
+:root[data-theme="dark"] #g-bub{background:#262932!important;border-color:#484c5c!important;color:#e8eaf0!important}
 :root[data-theme="dark"] #g-bub *{color:#e8eaf0!important}
-:root[data-theme="dark"] .dm-popup{background:#1e2025!important;border-color:#3a3d50!important;color:#e8eaf0!important}
+:root[data-theme="dark"] .dm-popup{background:#262932!important;border-color:#484c5c!important;color:#e8eaf0!important}
 :root[data-theme="dark"] td.cell.creating{background:rgba(92,159,255,.12)!important}
 :root[data-theme="dark"] td.cell.creating-anchor{background:rgba(92,159,255,.2)!important}
 :root[data-theme="dark"] td.cell.move-preview{background:rgba(92,159,255,.1)!important}
 /* 주 구분선 */
 :root[data-theme="dark"] th.week-start,
-:root[data-theme="dark"] td.week-start{border-left:2px solid #3a3d50!important}
+:root[data-theme="dark"] td.week-start{border-left:2px solid #484c5c!important}
 
 /* ── HINT ── */
 .hint{font-size:15px;color:var(--tx3);padding:4px 22px;display:flex;gap:10px;flex-wrap:wrap;background:var(--sf2);border-bottom:1px solid var(--bd)}
@@ -700,13 +700,13 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 /* ── DARK MODE ── */
 :root[data-theme="dark"]{
-  --bg:#141518;--sur:#1e2025;--sf2:#25272e;
-  --bd:#2e3140;--bd2:#3a3d50;
+  --bg:#1c1e24;--sur:#262932;--sf2:#2e313c;
+  --bd:#3a3e4c;--bd2:#484c5c;
   --acc:#5c9fff;--tx:#e8eaf0;--tx2:#b0b7cc;--tx3:#6b7290;
   --sh:0 1px 4px rgba(0,0,0,.3);
 }
 :root[data-theme="dark"] .gs{background:var(--bg)}
-:root[data-theme="dark"] tr.gr td{background:#1a1c22}
+:root[data-theme="dark"] tr.gr td{background:#22242c}
 :root[data-theme="dark"] td.cell.today{background:rgba(92,159,255,.05)}
 :root[data-theme="dark"] td.cell.empty:hover{background:rgba(255,255,255,.06)!important}
 :root[data-theme="dark"] td.cell.has-ms:hover{background:rgba(255,255,255,.06)!important}
@@ -829,9 +829,6 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <button onclick="chM(1)">›</button>
       </div>
       <button id="darkmode-btn" onclick="toggleDarkMode()" title="다크모드 전환" style="font-size:17px;padding:4px 8px;border-radius:6px;border:1px solid var(--bd2);background:transparent;cursor:pointer">🌙</button>
-      <button id="sf-plan" onclick="toggleStatusFilter('plan')" class="btn btn-g">📋 대기중</button>
-      <button id="sf-wip"  onclick="toggleStatusFilter('wip')"  class="btn btn-g">🔄 진행중</button>
-      <button id="sf-done" onclick="toggleStatusFilter('done')" class="btn btn-g">✅ 완료</button>
       <button id="admin-btn" onclick="toggleAdmin()" style="font-size:15px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bd2);background:#f8fafc;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:4px">🔒 <span id="admin-label">관리자</span></button>
       <button class="btn btn-g" onclick="openProjMgr()">🎨 프로젝트</button>
       <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원</button>
@@ -5785,6 +5782,7 @@ function renderGRM(){
       const proj=getProj(projId);
       const pct=totalWD>0?Math.round(d/totalWD*100):0;
       const adjVal=getAdj(person.id,projId);
+      const isManual = manualProjIds.includes(projId);
       const adjHtml=`<span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px">
         <span style="font-size:14px;color:${proj.bar}">보정</span>
         <input type="number" min="0" max="200" placeholder="-"
@@ -5794,10 +5792,14 @@ function renderGRM(){
           style="width:60px;border:1px solid ${proj.bar}66;border-radius:5px;padding:3px 6px;font-size:15px;font-family:'Space Mono',monospace;font-weight:700;color:${proj.bar};background:${proj.bar}10;outline:none;text-align:center">
         <span style="font-size:14px;color:${proj.bar}">%</span>
       </span>`;
+      const delHtml = (isManual && _isAdmin)
+        ? `<span onclick="event.stopPropagation();grmRemoveProj('${person.id}','${projId}')" title="추가한 프로젝트 삭제" style="cursor:pointer;margin-left:6px;font-weight:700;color:${proj.bar};opacity:.6">✕</span>`
+        : '';
       return `<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:16px;font-weight:600;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44;margin:2px">
         <span style="width:7px;height:7px;border-radius:50%;background:${proj.bar};flex-shrink:0;display:inline-block"></span>
         ${proj.name} <span style="font-family:'Space Mono',monospace;font-weight:700">${pct}%</span>
         ${adjHtml}
+        ${delHtml}
       </div>`;
     }).join('');
 
@@ -5874,6 +5876,12 @@ function grmAddProj(personId){
   const projId = sel?.value;
   if(!projId){ showToast('추가할 프로젝트를 선택해주세요','error'); return; }
   setAdj(personId, projId, 0);
+  renderGRM();
+}
+// 수동으로 추가했던 프로젝트를 카드에서 제거
+function grmRemoveProj(personId, projId){
+  if(!_isAdmin){ showToast('관리자만 사용할 수 있어요 🔒','error'); return; }
+  setAdj(personId, projId, '');
   renderGRM();
 }
 function getProjAdj(projId){
