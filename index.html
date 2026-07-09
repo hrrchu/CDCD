@@ -5749,10 +5749,12 @@ function renderGRM(){
         ? `<div style="font-size:17px;font-family:'Pretendard',sans-serif;font-weight:700;padding:2px 8px;border-radius:10px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd">보정 ${adjSum}%</div>`
         : '';
       html+=`<div class="grm-card" style="margin-bottom:12px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <div style="width:10px;height:10px;border-radius:3px;background:${proj.bar};flex-shrink:0"></div>
-          <div style="font-size:17px;font-weight:700;color:var(--tx)">${proj.name}</div>
-          <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+        <div style="margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:10px;height:10px;border-radius:3px;background:${proj.bar};flex-shrink:0"></div>
+            <div style="font-size:17px;font-weight:700;color:var(--tx)">${proj.name}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
             <div style="font-size:17px;font-family:'Pretendard',sans-serif;color:var(--tx2);font-weight:600">${totalProjDays}인·일</div>
             <div style="font-size:17px;font-family:'Pretendard',sans-serif;font-weight:700;padding:2px 8px;border-radius:10px;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44">실공수 ${pctSum}%</div>
             ${adjBadge}
