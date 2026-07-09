@@ -5735,7 +5735,7 @@ function renderGRM(){
       const pctSum = memberEntries.reduce((s,[,d])=>s+(totalWD>0?Math.round(d/totalWD*100):0),0);
       const adjSum = getProjAdj(proj.id);
       const adjBadge = adjSum!=null
-        ? `<div style="font-size:16px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:#fef3c7;color:#b45309;border:1px solid #fcd34d">보정 ${adjSum}%</div>`
+        ? `<div style="font-size:16px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd">보정 ${adjSum}%</div>`
         : '';
       html+=`<div class="grm-card" style="margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
@@ -5810,7 +5810,7 @@ function renderGRM(){
     }, 0);
     const hasAdj = tagEntries.some(([projId])=>getAdj(person.id,projId)!=null);
     const adjBadge = hasAdj
-      ? `<div style="font-family:'Space Mono',monospace;font-size:15px;font-weight:700;padding:2px 10px;border-radius:10px;background:#fef3c7;color:#b45309;border:1px solid #fcd34d">보정 ${adjTotal}%</div>`
+      ? `<div style="font-family:'Space Mono',monospace;font-size:15px;font-weight:700;padding:2px 10px;border-radius:10px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd">보정 ${adjTotal}%</div>`
       : '';
 
     const emptyMsg=tagEntries.length===0
