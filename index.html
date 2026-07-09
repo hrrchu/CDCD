@@ -115,13 +115,13 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 /* ── DARK MODE ── */
 :root[data-theme="dark"]{
-  --bg:#1c1e24;--sur:#262932;--sf2:#2e313c;
-  --bd:#3a3e4c;--bd2:#484c5c;
+  --bg:#242424;--sur:#2d2d2d;--sf2:#373737;
+  --bd:#454545;--bd2:#545454;
   --acc:#5c9fff;--tx:#e8eaf0;--tx2:#b0b7cc;--tx3:#6b7290;
   --sh:0 1px 4px rgba(0,0,0,.3);
 }
 :root[data-theme="dark"] .gs{background:var(--bg)}
-:root[data-theme="dark"] tr.gr td{background:#22242c}
+:root[data-theme="dark"] tr.gr td{background:#282828}
 :root[data-theme="dark"] td.cell.today{background:rgba(92,159,255,.05)}
 :root[data-theme="dark"] td.cell.empty:hover{background:rgba(255,255,255,.06)!important}
 
@@ -197,19 +197,19 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 :root[data-theme="dark"] #cm-text,
 :root[data-theme="dark"] #cm-link,
 :root[data-theme="dark"] .fg [contenteditable]{background:var(--sf2)!important;color:var(--tx)!important;border-color:var(--bd2)!important}
-:root[data-theme="dark"] .bub{background:#262932;border-color:#484c5c;color:#e8eaf0}
+:root[data-theme="dark"] .bub{background:#2d2d2d;border-color:#545454;color:#e8eaf0}
 :root[data-theme="dark"] .bub *{color:#e8eaf0}
 :root[data-theme="dark"] .legend{background:var(--sur);border-color:var(--bd)}
 :root[data-theme="dark"] .legend-item{background:var(--sf2)!important;border-color:var(--bd2)!important;color:var(--tx2)!important}
-:root[data-theme="dark"] #g-bub{background:#262932!important;border-color:#484c5c!important;color:#e8eaf0!important}
+:root[data-theme="dark"] #g-bub{background:#2d2d2d!important;border-color:#545454!important;color:#e8eaf0!important}
 :root[data-theme="dark"] #g-bub *{color:#e8eaf0!important}
-:root[data-theme="dark"] .dm-popup{background:#262932!important;border-color:#484c5c!important;color:#e8eaf0!important}
+:root[data-theme="dark"] .dm-popup{background:#2d2d2d!important;border-color:#545454!important;color:#e8eaf0!important}
 :root[data-theme="dark"] td.cell.creating{background:rgba(92,159,255,.12)!important}
 :root[data-theme="dark"] td.cell.creating-anchor{background:rgba(92,159,255,.2)!important}
 :root[data-theme="dark"] td.cell.move-preview{background:rgba(92,159,255,.1)!important}
 /* 주 구분선 */
 :root[data-theme="dark"] th.week-start,
-:root[data-theme="dark"] td.week-start{border-left:2px solid #484c5c!important}
+:root[data-theme="dark"] td.week-start{border-left:2px solid #545454!important}
 
 /* ── HINT ── */
 .hint{font-size:15px;color:var(--tx3);padding:4px 22px;display:flex;gap:10px;flex-wrap:wrap;background:var(--sf2);border-bottom:1px solid var(--bd)}
@@ -700,13 +700,13 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 
 /* ── DARK MODE ── */
 :root[data-theme="dark"]{
-  --bg:#1c1e24;--sur:#262932;--sf2:#2e313c;
-  --bd:#3a3e4c;--bd2:#484c5c;
+  --bg:#242424;--sur:#2d2d2d;--sf2:#373737;
+  --bd:#454545;--bd2:#545454;
   --acc:#5c9fff;--tx:#e8eaf0;--tx2:#b0b7cc;--tx3:#6b7290;
   --sh:0 1px 4px rgba(0,0,0,.3);
 }
 :root[data-theme="dark"] .gs{background:var(--bg)}
-:root[data-theme="dark"] tr.gr td{background:#22242c}
+:root[data-theme="dark"] tr.gr td{background:#282828}
 :root[data-theme="dark"] td.cell.today{background:rgba(92,159,255,.05)}
 :root[data-theme="dark"] td.cell.empty:hover{background:rgba(255,255,255,.06)!important}
 :root[data-theme="dark"] td.cell.has-ms:hover{background:rgba(255,255,255,.06)!important}
@@ -5735,7 +5735,7 @@ function renderGRM(){
       const pctSum = memberEntries.reduce((s,[,d])=>s+(totalWD>0?Math.round(d/totalWD*100):0),0);
       const adjSum = getProjAdj(proj.id);
       const adjBadge = adjSum!=null
-        ? `<div style="font-size:16px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd">보정 ${adjSum}%</div>`
+        ? `<div style="font-size:16px;font-family:'Pretendard',sans-serif;font-weight:700;padding:2px 8px;border-radius:10px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd">보정 ${adjSum}%</div>`
         : '';
       html+=`<div class="grm-card" style="margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
@@ -5743,7 +5743,7 @@ function renderGRM(){
           <div style="font-size:16px;font-weight:700;color:var(--tx)">${proj.name}</div>
           <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
             <div style="font-size:16px;font-family:'Space Mono',monospace;color:var(--tx2);font-weight:600">${totalProjDays}인·일</div>
-            <div style="font-size:16px;font-family:'Space Mono',monospace;font-weight:700;padding:2px 8px;border-radius:10px;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44">실공수 ${pctSum}%</div>
+            <div style="font-size:16px;font-family:'Pretendard',sans-serif;font-weight:700;padding:2px 8px;border-radius:10px;background:${proj.bar}18;color:${proj.bar};border:1px solid ${proj.bar}44">실공수 ${pctSum}%</div>
             ${adjBadge}
           </div>
         </div>
@@ -5810,7 +5810,7 @@ function renderGRM(){
     }, 0);
     const hasAdj = tagEntries.some(([projId])=>getAdj(person.id,projId)!=null);
     const adjBadge = hasAdj
-      ? `<div style="font-family:'Space Mono',monospace;font-size:15px;font-weight:700;padding:2px 10px;border-radius:10px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd">보정 ${adjTotal}%</div>`
+      ? `<div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;padding:2px 10px;border-radius:10px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd">보정 ${adjTotal}%</div>`
       : '';
 
     const emptyMsg=tagEntries.length===0
@@ -5837,7 +5837,7 @@ function renderGRM(){
           <div style="font-size:16px;color:var(--tx2);font-weight:500">${person.role}</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
-          <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:${usedPct>=80?'#e53e3e':usedPct>=50?'#d97706':'#059669'}">실공수 ${usedPct}%</div>
+          <div style="font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;color:${usedPct>=80?'#e53e3e':usedPct>=50?'#d97706':'#059669'}">실공수 ${usedPct}%</div>
           ${adjBadge}
         </div>
       </div>
