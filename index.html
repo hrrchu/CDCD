@@ -835,7 +835,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <button class="btn btn-leave" onclick="openScheduleAdd()">➕ 일정</button>
       <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5;padding:4px 8px" onclick="openBulkDelete()" title="일괄 삭제">🗑</button>
       <button class="btn btn-g" onclick="openMsMgr()" style="padding:4px 8px;font-size:15px" title="마일스톤 관리">🏁</button>
-      <button class="btn btn-g" onclick="openBarOpMod()" style="padding:4px 8px;font-size:15px" title="일정바 진하기 조절">🎚</button>
+      <button class="btn btn-g" onclick="openBarOpMod()" style="padding:4px 8px;font-size:15px" title="일정바 진하기 조절">🎨</button>
       <div id="fb-indicator" onclick="openFbSetup()" title="Supabase 연결 상태" style="margin-left:auto;display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:15px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none;flex-shrink:0">
         <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
         <span id="fb-label">⚪ 오프라인</span>
@@ -1360,7 +1360,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 <!-- 일정바 진하기 조절 Modal -->
 <div class="mb" id="opmod">
   <div class="modal" style="width:340px">
-    <div class="mt">🎚 일정바 진하기</div>
+    <div class="mt">🎨 일정바 진하기</div>
     <div class="mss">움직이면 바로 반영돼요 (내 브라우저에만 저장)</div>
     <div class="fg"><label>진행중 <span id="op-wip-val" style="color:var(--tx3)"></span></label>
       <input type="range" id="op-wip" min="10" max="100" step="5" oninput="setBarOp('wip',this.value)" style="width:100%">
