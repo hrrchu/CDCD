@@ -121,6 +121,29 @@
     font: inherit;
     font-weight: 700;
   }
+  .sync-chip {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: .25rem .65rem;
+    white-space: nowrap;
+  }
+  .sync-chip .dot {
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    background: var(--muted);
+    flex: 0 0 auto;
+  }
+  .sync-chip.on .dot { background: var(--accent); }
+  .sync-chip.err .dot { background: var(--minus); }
 
   .banner {
     display: none;
@@ -408,6 +431,7 @@
     <div class="month-row">
       <label for="month">정산 월</label>
       <input type="month" id="month">
+      <span class="sync-chip" id="syncChip"><span class="dot"></span><span id="syncChipText">동기화 꺼짐</span></span>
     </div>
   </header>
 
@@ -479,7 +503,7 @@
         <div class="part-amount" id="myPart">0원</div>
       </div>
       <div class="part">
-        <div class="part-label">남편 몫 (남편월급 − 스타필드)</div>
+        <div class="part-label">남편 몫 (남편월급 − 카드·기타)</div>
         <div class="part-amount" id="husbandPart">0원</div>
       </div>
     </div>
@@ -518,7 +542,7 @@
     </div>
   </section>
 
-  <p class="hint">💡 <b>공유 링크 복사</b>를 누르면 지금 입력한 내역이 담긴 링크가 복사돼요. 카톡으로 남편에게 보내면 남편도 똑같은 내역을 볼 수 있어요. 월별 기록은 이 기기(브라우저)에만 저장됩니다.</p>
+  <p class="hint">💡 <b>공유 링크 복사</b>로 만든 링크를 남편에게 한 번 보내주세요. 남편이 그 링크로 열면 같은 저장소에 연결돼서, 둘 중 누가 <b>이번 달 저장</b>을 눌러도 서로의 기록에 자동으로 반영돼요. 우측 상단 칩에서 동기화 상태를 확인할 수 있어요.</p>
 </div>
 
 <div id="toast" role="status" aria-live="polite"></div>
@@ -537,6 +561,8 @@
     { id: 'f_etc',       label: '기타비용',     sign: -1, side: 'hb', spend: true }
   ];
   var LS_KEY = 'living-expenses-history-v1';
+  var SYNC_LS_KEY = 'living-expenses-sync-id';
+  var SYNC_API = 'https://jsonblob.com/api/jsonBlob';
 
   function $(id) { return document.getElementById(id); }
   function fmt(n) { return n.toLocaleString('ko-KR'); }
@@ -603,17 +629,23 @@
     hbPart.classList.toggle('negative', his < 0);
   }
 
-  /* ----- 기록 (localStorage) ----- */
+  /* ----- 기록 (localStorage, 삭제는 tombstone으로 기록해 기기 간 동기화 시 되살아나지 않게 함) ----- */
   function loadHistory() {
     try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
     catch (e) { return {}; }
   }
   function saveHistory(h) {
-    localStorage.setItem(LS_KEY, JSON.stringify(h));
+    try { localStorage.setItem(LS_KEY, JSON.stringify(h)); } catch (e) {}
   }
+  function entryTime(e) { return (e && (e.del || e.t)) || ''; }
+  function isLive(e) { return !!(e && e.v && !e.del); }
+  function liveMonths(h) {
+    return Object.keys(h).filter(function (m) { return isLive(h[m]); }).sort();
+  }
+
   function renderHistory() {
     var h = loadHistory();
-    var months = Object.keys(h).sort().reverse();
+    var months = liveMonths(h).reverse();
     var list = $('historyList');
     list.innerHTML = '';
     $('historyEmpty').style.display = months.length ? 'none' : 'block';
@@ -661,10 +693,11 @@
       btnDel.addEventListener('click', function () {
         if (!confirm(monthLabel(m) + ' 기록을 삭제할까요?')) return;
         var hh = loadHistory();
-        delete hh[m];
+        hh[m] = { del: new Date().toISOString() };
         saveHistory(hh);
         renderHistory();
         drawChart();
+        syncNow();
         toast('삭제했어요');
       });
 
@@ -675,6 +708,87 @@
       list.appendChild(item);
     });
   }
+
+  /* ----- 실시간 동기화 (jsonblob.com 무료 JSON 저장소) ----- */
+  var syncId = null;
+  try { syncId = localStorage.getItem(SYNC_LS_KEY) || null; } catch (e) {}
+  var syncBusy = false;
+
+  function setChip(state, text) {
+    var chip = $('syncChip');
+    chip.className = 'sync-chip' + (state ? ' ' + state : '');
+    $('syncChipText').textContent = text;
+  }
+
+  function mergeMonths(a, b) {
+    var out = {}, k;
+    for (k in a) out[k] = a[k];
+    for (k in b) {
+      if (!(k in out) || entryTime(b[k]) > entryTime(out[k])) out[k] = b[k];
+    }
+    return out;
+  }
+
+  function syncNow() {
+    if (!syncId) { setChip('', '동기화 꺼짐'); return; }
+    if (syncBusy) return;
+    syncBusy = true;
+    setChip('', '동기화 중…');
+    var url = SYNC_API + '/' + syncId;
+    fetch(url, { headers: { Accept: 'application/json' }, cache: 'no-store' })
+      .then(function (r) {
+        if (r.status === 404) return recoverStore();
+        if (!r.ok) throw new Error('load-failed');
+        return r.json().then(function (doc) {
+          var cloud = (doc && doc.months) || {};
+          var local = loadHistory();
+          var merged = mergeMonths(cloud, local);
+          var mergedStr = JSON.stringify(merged);
+          if (mergedStr !== JSON.stringify(local)) {
+            saveHistory(merged);
+            renderHistory();
+            drawChart();
+          }
+          if (mergedStr !== JSON.stringify(cloud)) {
+            return fetch(url, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ v: 1, months: merged })
+            }).then(function (r2) { if (!r2.ok) throw new Error('save-failed'); });
+          }
+        });
+      })
+      .then(function () {
+        var d = new Date();
+        setChip('on', '동기화됨 ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'));
+      })
+      .catch(function () {
+        setChip('err', '연결 안 됨');
+      })
+      .then(function () { syncBusy = false; });
+  }
+
+  // 저장소가 만료·삭제된 경우: 내 기록으로 새 저장소를 만들어 연결을 복구
+  function recoverStore() {
+    return fetch(SYNC_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ v: 1, months: loadHistory() })
+    }).then(function (r) {
+      var loc = r.headers.get('Location') || '';
+      var id = loc.split('/').pop();
+      if (!r.ok || !id) throw new Error('recover-failed');
+      syncId = id;
+      try { localStorage.setItem(SYNC_LS_KEY, id); } catch (e) {}
+      toast('저장소를 새로 만들었어요. 공유 링크를 남편에게 다시 보내주세요!');
+    });
+  }
+
+  setInterval(syncNow, 45000);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) syncNow();
+  });
+  window.addEventListener('online', syncNow);
 
   /* ----- 월별 그래프 ----- */
   var SVG_NS = 'http://www.w3.org/2000/svg';
@@ -718,7 +832,7 @@
   function drawChart() {
     var host = $('chartHost');
     var h = loadHistory();
-    var all = Object.keys(h).sort();
+    var all = liveMonths(h);
     var truncated = all.length > 12;
     var months = truncated ? all.slice(-12) : all;
 
@@ -857,11 +971,21 @@
 
   /* ----- 공유 링크 ----- */
   function buildShareUrl() {
+    if (syncId) {
+      return location.origin + location.pathname + location.search + '#s=' + syncId;
+    }
     var payload = { m: $('month').value, v: getValues() };
-    var encoded = btoa(JSON.stringify(payload));
-    return location.origin + location.pathname + location.search + '#d=' + encoded;
+    return location.origin + location.pathname + location.search + '#d=' + btoa(JSON.stringify(payload));
   }
   function tryLoadFromHash() {
+    var sync = location.hash.match(/^#s=([A-Za-z0-9-]+)/);
+    if (sync) {
+      var isNew = syncId !== sync[1];
+      syncId = sync[1];
+      try { localStorage.setItem(SYNC_LS_KEY, syncId); } catch (e) {}
+      if (isNew) toast('실시간 동기화에 연결됐어요 🔗');
+      return true;
+    }
     var match = location.hash.match(/^#d=(.+)$/);
     if (!match) return false;
     try {
@@ -914,11 +1038,14 @@
     saveHistory(h);
     renderHistory();
     drawChart();
+    syncNow();
     toast(monthLabel(m) + ' 기록을 저장했어요 ✅');
   });
 
   $('btnShare').addEventListener('click', function () {
-    copyText(buildShareUrl(), '공유 링크를 복사했어요. 카톡에 붙여넣기 하세요 🔗');
+    copyText(buildShareUrl(),
+      syncId ? '실시간 공유 링크를 복사했어요. 카톡으로 남편에게 보내주세요 🔗'
+             : '공유 링크를 복사했어요. 카톡에 붙여넣기 하세요 🔗');
   });
 
   $('btnCopy').addEventListener('click', function () {
@@ -931,4 +1058,5 @@
   render();
   renderHistory();
   drawChart();
+  syncNow();
 </script>
