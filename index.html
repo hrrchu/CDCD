@@ -1314,7 +1314,10 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       </div>
     </div>
     <div class="fg"><label>일정 제목 <span style="font-size:15px;color:var(--tx3)">(없으면 프로젝트명 표시)</span></label><input type="text" id="cm-rtitle" placeholder="예: 러프 시안 작업" onkeydown="if(event.key==='Enter')event.preventDefault()"></div>
-    <div class="fg"><label>프로젝트</label><div class="psel" id="cm-psel"></div></div>
+    <div class="fg"><label>프로젝트</label>
+      <div style="font-size:12px;color:var(--tx3);margin:2px 0 4px">v: 베리에이션 · m: 모션작업 · c: 카드뉴스 · w: 웹페이지</div>
+      <div class="psel" id="cm-psel"></div>
+    </div>
 
     <div class="fg"><label>메모 / 설명</label>
       <input type="hidden" id="wi-da-chk"><input type="hidden" id="wi-vid-chk"><input type="hidden" id="wi-da-cnt" value="0"><input type="hidden" id="wi-da-var-cnt" value="0"><input type="hidden" id="wi-vid-cnt" value="0"><input type="hidden" id="wi-vid-var-cnt" value="0">
