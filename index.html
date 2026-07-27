@@ -828,6 +828,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <button onclick="chM(1)">›</button>
       </div>
       <button id="darkmode-btn" onclick="toggleDarkMode()" title="다크모드 전환" style="font-size:17px;padding:4px 8px;border-radius:6px;border:1px solid var(--bd2);background:transparent;cursor:pointer">🌙</button>
+      <button onclick="openBarOpMod()" title="일정바 진하기 조절" style="font-size:17px;padding:4px 8px;border-radius:6px;border:1px solid var(--bd2);background:transparent;cursor:pointer">🎨</button>
       <button id="admin-btn" onclick="toggleAdmin()" style="font-size:15px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bd2);background:#f8fafc;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:4px">🔒 <span id="admin-label">관리자</span></button>
       <button class="btn btn-g" onclick="openProjMgr()">🎨 프로젝트</button>
       <button class="btn btn-g" onclick="openTeamMgr()">👥 팀원</button>
@@ -835,7 +836,6 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <button class="btn btn-leave" onclick="openScheduleAdd()">➕ 일정</button>
       <button class="btn" style="background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5;padding:4px 8px" onclick="openBulkDelete()" title="일괄 삭제">🗑</button>
       <button class="btn btn-g" onclick="openMsMgr()" style="padding:4px 8px;font-size:15px" title="마일스톤 관리">🏁</button>
-      <button class="btn btn-g" onclick="openBarOpMod()" style="padding:4px 8px;font-size:15px" title="일정바 진하기 조절">🎨</button>
       <div id="fb-indicator" onclick="openFbSetup()" title="Supabase 연결 상태" style="margin-left:auto;display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;cursor:pointer;font-size:15px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;transition:all .15s;user-select:none;flex-shrink:0">
         <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0"></span>
         <span id="fb-label">⚪ 오프라인</span>
