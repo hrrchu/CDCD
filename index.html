@@ -1342,9 +1342,9 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <div id="cm-ms-grid" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
     </div>
     <div class="ma">
-      <button class="btn btn-p" onclick="saveComment()">저장</button>
-      <button class="btn btn-g" onclick="closeCmod()">취소</button>
-      <button class="btn btn-danger" id="cm-del" onclick="deleteRange()">삭제</button>
+      <button class="btn btn-p" onclick="saveComment()">저장 <span style="opacity:.5;font-size:12px">4</span></button>
+      <button class="btn btn-g" onclick="closeCmod()">취소 <span style="opacity:.5;font-size:12px">esc</span></button>
+      <button class="btn btn-danger" id="cm-del" onclick="deleteRange()">삭제 <span style="opacity:.5;font-size:12px">5</span></button>
     </div>
   </div>
 </div>
@@ -6812,6 +6812,7 @@ document.addEventListener('keydown', e=>{
     hideBubNow();
   }
   // 1/2/3: 일정 등록/수정 모달에서 상태 빠르게 전환하고 바로 저장+닫기 (진행중/완료/대기중)
+  // 4: 저장, 5: 삭제 (취소는 ESC)
   if(document.getElementById('cmod')?.classList.contains('open')){
     const statusKeyMap = {'1':'wip','2':'done','3':'plan'};
     const target = e.target;
@@ -6820,6 +6821,19 @@ document.addEventListener('keydown', e=>{
       e.preventDefault();
       setCmStatus(statusKeyMap[e.key]);
       saveComment();
+      return;
+    }
+    if(!isEditable && e.key==='4'){
+      e.preventDefault();
+      saveComment();
+      return;
+    }
+    if(!isEditable && e.key==='5'){
+      const delBtn = document.getElementById('cm-del');
+      if(delBtn && delBtn.style.display!=='none' && delBtn.style.opacity!=='0'){
+        e.preventDefault();
+        deleteRange();
+      }
       return;
     }
     // Enter: 메모/링크 등 여러 줄 입력 영역이 아니면 저장(줄바꿈이 필요한 contenteditable/textarea는 제외)
