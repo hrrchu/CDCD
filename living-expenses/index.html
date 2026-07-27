@@ -542,11 +542,12 @@
     </div>
   </section>
 
-  <p class="hint">💡 <b>공유 링크 복사</b>로 만든 링크를 남편에게 한 번 보내주세요. 남편이 그 링크로 열면 같은 저장소에 연결돼서, 둘 중 누가 <b>이번 달 저장</b>을 눌러도 서로의 기록에 자동으로 반영돼요. 우측 상단 칩에서 동기화 상태를 확인할 수 있어요.</p>
+  <p class="hint">💡 <b>공유 링크 복사</b>로 만든 링크를 남편에게 한 번 보내주세요. 남편이 그 링크로 열면 같은 저장소에 연결돼서, 둘 중 누가 <b>이번 달 저장</b>을 눌러도 상대 화면에 <b>즉시</b> 반영돼요. 우측 상단 칩이 "실시간 · 동기화됨"이면 정상 연결 상태예요.</p>
 </div>
 
 <div id="toast" role="status" aria-live="polite"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   var FIELDS = [
     { id: 'f_salary',    label: '월급',         sign: 1,  side: 'me' },
@@ -562,7 +563,8 @@
   ];
   var LS_KEY = 'living-expenses-history-v1';
   var SYNC_LS_KEY = 'living-expenses-sync-id';
-  var SYNC_API = 'https://jsonblob.com/api/jsonBlob';
+  var SUPABASE_URL = 'https://pbfgebrbvnemvragtoeh.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_LVTwJ2yLbCPpc_Gs5_kGWg_WqmkHi2U';
 
   function $(id) { return document.getElementById(id); }
   function fmt(n) { return n.toLocaleString('ko-KR'); }
@@ -697,7 +699,7 @@
         saveHistory(hh);
         renderHistory();
         drawChart();
-        syncNow();
+        syncNow(true);
         toast('삭제했어요');
       });
 
@@ -709,10 +711,12 @@
     });
   }
 
-  /* ----- 실시간 동기화 (jsonblob.com 무료 JSON 저장소) ----- */
+  /* ----- 실시간 동기화 (Supabase: RPC로만 접근, 저장 시 상대 기기에 즉시 푸시) ----- */
   var syncId = null;
   try { syncId = localStorage.getItem(SYNC_LS_KEY) || null; } catch (e) {}
   var syncBusy = false;
+  var rtChannel = null;
+  var rtReady = false;
 
   function setChip(state, text) {
     var chip = $('syncChip');
@@ -720,75 +724,63 @@
     $('syncChipText').textContent = text;
   }
 
-  function mergeMonths(a, b) {
-    var out = {}, k;
-    for (k in a) out[k] = a[k];
-    for (k in b) {
-      if (!(k in out) || entryTime(b[k]) > entryTime(out[k])) out[k] = b[k];
-    }
-    return out;
+  function rpc(fn, args) {
+    return fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_KEY,
+        Authorization: 'Bearer ' + SUPABASE_KEY
+      },
+      body: JSON.stringify(args)
+    }).then(function (r) {
+      if (!r.ok) throw new Error('rpc-failed');
+      return r.json();
+    });
   }
 
-  function syncNow() {
+  // 서버가 월별 최신본만 남기고 병합한 결과를 돌려줌 → 그게 항상 정답
+  function syncNow(notify) {
     if (!syncId) { setChip('', '동기화 꺼짐'); return; }
     if (syncBusy) return;
     syncBusy = true;
     setChip('', '동기화 중…');
-    var url = SYNC_API + '/' + syncId;
-    fetch(url, { headers: { Accept: 'application/json' }, cache: 'no-store' })
-      .then(function (r) {
-        if (r.status === 404) return recoverStore();
-        if (!r.ok) throw new Error('load-failed');
-        return r.json().then(function (doc) {
-          var cloud = (doc && doc.months) || {};
-          var local = loadHistory();
-          var merged = mergeMonths(cloud, local);
-          var mergedStr = JSON.stringify(merged);
-          if (mergedStr !== JSON.stringify(local)) {
-            saveHistory(merged);
-            renderHistory();
-            drawChart();
-          }
-          if (mergedStr !== JSON.stringify(cloud)) {
-            return fetch(url, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ v: 1, months: merged })
-            }).then(function (r2) { if (!r2.ok) throw new Error('save-failed'); });
-          }
-        });
-      })
-      .then(function () {
+    rpc('le_put_all', { code: syncId, doc: loadHistory() })
+      .then(function (cloud) {
+        cloud = cloud || {};
+        if (JSON.stringify(cloud) !== JSON.stringify(loadHistory())) {
+          saveHistory(cloud);
+          renderHistory();
+          drawChart();
+        }
         var d = new Date();
-        setChip('on', '동기화됨 ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'));
+        setChip('on', (rtReady ? '실시간 · ' : '') + '동기화됨 ' +
+          String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'));
+        if (notify && rtChannel && rtReady) {
+          rtChannel.send({ type: 'broadcast', event: 'sync', payload: {} });
+        }
       })
-      .catch(function () {
-        setChip('err', '연결 안 됨');
-      })
+      .catch(function () { setChip('err', '연결 안 됨'); })
       .then(function () { syncBusy = false; });
   }
 
-  // 저장소가 만료·삭제된 경우: 내 기록으로 새 저장소를 만들어 연결을 복구
-  function recoverStore() {
-    return fetch(SYNC_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ v: 1, months: loadHistory() })
-    }).then(function (r) {
-      var loc = r.headers.get('Location') || '';
-      var id = loc.split('/').pop();
-      if (!r.ok || !id) throw new Error('recover-failed');
-      syncId = id;
-      try { localStorage.setItem(SYNC_LS_KEY, id); } catch (e) {}
-      toast('저장소를 새로 만들었어요. 공유 링크를 남편에게 다시 보내주세요!');
-    });
+  function setupRealtime() {
+    if (!syncId || rtChannel || !window.supabase) return;
+    try {
+      var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      rtChannel = client.channel('le-' + syncId);
+      rtChannel.on('broadcast', { event: 'sync' }, function () { syncNow(false); });
+      rtChannel.subscribe(function (status) {
+        rtReady = (status === 'SUBSCRIBED');
+      });
+    } catch (e) { rtChannel = null; }
   }
 
-  setInterval(syncNow, 45000);
+  setInterval(function () { syncNow(false); }, 60000);
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) syncNow();
+    if (!document.hidden) syncNow(false);
   });
-  window.addEventListener('online', syncNow);
+  window.addEventListener('online', function () { syncNow(false); });
 
   /* ----- 월별 그래프 ----- */
   var SVG_NS = 'http://www.w3.org/2000/svg';
@@ -1038,7 +1030,7 @@
     saveHistory(h);
     renderHistory();
     drawChart();
-    syncNow();
+    syncNow(true);
     toast(monthLabel(m) + ' 기록을 저장했어요 ✅');
   });
 
@@ -1058,5 +1050,6 @@
   render();
   renderHistory();
   drawChart();
-  syncNow();
+  setupRealtime();
+  syncNow(false);
 </script>
