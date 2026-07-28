@@ -1516,6 +1516,12 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <span>익명 투표</span>
       </label>
     </div>
+    <div class="fg">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="vm-allow-add" checked style="width:15px;height:15px;accent-color:var(--acc)">
+        <span>참여자도 선택지 추가 가능</span>
+      </label>
+    </div>
     <div class="ma">
       <button class="btn btn-g" onclick="closeVmod()">취소</button>
       <button class="btn btn-p" onclick="saveVote()">투표 생성</button>
@@ -2645,6 +2651,7 @@ function openVoteCreate(){
   document.getElementById('vm-q').value = '';
   document.getElementById('vm-due').value = todayStr();
   document.getElementById('vm-anon').checked = false;
+  document.getElementById('vm-allow-add').checked = true;
   document.querySelector('input[name="vm-type"][value="single"]').checked = true;
   toggleVmOptsWrap();
   renderVmOpts([{id:uid(),label:''},{id:uid(),label:''}]);
@@ -2700,12 +2707,13 @@ function saveVote(){
   }
   const due = document.getElementById('vm-due').value || null;
   const anon = document.getElementById('vm-anon').checked;
+  const allowAdd = document.getElementById('vm-allow-add').checked;
 
   if(_vEditId){
     const v = votes.find(v=>v.id===_vEditId);
-    if(v){ v.q=q; v.type=type; v.due=due; v.anon=anon; }
+    if(v){ v.q=q; v.type=type; v.due=due; v.anon=anon; v.allowAdd=allowAdd; }
   } else {
-    votes.push({id:uid(), q, type, opts, due, anon, closed:false, ts:Date.now()});
+    votes.push({id:uid(), q, type, opts, due, anon, allowAdd, closed:false, ts:Date.now()});
   }
   closeVmod();
   renderVotePage();
@@ -2753,6 +2761,15 @@ function renderVotePage(){
       </div>`;
     }).join('');
 
+    // 참여자 선택지 직접 추가
+    const addOptHtml = (v.allowAdd && !closed && v.type!=='thumb') ? `
+      <div style="display:flex;gap:8px;align-items:center;margin-left:30px;margin-top:2px">
+        <input type="text" id="vopt-new-${v.id}" placeholder="+ 선택지 직접 추가..."
+          style="flex:1;border:1px dashed var(--bd2);border-radius:7px;padding:6px 10px;font-size:15px;font-family:'Pretendard',sans-serif;outline:none;background:transparent;color:var(--tx)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();addVoteOptLive('${v.id}')}">
+        <button class="btn btn-g" style="font-size:15px;padding:6px 12px;flex-shrink:0" onclick="addVoteOptLive('${v.id}')">추가</button>
+      </div>` : '';
+
     // 댓글 HTML
     const commentsHtml = v.comments.map((c,ci)=>{
       const p = people.find(p=>p.id===c.personId);
@@ -2789,6 +2806,7 @@ function renderVotePage(){
         </select>
       </div>
       ${optsHtml}
+      ${addOptHtml}
 
       <!-- 댓글 섹션 -->
       <div style="margin-top:14px;border-top:1px solid var(--bd);padding-top:12px">
@@ -2847,6 +2865,18 @@ function castVote(voteId, optId){
   fbPush();
 }
 
+function addVoteOptLive(voteId){
+  const v = votes.find(v=>v.id===voteId); if(!v) return;
+  if(v.closed || (v.due && v.due < todayStr())){ showToast('마감된 투표예요','error'); return; }
+  const label = document.getElementById('vopt-new-'+voteId)?.value.trim();
+  if(!label){ showToast('선택지 내용을 입력해주세요','error'); return; }
+  if(v.opts.some(o=>o.label===label)){ showToast('이미 있는 선택지예요','error'); return; }
+  v.opts.push({id:uid(), label, voters:[]});
+  renderVotePage();
+  fbPush();
+  showToast('✅ 선택지가 추가됐어요');
+}
+
 function closeVote(voteId){
   const v=votes.find(v=>v.id===voteId); if(!v) return;
   v.closed=true; renderVotePage(); fbPush();
@@ -2881,6 +2911,7 @@ function editVote(voteId){
   document.getElementById('vm-q').value=v.q;
   document.getElementById('vm-due').value=v.due||'';
   document.getElementById('vm-anon').checked=v.anon;
+  document.getElementById('vm-allow-add').checked=!!v.allowAdd;
   document.querySelector(`input[name="vm-type"][value="${v.type}"]`).checked=true;
   toggleVmOptsWrap();
   renderVmOpts(v.type==='thumb'?[]:[...v.opts]);
