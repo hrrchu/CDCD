@@ -1124,24 +1124,17 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   <div class="sub-content" id="scontent-5">
     <!-- 서브탭 -->
   <div class="sub-tabs">
-    <div class="sub-tab active" id="p3tab-0" onclick="switchP3Tab(0)">💡 메모</div>
-    <div class="sub-tab" id="p3tab-1" onclick="switchP3Tab(1)">🗳 투표</div>
+    <div class="sub-tab active" id="p3tab-1" onclick="switchP3Tab(1)">🗳 투표</div>
+    <div class="sub-tab" id="p3tab-0" onclick="switchP3Tab(0)">💡 메모</div>
     <div class="sub-tab" id="p3tab-2" onclick="switchP3Tab(2)">🪜 사다리</div>
   </div>
 
   <!-- 메모 탭 -->
-  <div id="p3-memo">
+  <div id="p3-memo" style="display:none">
     <div class="idea-page">
       <div class="idea-header">
         <div class="idea-header-title">💡 메모 보드</div>
         <input class="idea-search" id="idea-search" placeholder="🔍 메모 검색..." oninput="renderIdeaBoard()">
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="idea-tag-filters">
-        <button onclick="setIdeaTagFilter(null)" id="ift-all" class="btn btn-p" style="font-size:13px;padding:4px 12px">전체</button>
-        <button onclick="setIdeaTagFilter('💡 아이디어')" id="ift-0" class="btn btn-g" style="font-size:13px;padding:4px 12px">💡 idea</button>
-        <button onclick="setIdeaTagFilter('🔥 핫이슈')" id="ift-1" class="btn btn-g" style="font-size:13px;padding:4px 12px">🔥 핫이슈</button>
-        <button onclick="setIdeaTagFilter('⚠️ 업무이슈')" id="ift-2" class="btn btn-g" style="font-size:13px;padding:4px 12px">⚠️ 업무이슈</button>
-        <button onclick="setIdeaTagFilter('📌 기타')" id="ift-3" class="btn btn-g" style="font-size:13px;padding:4px 12px">📌 기타</button>
       </div>
       <div class="idea-new-area" id="idea-new-area" onclick="activateNewArea()">
         <div class="idea-new-placeholder" id="idea-new-placeholder">메모 작성...</div>
@@ -1154,12 +1147,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
             style="min-height:60px;outline:none;white-space:pre-wrap;word-break:break-word"
           ></div>
           <div class="idea-new-footer" onclick="event.stopPropagation()">
-            <select class="idea-new-tag-sel" id="if-tag" onclick="event.stopPropagation()">
-              <option value="💡 아이디어">💡 idea</option>
-              <option value="🔥 핫이슈">🔥 핫이슈</option>
-              <option value="⚠️ 업무이슈">⚠️ 업무이슈</option>
-              <option value="📌 기타">📌 기타</option>
-            </select>
+            <input type="hidden" id="if-tag" value="📌 기타">
             <select class="idea-new-author-sel" id="if-author" onclick="event.stopPropagation()"></select>
             <input type="color" id="if-color" value="#ffffff" title="메모지 색상" style="width:28px;height:28px;border:1px solid var(--bd2);border-radius:6px;padding:2px;cursor:pointer;flex-shrink:0">
             <button class="idea-new-close" onclick="deactivateNewArea(event)">닫기</button>
@@ -1172,7 +1160,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
   </div>
 
   <!-- 투표 탭 (page-4에서 이동) -->
-  <div id="p3-vote" style="display:none;max-width:820px;margin:0 auto;padding:20px">
+  <div id="p3-vote" style="max-width:820px;margin:0 auto;padding:20px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <div style="font-size:15px;font-weight:700;color:var(--tx)">🗳 투표</div>
       <button class="btn btn-p" onclick="openVoteCreate()">➕ 투표 만들기</button>
@@ -1793,7 +1781,7 @@ function switchPage(idx){
   document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
   if(idx===0) renderGRM();
   if(idx===2) renderToolTable();
-  if(idx===3){ renderIdeaBoard(); renderVotePage(); switchP3Tab(0); }
+  if(idx===3){ renderIdeaBoard(); renderVotePage(); switchP3Tab(1); }
   if(idx===4){ switchPage(3); switchP3Tab(1); }
   if(idx===1){ /* process page */ }
 }
@@ -3954,7 +3942,7 @@ function switchSubTab(idx){
   if(idx===2) switchKintaiTab('leave');
   if(idx===3){ const tb=document.getElementById('p1-toolbar'); if(tb) tb.style.display='flex'; }
   if(idx===4) renderToolTable();
-  if(idx===5){ renderIdeaBoard(); renderVotePage(); switchP3Tab(0); }
+  if(idx===5){ renderIdeaBoard(); renderVotePage(); switchP3Tab(1); }
 }
 
 // ════════════════════════════════════════════
@@ -4395,7 +4383,6 @@ function renderIdeaBoard(){
       <div class="idea-card-toolbar">
         ${colorDots}${colorPicker}
       </div>
-      ${card.tag?`<div class="idea-tag-pill" style="background:${tag.bg};color:${tag.color}">${tag.label}</div>`:''}
       ${card.title?`<div class="idea-card-title">${card.title}</div>`:''}
       <div class="idea-card-body" id="ibody-${idx}"
         ondblclick="startEditIdea(${idx})"
