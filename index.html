@@ -1502,7 +1502,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       </div>
     </div>
     <div class="fg" id="vm-opts-wrap">
-      <label>선택지 <span style="font-size:15px;color:var(--tx3)">(최소 2개)</span></label>
+      <label>선택지 <span style="font-size:15px;color:var(--tx3)">(비워두면 참여자가 직접 채워요)</span></label>
       <div id="vm-opts" style="display:flex;flex-direction:column;gap:6px"></div>
       <button class="btn btn-g" style="margin-top:6px;font-size:15px" onclick="addVoteOpt()">+ 선택지 추가</button>
     </div>
@@ -2689,7 +2689,6 @@ function addVoteOpt(){
 function removeVoteOpt(oid){
   const inputs = document.querySelectorAll('#vm-opts input[data-oid]');
   const opts = [...inputs].map(i=>({id:i.dataset.oid, label:i.value})).filter(o=>o.id!==oid);
-  if(opts.length < 2){ showToast('선택지는 최소 2개 필요해요','error'); return; }
   renderVmOpts(opts);
 }
 
@@ -2703,7 +2702,6 @@ function saveVote(){
   } else {
     const inputs = document.querySelectorAll('#vm-opts input[data-oid]');
     opts = [...inputs].map(i=>({id:i.dataset.oid, label:i.value.trim(), voters:[]})).filter(o=>o.label);
-    if(opts.length < 2){ showToast('선택지를 2개 이상 입력해주세요','error'); return; }
   }
   const due = document.getElementById('vm-due').value || null;
   const anon = document.getElementById('vm-anon').checked;
@@ -2805,7 +2803,7 @@ function renderVotePage(){
           ${people.map(p=>`<option value="${p.id}"${_voterCtx[v.id]===p.id?' selected':''}>${p.name}</option>`).join('')}
         </select>
       </div>
-      ${optsHtml}
+      ${optsHtml || (v.type!=='thumb' ? '<div style="font-size:15px;color:var(--tx3);margin-left:30px;margin-bottom:6px">아직 선택지가 없어요 — 직접 추가해주세요!</div>' : '')}
       ${addOptHtml}
 
       <!-- 댓글 섹션 -->
