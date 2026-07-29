@@ -2727,7 +2727,6 @@ function renderVotePage(){
   }
   const people = getPeople();
   board.innerHTML = [...votes].reverse().map(v=>{
-    if(!v.comments) v.comments=[];
     const total = v.opts.reduce((s,o)=>s+o.voters.length,0);
     const isDue = v.due && v.due < todayStr();
     const closed = v.closed || isDue;
@@ -2768,24 +2767,6 @@ function renderVotePage(){
         <button class="btn btn-g" style="font-size:15px;padding:6px 12px;flex-shrink:0" onclick="addVoteOptLive('${v.id}')">추가</button>
       </div>` : '';
 
-    // 댓글 HTML
-    const commentsHtml = v.comments.map((c,ci)=>{
-      const p = people.find(p=>p.id===c.personId);
-      const name = p?.name || '익명';
-      const time = new Date(c.ts).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-      return `<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--bg)">
-        <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center">${name[0]}</div>
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:2px">
-            <span style="font-size:15px;font-weight:700;color:var(--tx)">${name}</span>
-            <span style="font-size:15px;color:var(--tx3)">${time}</span>
-          </div>
-          <div style="font-size:15px;color:var(--tx);line-height:1.5;word-break:break-word">${linkify(c.text)}</div>
-        </div>
-        <button onclick="deleteComment('${v.id}',${ci})" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--tx3);font-size:15px;padding:2px 4px;opacity:.5">✕</button>
-      </div>`;
-    }).join('');
-
     return `<div style="background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;${closed?'opacity:.85':''}">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">
         <div style="font-size:15px;font-weight:700;color:var(--tx)">${v.q}</div>
@@ -2805,22 +2786,6 @@ function renderVotePage(){
       </div>
       ${optsHtml || (v.type!=='thumb' ? '<div style="font-size:15px;color:var(--tx3);margin-left:30px;margin-bottom:6px">아직 선택지가 없어요 — 직접 추가해주세요!</div>' : '')}
       ${addOptHtml}
-
-      <!-- 댓글 섹션 -->
-      <div style="margin-top:14px;border-top:1px solid var(--bd);padding-top:12px">
-        <div style="font-size:15px;font-weight:700;color:var(--tx2);margin-bottom:8px">💬 의견 ${v.comments.length ? `(${v.comments.length})` : ''}</div>
-        <div style="margin-bottom:10px">${commentsHtml||'<div style="font-size:15px;color:var(--tx3);padding:4px 0">아직 의견이 없어요. 첫 번째로 남겨보세요!</div>'}</div>
-        <div style="display:flex;gap:8px;align-items:flex-end">
-          <select id="vcmt-who-${v.id}" style="flex-shrink:0;border:1px solid var(--bd2);border-radius:7px;padding:6px 8px;font-size:15px;font-family:'Pretendard',sans-serif;outline:none">
-            <option value="">이름</option>
-            ${people.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}
-          </select>
-          <textarea id="vcmt-txt-${v.id}" placeholder="의견을 남겨주세요..." rows="1"
-            style="flex:1;border:1px solid var(--bd2);border-radius:7px;padding:7px 10px;font-size:15px;font-family:'Pretendard',sans-serif;outline:none;resize:none;line-height:1.4"
-            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addComment('${v.id}')}"></textarea>
-          <button class="btn btn-p" style="padding:7px 14px;font-size:15px;flex-shrink:0" onclick="addComment('${v.id}')">등록</button>
-        </div>
-      </div>
     </div>`;
   }).join('');
   // 모든 note preview 초기화
@@ -2883,23 +2848,6 @@ function closeVote(voteId){
 function deleteVote(voteId){
   if(!confirm('이 투표를 삭제할까요?')) return;
   votes=votes.filter(v=>v.id!==voteId); renderVotePage(); fbPush();
-}
-
-function addComment(voteId){
-  const v = votes.find(v=>v.id===voteId); if(!v) return;
-  if(!v.comments) v.comments=[];
-  const personId = document.getElementById(`vcmt-who-${voteId}`)?.value;
-  const txt = document.getElementById(`vcmt-txt-${voteId}`)?.value.trim();
-  if(!txt){ showToast('의견을 입력해주세요','error'); return; }
-  v.comments.push({id:uid(), personId:personId||null, text:txt, ts:Date.now()});
-  renderVotePage();
-  fbPush();
-}
-
-function deleteComment(voteId, ci){
-  const v=votes.find(v=>v.id===voteId); if(!v||!v.comments) return;
-  v.comments.splice(ci,1);
-  renderVotePage(); fbPush();
 }
 
 function editVote(voteId){
