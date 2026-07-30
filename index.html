@@ -341,6 +341,7 @@ td.cell.leave.lv-s .lv-fill{border-radius:10px 0 0 10px;left:3px}
 td.cell.leave.lv-e .lv-fill{border-radius:0 10px 10px 0;right:3px}
 td.cell.leave.lv-s.lv-e .lv-fill{border-radius:10px;left:3px;right:3px}
 td.cell.leave:hover .lv-fill{filter:brightness(.93)}
+td.cell.leave.lv-half .lv-fill{right:50%!important;left:3px!important;border-radius:10px!important}
 .lv-icon{font-size:15px;pointer-events:none;padding:0 4px}
 .lv-lbl{font-size:15px;font-weight:700;pointer-events:none;white-space:nowrap;overflow:hidden}
 
@@ -1568,11 +1569,13 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       </div>
     </div>
     <div class="fg"><label>휴가 종류</label>
-      <div style="display:flex;gap:7px;margin-top:3px" id="lm-type-sel">
+      <div style="display:flex;gap:7px;margin-top:3px;flex-wrap:wrap" id="lm-type-sel">
         <div class="lv-pill" data-type="off"     onclick="selLvType('off')"     style="background:#e2e8f0;color:#64748b">🏖️ 휴무</div>
         <div class="lv-pill" data-type="offday"  onclick="selLvType('offday')"  style="background:#e2e8f0;color:#64748b">🌿 오프데이</div>
         <div class="lv-pill" data-type="checkup" onclick="selLvType('checkup')" style="background:#e2e8f0;color:#64748b">🏥 검진</div>
         <div class="lv-pill" data-type="refresh" onclick="selLvType('refresh')" style="background:#e2e8f0;color:#64748b">✨ 리프레쉬</div>
+        <div class="lv-pill" data-type="lecture" onclick="selLvType('lecture')" style="background:#e2e8f0;color:#64748b">📚 특강</div>
+        <div class="lv-pill" data-type="halfday" onclick="selLvType('halfday')" style="background:#e2e8f0;color:#64748b">🌗 반차</div>
       </div>
     </div>
     <div class="fg"><label>메모 (선택)</label><input type="text" id="lm-note" placeholder="사유 등..."></div>
@@ -1766,6 +1769,8 @@ const LEAVE_TYPES = {
   offday:  {label:'오프데이', color:'#64748b', bg:'#e2e8f0', icon:'🌿'},
   checkup: {label:'검진',    color:'#64748b', bg:'#e2e8f0', icon:'🏥'},
   refresh: {label:'리프레쉬', color:'#64748b', bg:'#e2e8f0', icon:'✨'},
+  lecture: {label:'특강',    color:'#64748b', bg:'#e2e8f0', icon:'📚', half:true},
+  halfday: {label:'반차',    color:'#64748b', bg:'#e2e8f0', icon:'🌗', half:true},
 };
 let MS_TYPES = [
   {key:'storyboard', label:'스토리보드', color:'#042940'},
@@ -4683,7 +4688,7 @@ function renderTable(){
             const li=(leaves[person.id]||[]).indexOf(lv);
             const lt=LEAVE_TYPES[lv.type]||LEAVE_TYPES.off;
             const lvS=n===dn(lv.start),lvE=n===dn(lv.end);
-            b+=`<td class="cell leave${isToday?' today':''}${isHolCell?' holiday-cell':''}${lvS?' lv-s':''}${lvE?' lv-e':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-idx="${idx}" data-ds="${dateStr}"
+            b+=`<td class="cell leave${isToday?' today':''}${isHolCell?' holiday-cell':''}${lvS?' lv-s':''}${lvE?' lv-e':''}${lt.half?' lv-half':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-idx="${idx}" data-ds="${dateStr}"
               draggable="true"
               ondragstart="lvGanttDragStart(event,'${person.id}',${li})"
               ondragover="event.preventDefault()"
