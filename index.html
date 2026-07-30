@@ -75,8 +75,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tx);mi
 .date-spinner .ds-arrow{display:flex;flex-direction:column;border-left:1px solid var(--bd);padding:0 5px;cursor:pointer;background:#fafbfc}
 .date-spinner .ds-arrow span{font-size:15px;color:var(--tx3);line-height:1.6;user-select:none;transition:color .1s}
 .date-spinner .ds-arrow span:hover{color:var(--acc)}
-.ds-quick{border:none;border-left:1px solid var(--bd);outline:none;width:52px;text-align:center;font-size:15px;font-weight:600;font-family:'Pretendard',sans-serif;color:var(--tx);background:transparent;padding:6px 0}
-.ds-quick:focus{background:#fffbe6}
+.fg .date-spinner input.ds-quick{border:none;border-left:1px solid var(--bd);border-radius:0;outline:none;width:52px;flex:0 0 52px;text-align:center;font-size:15px;font-weight:600;font-family:'Pretendard',sans-serif;color:var(--tx);background:transparent;padding:6px 0}
+.fg .date-spinner input.ds-quick:focus{background:#fffbe6;border-color:var(--bd)}
 :root[data-theme="dark"] .ds-quick{background:var(--sf2);color:var(--tx3);border-color:var(--bd2)}
 :root[data-theme="dark"] .ds-quick:focus{background:var(--sf2);color:var(--tx)}
 
@@ -665,8 +665,8 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .date-spinner .ds-arrow{display:flex;flex-direction:column;border-left:1px solid var(--bd);padding:0 5px;cursor:pointer;background:#fafbfc}
 .date-spinner .ds-arrow span{font-size:15px;color:var(--tx3);line-height:1.6;user-select:none;transition:color .1s}
 .date-spinner .ds-arrow span:hover{color:var(--acc)}
-.ds-quick{border:none;border-left:1px solid var(--bd);outline:none;width:52px;text-align:center;font-size:15px;font-weight:600;font-family:'Pretendard',sans-serif;color:var(--tx);background:transparent;padding:6px 0}
-.ds-quick:focus{background:#fffbe6}
+.fg .date-spinner input.ds-quick{border:none;border-left:1px solid var(--bd);border-radius:0;outline:none;width:52px;flex:0 0 52px;text-align:center;font-size:15px;font-weight:600;font-family:'Pretendard',sans-serif;color:var(--tx);background:transparent;padding:6px 0}
+.fg .date-spinner input.ds-quick:focus{background:#fffbe6;border-color:var(--bd)}
 :root[data-theme="dark"] .ds-quick{background:var(--sf2);color:var(--tx3);border-color:var(--bd2)}
 :root[data-theme="dark"] .ds-quick:focus{background:var(--sf2);color:var(--tx)}
 
@@ -5244,7 +5244,13 @@ function renderPersonCheckboxes(people, selectedIds){
   GROUPS.forEach(g=>{
     const members = g.members.filter(m=>people.find(p=>p.id===m.id));
     if(!members.length) return;
-    html += `<div style="font-size:15px;font-weight:700;color:var(--tx3);letter-spacing:.5px;padding:4px 2px 2px;margin-top:2px">${g.label}</div>`;
+    const allChk = members.every(m=>selectedIds.includes(m.id));
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:700;color:var(--tx3);letter-spacing:.5px;padding:4px 2px 2px;margin-top:2px">
+      <span>${g.label}</span>
+      <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--tx3);cursor:pointer;user-select:none">
+        <input type="checkbox" id="gchk-${g.id}" ${allChk?'checked':''} onchange="toggleGroupChk('${g.id}')" style="width:13px;height:13px;accent-color:var(--acc)"> 전체 선택
+      </label>
+    </div>`;
     members.forEach(p=>{
       const chk = selectedIds.includes(p.id);
       html += `
@@ -5267,6 +5273,29 @@ function togglePersonChk(personId, row){
   const on = chk.checked;
   row.style.background = on ? 'var(--acc)' + '18' : 'var(--sf2)';
   row.style.borderColor = on ? 'var(--acc)' : 'var(--bd)';
+  // 그룹 전체선택 체크박스 상태 동기화
+  const g = GROUPS.find(gr=>gr.members.some(p=>p.id===personId));
+  const gchk = g && document.getElementById('gchk-'+g.id);
+  if(gchk){
+    const present = g.members.filter(p=>document.getElementById('pchk-'+p.id));
+    gchk.checked = present.length>0 && present.every(p=>document.getElementById('pchk-'+p.id).checked);
+  }
+}
+
+// 파트(그룹) 단위 전체 선택/해제
+function toggleGroupChk(groupId){
+  const g = GROUPS.find(x=>x.id===groupId); if(!g) return;
+  const on = !!document.getElementById('gchk-'+groupId)?.checked;
+  g.members.forEach(p=>{
+    const chk = document.getElementById('pchk-'+p.id);
+    if(!chk || chk.checked===on) return;
+    const row = chk.parentElement;
+    chk.checked = on;
+    if(row){
+      row.style.background = on ? 'var(--acc)' + '18' : 'var(--sf2)';
+      row.style.borderColor = on ? 'var(--acc)' : 'var(--bd)';
+    }
+  });
 }
 
 function getCheckedPersonIds(){
