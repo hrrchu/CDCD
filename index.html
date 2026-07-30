@@ -75,8 +75,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tx);mi
 .date-spinner .ds-arrow{display:flex;flex-direction:column;border-left:1px solid var(--bd);padding:0 5px;cursor:pointer;background:#fafbfc}
 .date-spinner .ds-arrow span{font-size:15px;color:var(--tx3);line-height:1.6;user-select:none;transition:color .1s}
 .date-spinner .ds-arrow span:hover{color:var(--acc)}
-.ds-quick{border:none;border-right:1px dashed var(--bd);outline:none;width:46px;text-align:center;font-size:12px;font-family:'Pretendard',sans-serif;color:var(--tx3);background:#fafbfc;padding:6px 0}
-.ds-quick:focus{color:var(--tx);background:#fffbe6}
+.ds-quick{border:none;border-left:1px solid var(--bd);outline:none;width:52px;text-align:center;font-size:15px;font-weight:600;font-family:'Pretendard',sans-serif;color:var(--tx);background:transparent;padding:6px 0}
+.ds-quick:focus{background:#fffbe6}
 :root[data-theme="dark"] .ds-quick{background:var(--sf2);color:var(--tx3);border-color:var(--bd2)}
 :root[data-theme="dark"] .ds-quick:focus{background:var(--sf2);color:var(--tx)}
 
@@ -665,8 +665,8 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .date-spinner .ds-arrow{display:flex;flex-direction:column;border-left:1px solid var(--bd);padding:0 5px;cursor:pointer;background:#fafbfc}
 .date-spinner .ds-arrow span{font-size:15px;color:var(--tx3);line-height:1.6;user-select:none;transition:color .1s}
 .date-spinner .ds-arrow span:hover{color:var(--acc)}
-.ds-quick{border:none;border-right:1px dashed var(--bd);outline:none;width:46px;text-align:center;font-size:12px;font-family:'Pretendard',sans-serif;color:var(--tx3);background:#fafbfc;padding:6px 0}
-.ds-quick:focus{color:var(--tx);background:#fffbe6}
+.ds-quick{border:none;border-left:1px solid var(--bd);outline:none;width:52px;text-align:center;font-size:15px;font-weight:600;font-family:'Pretendard',sans-serif;color:var(--tx);background:transparent;padding:6px 0}
+.ds-quick:focus{background:#fffbe6}
 :root[data-theme="dark"] .ds-quick{background:var(--sf2);color:var(--tx3);border-color:var(--bd2)}
 :root[data-theme="dark"] .ds-quick:focus{background:var(--sf2);color:var(--tx)}
 
@@ -1294,23 +1294,17 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <label>기간</label>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <div class="date-spinner">
-          <input type="text" class="ds-quick" placeholder="260804" maxlength="6" inputmode="numeric" title="연월일 6자리(260804)로 빠른 입력" oninput="quickDateInput(this,'cm-start')">
           <input type="number" id="cm-sy" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('cm')">
-          <span class="ds-sep">-</span>
-          <input type="number" id="cm-sm" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('cm')">
-          <span class="ds-sep">-</span>
-          <input type="number" id="cm-sd" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('cm')">
-          <div class="ds-arrow"><span onclick="shiftSpinnerDate('cm-start',1)">▲</span><span onclick="shiftSpinnerDate('cm-start',-1)">▼</span></div>
+          <div class="ds-arrow"><span onclick="shiftSpinnerYear('cm-start',1)">▲</span><span onclick="shiftSpinnerYear('cm-start',-1)">▼</span></div>
+          <input type="text" class="ds-quick" id="cm-sq" placeholder="0101" maxlength="4" inputmode="numeric" title="월일 4자리 (예: 0304)" onfocus="this.select()" oninput="quickDateInput(this,'cm-start')">
+          <input type="hidden" id="cm-sm"><input type="hidden" id="cm-sd">
         </div>
         <span style="font-size:15px;color:var(--tx3);font-weight:600">→</span>
         <div class="date-spinner">
-          <input type="text" class="ds-quick" placeholder="260804" maxlength="6" inputmode="numeric" title="연월일 6자리(260804)로 빠른 입력" oninput="quickDateInput(this,'cm-end')">
           <input type="number" id="cm-ey" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('cm')">
-          <span class="ds-sep">-</span>
-          <input type="number" id="cm-em" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('cm')">
-          <span class="ds-sep">-</span>
-          <input type="number" id="cm-ed" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('cm')">
-          <div class="ds-arrow"><span onclick="shiftSpinnerDate('cm-end',1)">▲</span><span onclick="shiftSpinnerDate('cm-end',-1)">▼</span></div>
+          <div class="ds-arrow"><span onclick="shiftSpinnerYear('cm-end',1)">▲</span><span onclick="shiftSpinnerYear('cm-end',-1)">▼</span></div>
+          <input type="text" class="ds-quick" id="cm-eq" placeholder="0101" maxlength="4" inputmode="numeric" title="월일 4자리 (예: 0304)" onfocus="this.select()" oninput="quickDateInput(this,'cm-end')">
+          <input type="hidden" id="cm-em"><input type="hidden" id="cm-ed">
         </div>
         <input type="hidden" id="cm-start">
         <input type="hidden" id="cm-end">
@@ -1557,23 +1551,17 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <label>기간</label>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <div class="date-spinner">
-            <input type="text" class="ds-quick" placeholder="260804" maxlength="6" inputmode="numeric" title="연월일 6자리(260804)로 빠른 입력" oninput="quickDateInput(this,'lm-start')">
             <input type="number" id="lm-sy" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('lm')">
-            <span class="ds-sep">-</span>
-            <input type="number" id="lm-sm" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('lm')">
-            <span class="ds-sep">-</span>
-            <input type="number" id="lm-sd" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('lm')">
-            <div class="ds-arrow"><span onclick="shiftSpinnerDate('lm-start',1)">▲</span><span onclick="shiftSpinnerDate('lm-start',-1)">▼</span></div>
+            <div class="ds-arrow"><span onclick="shiftSpinnerYear('lm-start',1)">▲</span><span onclick="shiftSpinnerYear('lm-start',-1)">▼</span></div>
+            <input type="text" class="ds-quick" id="lm-sq" placeholder="0101" maxlength="4" inputmode="numeric" title="월일 4자리 (예: 0304)" onfocus="this.select()" oninput="quickDateInput(this,'lm-start')">
+            <input type="hidden" id="lm-sm"><input type="hidden" id="lm-sd">
           </div>
           <span style="font-size:15px;color:var(--tx3);font-weight:600">→</span>
           <div class="date-spinner">
-            <input type="text" class="ds-quick" placeholder="260804" maxlength="6" inputmode="numeric" title="연월일 6자리(260804)로 빠른 입력" oninput="quickDateInput(this,'lm-end')">
             <input type="number" id="lm-ey" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('lm')">
-            <span class="ds-sep">-</span>
-            <input type="number" id="lm-em" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('lm')">
-            <span class="ds-sep">-</span>
-            <input type="number" id="lm-ed" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('lm')">
-            <div class="ds-arrow"><span onclick="shiftSpinnerDate('lm-end',1)">▲</span><span onclick="shiftSpinnerDate('lm-end',-1)">▼</span></div>
+            <div class="ds-arrow"><span onclick="shiftSpinnerYear('lm-end',1)">▲</span><span onclick="shiftSpinnerYear('lm-end',-1)">▼</span></div>
+            <input type="text" class="ds-quick" id="lm-eq" placeholder="0101" maxlength="4" inputmode="numeric" title="월일 4자리 (예: 0304)" onfocus="this.select()" oninput="quickDateInput(this,'lm-end')">
+            <input type="hidden" id="lm-em"><input type="hidden" id="lm-ed">
           </div>
           <input type="hidden" id="lm-start">
           <input type="hidden" id="lm-end">
@@ -1603,13 +1591,10 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <div class="fg">
         <label>날짜</label>
         <div class="date-spinner" style="margin-top:4px">
-          <input type="text" class="ds-quick" placeholder="260804" maxlength="6" inputmode="numeric" title="연월일 6자리(260804)로 빠른 입력" oninput="quickDateInput(this,'hol-start')">
           <input type="number" id="hol-y" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('hol')">
-          <span class="ds-sep">-</span>
-          <input type="number" id="hol-m" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('hol')">
-          <span class="ds-sep">-</span>
-          <input type="number" id="hol-d" min="1" max="31" style="width:32px" onchange="syncSpinnerDate('hol')">
-          <div class="ds-arrow"><span onclick="shiftSpinnerDate('hol-start',1)">▲</span><span onclick="shiftSpinnerDate('hol-start',-1)">▼</span></div>
+          <div class="ds-arrow"><span onclick="shiftSpinnerYear('hol-start',1)">▲</span><span onclick="shiftSpinnerYear('hol-start',-1)">▼</span></div>
+          <input type="text" class="ds-quick" id="hol-q" placeholder="0101" maxlength="4" inputmode="numeric" title="월일 4자리 (예: 0304)" onfocus="this.select()" oninput="quickDateInput(this,'hol-start')">
+          <input type="hidden" id="hol-m"><input type="hidden" id="hol-d">
         </div>
         <input type="hidden" id="hol-start">
       </div>
@@ -1913,10 +1898,19 @@ function set3MonthView(){
 //  DATE SPINNER HELPERS
 // ════════════════════════════════════════════
 function setSpinnerDate(prefix, dateStr){
-  // prefix: 'cm-start' | 'cm-end' | 'lm-start' | 'lm-end'
+  // prefix: 'cm-start' | 'cm-end' | 'lm-start' | 'lm-end' | 'hol-start'
   const p = prefix.replace('-start','').replace('-end','');
   const side = prefix.includes('end') ? 'e' : 's';
   const [y,m,d] = dateStr.split('-').map(Number);
+  if(p==='hol'){
+    if(prefix==='hol-end') return; // 임시공휴일은 단일 날짜
+    document.getElementById('hol-y').value=y;
+    document.getElementById('hol-m').value=m;
+    document.getElementById('hol-d').value=d;
+    const hh=document.getElementById('hol-start'); if(hh) hh.value=dateStr;
+    refreshQuickDate('hol');
+    return;
+  }
   const yEl = document.getElementById(`${p}-${side}y`);
   const mEl = document.getElementById(`${p}-${side}m`);
   const dEl = document.getElementById(`${p}-${side}d`);
@@ -1925,6 +1919,23 @@ function setSpinnerDate(prefix, dateStr){
   if(mEl) mEl.value = m;
   if(dEl) dEl.value = d;
   if(hEl) hEl.value = dateStr;
+  refreshQuickDate(p);
+}
+
+// 월일 4자리 표시칸(ds-quick)을 현재 값으로 갱신
+function refreshQuickDate(prefix){
+  const fmt=(m,d)=>String(m).padStart(2,'0')+String(d).padStart(2,'0');
+  if(prefix==='hol'){
+    const m=+document.getElementById('hol-m')?.value, d=+document.getElementById('hol-d')?.value;
+    const q=document.getElementById('hol-q');
+    if(q&&m&&d) q.value=fmt(m,d);
+    return;
+  }
+  ['s','e'].forEach(s=>{
+    const m=+document.getElementById(`${prefix}-${s}m`)?.value, d=+document.getElementById(`${prefix}-${s}d`)?.value;
+    const q=document.getElementById(`${prefix}-${s}q`);
+    if(q&&m&&d) q.value=fmt(m,d);
+  });
 }
 
 function syncSpinnerDate(prefix){
@@ -1941,6 +1952,7 @@ function syncSpinnerDate(prefix){
     document.getElementById('hol-d').value = dt.getDate();
     const hEl = document.getElementById('hol-start');
     if(hEl) hEl.value = ds;
+    refreshQuickDate('hol');
     return;
   }
   const sides = prefix==='msreg' ? ['start'] : ['start','end'];
@@ -1959,6 +1971,7 @@ function syncSpinnerDate(prefix){
     const hEl = document.getElementById(`${prefix}-${side}`);
     if(hEl) hEl.value = ds;
   });
+  refreshQuickDate(prefix);
   if(prefix==='lm') autoFillLeaveEnd(document.getElementById('lm-start')?.value||'');
 }
 
@@ -1975,6 +1988,7 @@ function shiftSpinnerDate(fieldId, delta){
     document.getElementById('hol-y').value = y;
     document.getElementById('hol-m').value = m;
     document.getElementById('hol-d').value = d;
+    refreshQuickDate('hol');
     return;
   }
   const hEl = document.getElementById(fieldId);
@@ -1990,7 +2004,23 @@ function shiftSpinnerDate(fieldId, delta){
   document.getElementById(`${prefix}-${side}y`).value = y;
   document.getElementById(`${prefix}-${side}m`).value = m;
   document.getElementById(`${prefix}-${side}d`).value = d;
+  refreshQuickDate(prefix);
   if(prefix==='lm') autoFillLeaveEnd(document.getElementById('lm-start')?.value||'');
+}
+
+// 연도 화살표: 해당 날짜의 연도만 ±1
+function shiftSpinnerYear(fieldId, delta){
+  if(fieldId==='hol-start'){
+    const yEl=document.getElementById('hol-y');
+    yEl.value=(+yEl.value||CY)+delta;
+    syncSpinnerDate('hol');
+    return;
+  }
+  const prefix=fieldId.replace('-start','').replace('-end','');
+  const side=fieldId.includes('end')?'e':'s';
+  const yEl=document.getElementById(`${prefix}-${side}y`);
+  yEl.value=(+yEl.value||CY)+delta;
+  syncSpinnerDate(prefix);
 }
 
 function initSpinner(prefix, dateStr){
@@ -1998,26 +2028,23 @@ function initSpinner(prefix, dateStr){
   setSpinnerDate(`${prefix}-end`, dateStr);
 }
 
-// 숫자 빠른 입력: 260804 → 2026년 8월 4일 (연월일 6자리)
+// 월일 4자리 빠른 입력: 0304 → 3월 4일 (연도는 옆 화살표로 조절)
 function quickDateInput(el, fieldId){
   const digits = el.value.replace(/\D/g,'');
-  if(digits.length!==6) return;
-  const y=2000+ +digits.slice(0,2), m=+digits.slice(2,4), d=+digits.slice(4,6);
+  if(digits.length!==4) return;
+  const m=+digits.slice(0,2), d=+digits.slice(2,4);
   if(!m||m>12||!d||d>31) return;
   if(fieldId==='hol-start'){
-    document.getElementById('hol-y').value=y;
     document.getElementById('hol-m').value=m;
     document.getElementById('hol-d').value=d;
     syncSpinnerDate('hol');
   } else {
     const prefix=fieldId.replace('-start','').replace('-end','');
     const side=fieldId.includes('end')?'e':'s';
-    document.getElementById(`${prefix}-${side}y`).value=y;
     document.getElementById(`${prefix}-${side}m`).value=m;
     document.getElementById(`${prefix}-${side}d`).value=d;
     syncSpinnerDate(prefix);
   }
-  el.value='';
   el.blur();
 }
 
