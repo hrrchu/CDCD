@@ -1660,6 +1660,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 //  DATA
 // ════════════════════════════════════════════
 let PROJECTS = [
+  {id:'mktd',     name:'마케팅디자인', bar:'#1a1d27'},
   {id:'rnd',      name:'R&D',        bar:'#64748b'},
   {id:'cloud',    name:'Cloud',      bar:'#38bdf8'},
   {id:'comico',   name:'코미코',      bar:'#f87171'},
@@ -6589,6 +6590,8 @@ async function initSupabase(){
 function loadFromSbData(payload){
   if(!payload) return;
   if(payload.PROJECTS) PROJECTS = payload.PROJECTS;
+  // '마케팅디자인' 프로젝트가 없으면 맨 앞에 자동 추가
+  if(!PROJECTS.some(p=>p.id==='mktd'||p.name==='마케팅디자인')) PROJECTS.unshift({id:'mktd', name:'마케팅디자인', bar:'#1a1d27'});
   if(payload.GROUPS){
     GROUPS = payload.GROUPS;
     const people = getPeople();
