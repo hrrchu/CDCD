@@ -75,6 +75,10 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tx);mi
 .date-spinner .ds-arrow{display:flex;flex-direction:column;border-left:1px solid var(--bd);padding:0 5px;cursor:pointer;background:#fafbfc}
 .date-spinner .ds-arrow span{font-size:15px;color:var(--tx3);line-height:1.6;user-select:none;transition:color .1s}
 .date-spinner .ds-arrow span:hover{color:var(--acc)}
+.ds-quick{border:none;border-right:1px dashed var(--bd);outline:none;width:52px;text-align:center;font-size:13px;font-family:'Pretendard',sans-serif;color:var(--tx3);background:#fafbfc;padding:6px 0}
+.ds-quick:focus{color:var(--tx);background:#fffbe6}
+:root[data-theme="dark"] .ds-quick{background:var(--sf2);color:var(--tx3);border-color:var(--bd2)}
+:root[data-theme="dark"] .ds-quick:focus{background:var(--sf2);color:var(--tx)}
 
 
 /* ── DATE MEMO ── */
@@ -341,7 +345,7 @@ td.cell.leave.lv-s .lv-fill{border-radius:10px 0 0 10px;left:3px}
 td.cell.leave.lv-e .lv-fill{border-radius:0 10px 10px 0;right:3px}
 td.cell.leave.lv-s.lv-e .lv-fill{border-radius:10px;left:3px;right:3px}
 td.cell.leave:hover .lv-fill{filter:brightness(.93)}
-td.cell.leave.lv-half .lv-fill{right:50%!important;left:3px!important;border-radius:10px!important}
+td.cell.leave.lv-half .lv-fill{bottom:auto;height:calc(50% - 4px);left:3px!important;right:3px!important;border-radius:8px!important}
 .lv-icon{font-size:15px;pointer-events:none;padding:0 4px}
 .lv-lbl{font-size:15px;font-weight:700;pointer-events:none;white-space:nowrap;overflow:hidden}
 
@@ -661,6 +665,10 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .date-spinner .ds-arrow{display:flex;flex-direction:column;border-left:1px solid var(--bd);padding:0 5px;cursor:pointer;background:#fafbfc}
 .date-spinner .ds-arrow span{font-size:15px;color:var(--tx3);line-height:1.6;user-select:none;transition:color .1s}
 .date-spinner .ds-arrow span:hover{color:var(--acc)}
+.ds-quick{border:none;border-right:1px dashed var(--bd);outline:none;width:52px;text-align:center;font-size:13px;font-family:'Pretendard',sans-serif;color:var(--tx3);background:#fafbfc;padding:6px 0}
+.ds-quick:focus{color:var(--tx);background:#fffbe6}
+:root[data-theme="dark"] .ds-quick{background:var(--sf2);color:var(--tx3);border-color:var(--bd2)}
+:root[data-theme="dark"] .ds-quick:focus{background:var(--sf2);color:var(--tx)}
 
 
 /* ── DATE MEMO ── */
@@ -1286,6 +1294,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <label>기간</label>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <div class="date-spinner">
+          <input type="text" class="ds-quick" placeholder="0804" maxlength="8" inputmode="numeric" title="월일 4자리(0804) 또는 연월일 8자리로 빠른 입력" oninput="quickDateInput(this,'cm-start')">
           <input type="number" id="cm-sy" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('cm')">
           <span class="ds-sep">-</span>
           <input type="number" id="cm-sm" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('cm')">
@@ -1295,6 +1304,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         </div>
         <span style="font-size:15px;color:var(--tx3);font-weight:600">→</span>
         <div class="date-spinner">
+          <input type="text" class="ds-quick" placeholder="0804" maxlength="8" inputmode="numeric" title="월일 4자리(0804) 또는 연월일 8자리로 빠른 입력" oninput="quickDateInput(this,'cm-end')">
           <input type="number" id="cm-ey" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('cm')">
           <span class="ds-sep">-</span>
           <input type="number" id="cm-em" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('cm')">
@@ -1547,6 +1557,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <label>기간</label>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <div class="date-spinner">
+            <input type="text" class="ds-quick" placeholder="0804" maxlength="8" inputmode="numeric" title="월일 4자리(0804) 또는 연월일 8자리로 빠른 입력" oninput="quickDateInput(this,'lm-start')">
             <input type="number" id="lm-sy" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('lm')">
             <span class="ds-sep">-</span>
             <input type="number" id="lm-sm" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('lm')">
@@ -1556,6 +1567,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
           </div>
           <span style="font-size:15px;color:var(--tx3);font-weight:600">→</span>
           <div class="date-spinner">
+            <input type="text" class="ds-quick" placeholder="0804" maxlength="8" inputmode="numeric" title="월일 4자리(0804) 또는 연월일 8자리로 빠른 입력" oninput="quickDateInput(this,'lm-end')">
             <input type="number" id="lm-ey" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('lm')">
             <span class="ds-sep">-</span>
             <input type="number" id="lm-em" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('lm')">
@@ -1591,6 +1603,7 @@ th.cd:hover{background:rgba(79,140,255,.06)}
       <div class="fg">
         <label>날짜</label>
         <div class="date-spinner" style="margin-top:4px">
+          <input type="text" class="ds-quick" placeholder="0804" maxlength="8" inputmode="numeric" title="월일 4자리(0804) 또는 연월일 8자리로 빠른 입력" oninput="quickDateInput(this,'hol-start')">
           <input type="number" id="hol-y" min="2020" max="2099" style="width:46px" onchange="syncSpinnerDate('hol')">
           <span class="ds-sep">-</span>
           <input type="number" id="hol-m" min="1" max="12" style="width:32px" onchange="syncSpinnerDate('hol')">
@@ -1982,6 +1995,36 @@ function shiftSpinnerDate(fieldId, delta){
 function initSpinner(prefix, dateStr){
   setSpinnerDate(`${prefix}-start`, dateStr);
   setSpinnerDate(`${prefix}-end`, dateStr);
+}
+
+// 숫자 빠른 입력: 0804 → 8월 4일, 20260804 → 2026년 8월 4일
+function quickDateInput(el, fieldId){
+  const digits = el.value.replace(/\D/g,'');
+  if(digits.length!==4 && digits.length!==8) return;
+  let y, m, d;
+  if(digits.length===8){
+    y=+digits.slice(0,4); m=+digits.slice(4,6); d=+digits.slice(6,8);
+  } else {
+    m=+digits.slice(0,2); d=+digits.slice(2,4);
+  }
+  if(!m||m>12||!d||d>31) return;
+  if(fieldId==='hol-start'){
+    if(!y) y=+document.getElementById('hol-y')?.value||CY;
+    document.getElementById('hol-y').value=y;
+    document.getElementById('hol-m').value=m;
+    document.getElementById('hol-d').value=d;
+    syncSpinnerDate('hol');
+  } else {
+    const prefix=fieldId.replace('-start','').replace('-end','');
+    const side=fieldId.includes('end')?'e':'s';
+    if(!y) y=+document.getElementById(`${prefix}-${side}y`)?.value||CY;
+    document.getElementById(`${prefix}-${side}y`).value=y;
+    document.getElementById(`${prefix}-${side}m`).value=m;
+    document.getElementById(`${prefix}-${side}d`).value=d;
+    syncSpinnerDate(prefix);
+  }
+  el.value='';
+  el.blur();
 }
 
 
@@ -4733,13 +4776,24 @@ function renderTable(){
               </div>`;
             }).join('');
             const hasBar = rs.length>0;
+            // 반차·특강 겹침: 위 반칸에 휴가 알약, 아래 반칸에 일정 바
+            let lvOverlay='';
+            if(lvHalfOverlap){
+              const li=(leaves[person.id]||[]).indexOf(lv);
+              const lvS=n===dn(lv.start);
+              lvOverlay=`<div onclick="event.stopPropagation();leaveClick(event,'${person.id}',${li})"
+                style="position:absolute;top:2px;left:2px;right:2px;height:calc(50% - 3px);background:${_lt.bg};color:${_lt.color};border-radius:7px;display:flex;align-items:center;z-index:5;cursor:pointer;overflow:hidden">
+                ${lvS?`<span class="lv-icon">${_lt.icon}</span><span class="lv-lbl">${_lt.label}</span>`:''}
+              </div>`;
+            }
             const cls=`cell bar${isToday?' today':''}${isHolCell?' holiday-cell':''}${isWeekStart?' week-start':''}`;
             b+=`<td class="${cls}" data-task="${task.id}" data-person="${person.id}" data-ri="${tR.indexOf(rs[0])}" data-idx="${idx}" data-ds="${dateStr}"
               onclick="barTdClick(event,'${task.id}',${tR.indexOf(rs[0])},'${dateStr}')"
 >
               <div class="bt" style="position:relative;height:100%">
                 ${msHtml}
-                ${barsHtml}
+                ${lvHalfOverlap?`<div style="position:absolute;left:0;right:0;top:50%;bottom:0">${barsHtml}</div>`:barsHtml}
+                ${lvOverlay}
               </div>
               <div class="bub"></div>
             </td>`;
