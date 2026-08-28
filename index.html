@@ -233,6 +233,9 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 .sub-tab.active{background:var(--sur);color:var(--acc);border-color:var(--bd)}
 .sub-content{display:none;background:var(--sur);border:1px solid var(--bd);border-radius:0 11px 11px 11px;margin:0 22px;box-shadow:var(--sh);overflow:auto}
 .sub-content.active{display:block}
+/* 간트 패널은 화면 아래까지 채우기 */
+#scontent-0.active{display:flex;flex-direction:column}
+#scontent-0>.gs{flex:1 1 auto;min-height:0}
 
 /* ── GANTT TABLE ── */
 .gs{overflow-x:auto}
@@ -3993,6 +3996,7 @@ function switchSubTab(idx){
   if(idx===3){ const tb=document.getElementById('p1-toolbar'); if(tb) tb.style.display='flex'; }
   if(idx===4) renderToolTable();
   if(idx===5){ renderIdeaBoard(); renderVotePage(); switchP3Tab(1); }
+  fitPanelHeight();
 }
 
 // ════════════════════════════════════════════
@@ -4596,6 +4600,7 @@ function init(){
   renderLegend();renderGRM();
   applyAdminMode();
   autoFitNc();
+  fitPanelHeight();
 }
 function autoFitNc(){} // 고정값 사용
 
@@ -4842,7 +4847,20 @@ function renderTable(){
   });
   document.getElementById('tbody').innerHTML=b;
   autoFitNc();
+  fitPanelHeight();
 }
+
+// 활성 서브탭 패널을 첫 화면 하단(범례 바 위)까지 늘림
+function fitPanelHeight(){
+  const el=document.querySelector('#page-0 .sub-content.active');
+  if(!el) return;
+  const docTop=el.getBoundingClientRect().top+window.scrollY;
+  const lg=document.getElementById('legend');
+  const lh=lg?lg.getBoundingClientRect().height:0;
+  const h=window.innerHeight-docTop-lh-12;
+  el.style.minHeight=h>200?h+'px':'';
+}
+window.addEventListener('resize',fitPanelHeight);
 
 // ════════════════════════════════════════════
 //  INTERACTION
