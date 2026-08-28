@@ -42,12 +42,12 @@
   --r-xs:4px; --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:16px; --r-full:9999px;
   /* Metrics */
   --cell:40px; --nc:136px;
-  --mono:ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
+  --mono:'Pretendard',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--canvas)}
 body{
-  font-family:'Pretendard',Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-family:'Pretendard',sans-serif;
   color:var(--ink);min-height:100vh;padding-bottom:46px;
   -webkit-font-smoothing:antialiased;
 }
@@ -551,7 +551,7 @@ td.bar{padding:0}
   <p>이 페이지는 <b>정적 화면</b>입니다. 실제 데이터·기능은 연결돼 있지 않고, 표시된 팀원·일정은 샘플입니다.</p>
   <p>적용 규칙 — 캔버스 <b>#ffffff</b> 고정 · 텍스트 <b>#171717</b>(순검정 아님) · 헤어라인 <b>#ededed / #dfdfdf / #c7c7c7</b> 3단 · 버튼 <b>6px 각진 radius</b>(필 금지) · 카드 <b>12px</b> + Level 2 그림자 · 디스플레이 <b>weight 500 + 음수 자간</b>.</p>
   <p>에메랄드 <b>#3ecf8e</b>는 화면당 <b>3곳</b>에만 씁니다 — 일정 추가 CTA, 오늘 날짜 마커, 연결 상태 점. 초록 위 텍스트는 흰색이 아니라 <b>근접 블랙</b>(브랜드의 고유 규칙)입니다.</p>
-  <p>프로젝트 색은 Supabase의 <b>액센트 = 차트 포인트 전용</b> 규칙을 따라 보라·인디고·크림슨·옐로 팔레트에서 뽑았고, <b>초록은 프로젝트 색에서 제외</b>했습니다 — CTA와 경쟁하지 않게 하기 위함입니다. 날짜·카운트·동기화 시각은 <b>시스템 모노</b>로 렌더링(개발자 DNA).</p>
+  <p>프로젝트 색은 Supabase의 <b>액센트 = 차트 포인트 전용</b> 규칙을 따라 보라·인디고·크림슨·옐로 팔레트에서 뽑았고, <b>초록은 프로젝트 색에서 제외</b>했습니다 — CTA와 경쟁하지 않게 하기 위함입니다. 폰트는 <b>전부 Pretendard</b>입니다 — 원본 시스템의 모노 타이포(날짜·카운트·코드)도 Pretendard로 통일했습니다.</p>
   <div class="code"><span class="c">// 적용 시 교체되는 토큰</span><br>
 --acc: <span class="g">#3ecf8e</span>;  <span class="c">/* was #4f8cff */</span><br>
 --bd:  #dfdfdf;  <span class="c">/* hairline */</span><br>
