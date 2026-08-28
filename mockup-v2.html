@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NHN MD — 스킨 비교 목업 (현재 ↔ Supabase)</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💿</text></svg>">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   같은 마크업 · 같은 치수 · 토큰만 교체
+   [data-skin="current"]  = 현재 index.html 값 그대로
+   [data-skin="supabase"] = design-md/supabase/DESIGN.md 적용
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 현재 스킨 (index.html :root 실제 값) ── */
+body[data-skin="current"]{
+  --bg:#f5f6f8; --sur:#ffffff; --sf2:#f0f1f4; --soft:#fafbfc;
+  --bd:#e2e4ea; --bd2:#d0d3dd; --bd3:#cbd5e1;
+  --acc:#4f8cff; --acc-deep:#3a7ae8; --on-acc:#ffffff;
+  --tx:#1a1d27; --tx2:#2d3348; --tx3:#5a6072; --tx4:#5a6072;
+  --hol:#e53e3e; --hol-bg:rgba(229,62,62,.06);
+  --today-bg:rgba(79,140,255,.13); --today-line:rgba(79,140,255,.3);
+
+  /* 치수 */
+  --r-btn:7px; --r-chip:20px; --r-bar:8px; --r-card:11px; --r-input:7px; --r-panel:0 11px 11px 11px;
+  --fs-btn:15px; --fs-name:15px; --fs-role:15px; --fs-day:15px; --fs-dow:15px;
+  --fs-bar:12px; --fs-tab:15px; --fs-chip:12px; --fs-logo:15px; --fs-month:15px;
+  --fw-name:600; --fw-btn:500; --fw-tab:600; --fw-day:600;
+  --sh-panel:0 1px 4px rgba(0,0,0,.07); --sh-bar:none;
+  --ff-num:'Pretendard',sans-serif;
+  --tab-radius:8px 8px 0 0;
+
+  /* 프로젝트 색 — 현재 팔레트 */
+  --pj-royal:#2563eb; --pj-classic:#16a34a; --pj-mpoker:#38bdf8; --pj-matgo:#ec4899;
+  --pj-hangame:#f97316; --pj-uparu:#eab308; --pj-sutda:#ef4444; --pj-pcpoker:#15803d;
+  --pj-cloud:#22d3ee; --pj-payco:#f87171; --pj-oshi:#8b5cf6; --pj-ticket:#94a3b8; --pj-rnd:#1f2937;
+  --tc-royal:#fff; --tc-classic:#fff; --tc-mpoker:#0b2b3a; --tc-matgo:#fff;
+  --tc-hangame:#fff; --tc-uparu:#2b2205; --tc-sutda:#fff; --tc-pcpoker:#fff;
+  --tc-cloud:#0a2b30; --tc-payco:#fff; --tc-oshi:#fff; --tc-ticket:#fff; --tc-rnd:#fff;
+  --lv-bg:#e2e8f0; --lv-tx:#64748b;
+  --ms1:#042940; --ms2:#03A688; --ms3:#DBF227;
+}
+
+/* ── Supabase 스킨 ── */
+body[data-skin="supabase"]{
+  --bg:#ffffff; --sur:#ffffff; --sf2:#fafafa; --soft:#fafafa;
+  --bd:#ededed; --bd2:#dfdfdf; --bd3:#c7c7c7;
+  --acc:#3ecf8e; --acc-deep:#24b47e; --on-acc:#171717;
+  --tx:#171717; --tx2:#212121; --tx3:#707070; --tx4:#9a9a9a;
+  --hol:#9a9a9a; --hol-bg:#fbfbfb;
+  --today-bg:rgba(62,207,142,.08); --today-line:rgba(62,207,142,.5);
+
+  /* 치수 */
+  --r-btn:6px; --r-chip:9999px; --r-bar:6px; --r-card:12px; --r-input:6px; --r-panel:12px;
+  --fs-btn:14px; --fs-name:14px; --fs-role:12px; --fs-day:13px; --fs-dow:12px;
+  --fs-bar:12px; --fs-tab:14px; --fs-chip:12px; --fs-logo:16px; --fs-month:13px;
+  --fw-name:500; --fw-btn:500; --fw-tab:400; --fw-day:400;
+  --sh-panel:0 8px 24px rgba(0,0,0,.08); --sh-bar:0 1px 3px rgba(0,0,0,.06);
+  --ff-num:ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
+  --tab-radius:6px;
+
+  /* 프로젝트 색 — 액센트 7 + 그레이 사다리 */
+  --pj-royal:#054cff; --pj-classic:#644fc1; --pj-mpoker:#6b01c2; --pj-matgo:#c7007e;
+  --pj-hangame:#ff2201; --pj-uparu:#ffdb13; --pj-sutda:#e2005a; --pj-pcpoker:#1c1c1c;
+  --pj-cloud:#707070; --pj-payco:#9a9a9a; --pj-oshi:#c7c7c7; --pj-ticket:#dfdfdf; --pj-rnd:#212121;
+  --tc-royal:#fff; --tc-classic:#fff; --tc-mpoker:#fff; --tc-matgo:#fff;
+  --tc-hangame:#fff; --tc-uparu:#171717; --tc-sutda:#fff; --tc-pcpoker:#fff;
+  --tc-cloud:#fff; --tc-payco:#fff; --tc-oshi:#171717; --tc-ticket:#171717; --tc-rnd:#fff;
+  --lv-bg:#fafafa; --lv-tx:#707070;
+  --ms1:#054cff; --ms2:#644fc1; --ms3:#ffdb13;
+}
+
+/* ═══ 공통 구조 — 치수는 실제 앱과 동일 ═══ */
+:root{--cell:40px; --nc:105px;}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#e9eaee}
+body{
+  font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tx);
+  min-height:100vh;padding-bottom:52px;transition:background .2s;
+}
+
+/* ── 스킨 토글 ── */
+.skinbar{
+  position:fixed;top:10px;right:10px;z-index:999;display:flex;gap:0;
+  background:#1a1d27;border-radius:8px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.3);
+}
+.skinbar button{
+  background:none;border:none;color:#9a9a9a;font-family:'Pretendard',sans-serif;
+  font-size:13px;font-weight:600;padding:9px 16px;cursor:pointer;transition:.12s;
+}
+.skinbar button:hover{color:#fff}
+.skinbar button.on{background:#fff;color:#1a1d27}
+
+/* ── HEADER (실제 page-header 구조 그대로) ── */
+.page-header{
+  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  padding:8px 14px;border-bottom:1px solid var(--bd);background:var(--sur);
+  position:sticky;top:0;z-index:200;
+}
+.nav-logo{font-size:var(--fs-logo);font-weight:700;color:var(--tx);flex-shrink:0}
+body[data-skin="supabase"] .nav-logo{font-weight:500;letter-spacing:-.3px}
+.nav-logo span{color:var(--tx3);font-weight:400}
+
+.btnrow{display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%}
+
+.mnav{
+  display:flex;align-items:center;gap:3px;background:var(--sf2);
+  border:1px solid var(--bd);border-radius:var(--r-btn);padding:3px 8px;
+}
+.mnav button{
+  background:none;border:none;color:var(--tx2);cursor:pointer;
+  font-size:15px;padding:1px 5px;border-radius:4px;transition:.1s;
+}
+.mnav button:hover{background:var(--bd);color:var(--tx)}
+#cur-month{
+  font-family:var(--ff-num);font-size:var(--fs-month);font-weight:700;
+  color:var(--tx);min-width:108px;text-align:center;
+}
+body[data-skin="supabase"] #cur-month{font-weight:400}
+
+.btn{
+  padding:6px 11px;border-radius:var(--r-btn);border:none;cursor:pointer;
+  font-family:'Pretendard',sans-serif;font-size:var(--fs-btn);font-weight:var(--fw-btn);
+  transition:.13s;white-space:nowrap;line-height:1.35;
+}
+.btn-g{background:var(--sf2);color:var(--tx2);border:1px solid var(--bd)}
+.btn-g:hover{color:var(--tx);border-color:var(--bd3)}
+.btn-leave{background:var(--acc);color:var(--on-acc)}
+.btn-leave:hover{background:var(--acc-deep)}
+.btn-ico{
+  font-size:17px;padding:4px 8px;border-radius:var(--r-btn);
+  border:1px solid var(--bd2);background:transparent;color:var(--tx2);cursor:pointer;
+}
+.btn-ico:hover{background:var(--sf2)}
+.btn-admin{
+  font-size:var(--fs-btn);font-weight:600;padding:4px 10px;border-radius:var(--r-btn);
+  border:1px solid var(--bd2);background:var(--soft);color:var(--tx2);cursor:pointer;
+  display:flex;align-items:center;gap:4px;
+}
+.btn-del{
+  background:var(--del-bg,#fff5f5);color:var(--del-tx,#e53e3e);
+  border:1px solid var(--del-bd,#fca5a5);padding:4px 8px;
+  border-radius:var(--r-btn);cursor:pointer;font-size:var(--fs-btn);
+}
+body[data-skin="supabase"] .btn-del{--del-bg:#fff;--del-tx:#171717;--del-bd:#dfdfdf}
+.btn-ms{padding:4px 8px;font-size:var(--fs-btn)}
+
+#fb-indicator{
+  margin-left:auto;display:flex;align-items:center;gap:5px;padding:4px 10px;
+  border-radius:var(--r-chip);cursor:pointer;font-size:var(--fs-chip);font-weight:600;
+  background:var(--sf2);color:var(--tx3);border:1px solid var(--bd);flex-shrink:0;
+}
+body[data-skin="supabase"] #fb-indicator{font-weight:400}
+#fb-dot{width:7px;height:7px;border-radius:50%;background:var(--acc);flex-shrink:0}
+
+/* 월 칩 */
+.month-picker{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.month-chip{
+  font-family:var(--ff-num);font-size:var(--fs-chip);font-weight:600;padding:2px 8px;
+  border-radius:var(--r-chip);border:1.5px solid var(--bd2);background:var(--sur);
+  color:var(--tx2);cursor:pointer;transition:.12s;white-space:nowrap;
+}
+body[data-skin="supabase"] .month-chip{border-width:1px;border-color:var(--bd);font-weight:400;background:var(--sf2)}
+.month-chip:hover:not(.selected){background:var(--sf2);border-color:var(--bd3)}
+.month-chip.selected{background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+body[data-skin="supabase"] .month-chip.selected{background:#171717;color:#fff;border-color:#171717;font-weight:500}
+
+/* ── SUB TABS ── */
+.sub-tabs{display:flex;gap:2px;padding:10px 22px 0}
+body[data-skin="supabase"] .sub-tabs{gap:0;padding:14px 22px 0}
+.sub-tab{
+  padding:6px 14px;font-size:var(--fs-tab);font-weight:var(--fw-tab);
+  border-radius:var(--tab-radius);border:1px solid var(--bd);border-bottom:none;
+  cursor:pointer;background:var(--sf2);color:var(--tx3);transition:.13s;user-select:none;
+}
+.sub-tab.active{background:var(--sur);color:var(--acc);border-color:var(--bd)}
+.sub-tab.hl{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+/* Supabase: 세그먼트 컨트롤 */
+body[data-skin="supabase"] .sub-tab{
+  border:1px solid var(--bd2);border-radius:0;border-right:none;margin:0;
+  background:var(--sur);color:var(--tx3);
+}
+body[data-skin="supabase"] .sub-tab:first-child{border-radius:6px 0 0 6px}
+body[data-skin="supabase"] .sub-tab:last-child{border-radius:0 6px 6px 0;border-right:1px solid var(--bd2)}
+body[data-skin="supabase"] .sub-tab.active{background:var(--sf2);color:var(--tx);font-weight:500;box-shadow:inset 0 -2px 0 var(--tx)}
+body[data-skin="supabase"] .sub-tab.hl{background:var(--sur);color:var(--tx3);border-color:var(--bd2)}
+body[data-skin="supabase"] .sub-tab.hl::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--acc);margin-right:7px;vertical-align:middle}
+
+/* ── PANEL ── */
+.sub-content{
+  background:var(--sur);border:1px solid var(--bd);border-radius:var(--r-panel);
+  margin:0 22px;box-shadow:var(--sh-panel);overflow:hidden;
+}
+.gs{overflow-x:auto}
+table{border-collapse:collapse;min-width:100%;user-select:none}
+
+/* ── THEAD ── */
+thead th{
+  background:var(--soft);padding:0;border-bottom:2px solid var(--bd2);
+  border-right:1px solid var(--bd);position:sticky;top:0;z-index:10;
+}
+body[data-skin="supabase"] thead th{border-bottom:1px solid var(--bd2);border-right:1px solid var(--bd)}
+th.cn{
+  width:var(--nc);min-width:var(--nc);font-size:var(--fs-dow);color:var(--tx3);
+  text-transform:uppercase;letter-spacing:1px;padding:9px 0;text-align:left;
+  position:sticky;left:0;z-index:20;background:var(--soft);
+}
+body[data-skin="supabase"] th.cn{letter-spacing:0;text-transform:none;padding:9px 14px}
+th.cd{
+  width:var(--cell);min-width:var(--cell);text-align:center;
+  font-size:var(--fs-day);color:var(--tx3);padding:4px 0 10px;vertical-align:bottom;
+}
+th.cd .dn{
+  display:block;font-family:var(--ff-num);font-size:var(--fs-day);color:var(--tx2);
+  padding-bottom:2px;font-weight:var(--fw-day);
+}
+th.cd .dl{display:block;font-size:var(--fs-dow);color:var(--tx3)}
+body[data-skin="supabase"] th.cd .dl{color:var(--tx4)}
+th.cd.today .dn{
+  color:var(--on-acc);background:var(--acc);border-radius:50%;
+  width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  margin:0 auto 2px;font-weight:700;box-shadow:0 0 0 3px var(--today-bg);
+}
+body[data-skin="supabase"] th.cd.today .dn{font-weight:500;box-shadow:none}
+th.cd.holiday .dn,th.cd.holiday .dl{color:var(--hol)}
+th.cd.holiday{background:var(--hol-bg)}
+.hd-name{
+  display:block;font-size:11px;color:var(--hol);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;max-width:38px;margin:0 auto;line-height:1.2;
+}
+th.week-start,td.week-start{border-left:2px solid var(--bd3)!important}
+body[data-skin="supabase"] th.week-start,body[data-skin="supabase"] td.week-start{border-left:1px solid var(--bd2)!important}
+
+/* ── TBODY ── */
+tbody tr{border-bottom:1px solid var(--bd)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover td.cn{background:var(--soft)}
+tr.gr td{
+  background:var(--sf2);padding:5px 12px;font-size:var(--fs-name);font-weight:700;
+  color:var(--tx2);border-bottom:1px solid var(--bd2);
+}
+body[data-skin="supabase"] tr.gr td{
+  background:var(--sf2);font-size:12px;font-weight:500;color:var(--tx3);
+  border-bottom:1px solid var(--bd);border-top:1px solid var(--bd);padding:7px 14px;
+}
+.gdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+body[data-skin="supabase"] .gdot{width:6px;height:6px;margin-right:8px}
+.gcount{font-family:var(--ff-num);font-size:12px;color:var(--tx4);margin-left:8px;font-weight:400}
+body[data-skin="current"] .gcount{display:none}
+
+td.cn{
+  position:sticky;left:0;z-index:20;background:var(--sur);
+  width:var(--nc);min-width:var(--nc);max-width:var(--nc);
+  padding:0;border-right:1px solid var(--bd);overflow:hidden;cursor:pointer;
+}
+.pi{display:flex;align-items:center;gap:3px;padding:0 2px}
+body[data-skin="supabase"] .pi{gap:7px;padding:0 8px}
+.av{
+  width:44px;height:44px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:20px;font-weight:700;flex-shrink:0;
+}
+body[data-skin="supabase"] .av{
+  width:30px;height:30px;font-size:13px;font-weight:500;
+  background:var(--sf2)!important;color:var(--tx)!important;border:1px solid var(--bd2);
+}
+.pn{font-size:var(--fs-name);font-weight:var(--fw-name);color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.pr{font-size:var(--fs-role);color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+
+/* ── CELLS (실제와 동일: 60px 높이) ── */
+td.cell{
+  width:var(--cell);min-width:var(--cell);height:60px;
+  border-right:1px solid rgba(150,150,150,.22);
+  cursor:crosshair;position:relative;vertical-align:middle;
+}
+body[data-skin="supabase"] td.cell{border-right:1px solid var(--bd)}
+td.cell.today{background:var(--today-bg);box-shadow:inset 1px 0 0 var(--today-line),inset -1px 0 0 var(--today-line)}
+td.cell.holiday-cell{background:var(--hol-bg)}
+td.cell:hover{background:var(--sf2)}
+
+/* 마일스톤 존 — 셀 상단 10px */
+.ms-zone{
+  position:absolute;top:0;left:0;right:0;height:10px;z-index:4;
+  display:flex;align-items:stretch;gap:1px;padding:1px;
+}
+.ms-dot{flex:1;height:100%;border-radius:2px;min-width:6px}
+body[data-skin="supabase"] .ms-dot{border-radius:2px}
+
+/* ── BAR (실제와 동일: 상단 10px 비우고 나머지 채움) ── */
+td.bar{padding:0}
+.bt{position:relative;height:100%}
+.bf{
+  position:absolute;top:10px;bottom:0;left:0;right:0;
+  display:flex;align-items:center;cursor:grab;
+  border-radius:var(--r-bar);margin:0 2px;
+  box-shadow:var(--sh-bar);transition:filter .1s;
+}
+.bf:hover{filter:brightness(1.08)}
+.bl{
+  font-size:var(--fs-bar);font-weight:700;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;padding:0 6px;
+}
+body[data-skin="supabase"] .bl{font-weight:500}
+/* 진행중 = 흰 인셋 링 (실제 status-wip) */
+.bf.wip{box-shadow:inset 0 0 0 2px rgba(255,255,255,.8)}
+body[data-skin="supabase"] .bf.wip{box-shadow:var(--sh-bar),inset 3px 0 0 rgba(0,0,0,.3)}
+
+/* 휴가 */
+.lv-fill{
+  position:absolute;inset:3px 2px;display:flex;align-items:center;gap:2px;
+  background:var(--lv-bg);color:var(--lv-tx);border-radius:10px;overflow:hidden;
+}
+body[data-skin="supabase"] .lv-fill{border-radius:6px;border:1px dashed var(--bd3)}
+.lv-icon{font-size:13px;padding-left:5px}
+.lv-lbl{font-size:12px;font-weight:600;white-space:nowrap}
+body[data-skin="supabase"] .lv-lbl{font-weight:400}
+
+/* ── LEGEND ── */
+.legend{
+  display:flex;gap:4px;padding:4px 22px;background:var(--sur);
+  border-top:1px solid var(--bd);overflow-x:auto;flex-wrap:nowrap;align-items:center;
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  box-shadow:0 -2px 8px rgba(0,0,0,.06);
+}
+body[data-skin="supabase"] .legend{box-shadow:0 -1px 3px rgba(0,0,0,.06);padding:6px 22px;gap:5px}
+.legend-item{
+  display:flex;align-items:center;gap:4px;font-size:12px;color:var(--tx2);
+  font-weight:500;padding:2px 7px;border-radius:var(--r-chip);
+  border:1px solid var(--bd);background:var(--sur);white-space:nowrap;cursor:pointer;transition:.12s;
+}
+body[data-skin="supabase"] .legend-item{background:var(--sf2);border-color:var(--bd);font-weight:400;color:var(--tx);padding:3px 10px}
+.legend-item:hover{border-color:var(--bd3)}
+.legend-item.on{background:var(--acc);color:var(--on-acc);border-color:var(--acc);font-weight:700}
+body[data-skin="supabase"] .legend-item.on{background:#171717;color:#fff;border-color:#171717;font-weight:500}
+.ldot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+body[data-skin="supabase"] .ldot{width:6px;height:6px}
+.legend-add{
+  display:flex;align-items:center;gap:4px;font-size:12px;color:var(--acc);font-weight:600;
+  padding:2px 7px;border-radius:var(--r-chip);border:1.5px dashed var(--acc);
+  cursor:pointer;white-space:nowrap;background:transparent;
+}
+body[data-skin="supabase"] .legend-add{border:1px dashed var(--bd3);color:var(--tx);font-weight:500;padding:3px 10px}
+
+/* ── 안내 ── */
+.note{
+  margin:18px 22px;padding:18px 22px;border-radius:var(--r-card);background:var(--sur);
+  border:1px solid var(--bd);font-size:13px;color:var(--tx3);line-height:1.7;max-width:1000px;
+}
+body[data-skin="supabase"] .note{padding:28px;font-size:16px;line-height:1.5;box-shadow:none}
+.note h3{font-size:16px;font-weight:700;color:var(--tx);margin-bottom:8px}
+body[data-skin="supabase"] .note h3{font-size:22px;font-weight:500;letter-spacing:-.2px;margin-bottom:12px}
+.note b{color:var(--tx);font-weight:600}
+.note p{margin-bottom:8px}
+.note p:last-child{margin-bottom:0}
+
+@media(max-width:768px){
+  :root{--nc:96px;--cell:34px}
+  .sub-content{margin:0 10px}
+  .sub-tabs{padding:10px 10px 0}
+  .legend{padding:4px 10px}
+  .note{margin:14px 10px;padding:16px}
+  .av{width:34px;height:34px;font-size:15px}
+}
+</style>
+</head>
+<body data-skin="supabase">
+
+<div class="skinbar">
+  <button id="sk-cur" onclick="setSkin('current')">현재</button>
+  <button id="sk-sup" class="on" onclick="setSkin('supabase')">Supabase</button>
+</div>
+
+<!-- ══ HEADER — 실제 page-header 구조 그대로 ══ -->
+<div class="page-header">
+  <div style="display:flex;align-items:center;gap:8px;width:100%">
+    <div class="nav-logo"><b>NHN</b><span> marketing design</span></div>
+  </div>
+
+  <div class="btnrow">
+    <div class="mnav">
+      <button>‹</button><span id="cur-month">August 2026</span><button>›</button>
+    </div>
+    <button class="btn-ico" title="다크모드 전환">🌙</button>
+    <button class="btn-ico" title="일정바 진하기 조절">🎨</button>
+    <button class="btn-admin">🔒 <span>관리자</span></button>
+    <button class="btn btn-g">🎨 프로젝트</button>
+    <button class="btn btn-g">👥 팀원</button>
+    <button class="btn btn-leave">🏖️ 휴가</button>
+    <button class="btn btn-leave">➕ 일정</button>
+    <button class="btn-del" title="일괄 삭제">🗑</button>
+    <button class="btn btn-g btn-ms" title="마일스톤 관리">🏁</button>
+    <div id="fb-indicator" title="Supabase 연결 상태"><span id="fb-dot"></span><span>온라인</span></div>
+  </div>
+
+  <div class="month-picker">
+    <div class="month-chip">1월</div><div class="month-chip">2월</div><div class="month-chip">3월</div>
+    <div class="month-chip">4월</div><div class="month-chip">5월</div><div class="month-chip">6월</div>
+    <div class="month-chip">7월</div><div class="month-chip selected">8월</div><div class="month-chip">9월</div>
+    <div class="month-chip">10월</div><div class="month-chip">11월</div><div class="month-chip">12월</div>
+  </div>
+</div>
+
+<!-- ══ SUB TABS ══ -->
+<div class="sub-tabs">
+  <div class="sub-tab active">📅 Schedule</div>
+  <div class="sub-tab">🤑 GRM</div>
+  <div class="sub-tab">👀 Review</div>
+  <div class="sub-tab hl">✏️ Wiki</div>
+  <div class="sub-tab hl">⛏️ Tool</div>
+  <div class="sub-tab hl">💡 idea</div>
+</div>
+
+<!-- ══ GANTT — 2026년 8월 평일 21칸 ══ -->
+<div class="sub-content">
+<div class="gs">
+<table>
+  <thead>
+    <tr>
+      <th class="cn"></th>
+      <th class="cd week-start"><span class="dn">3</span><span class="dl">월</span></th>
+      <th class="cd"><span class="dn">4</span><span class="dl">화</span></th>
+      <th class="cd"><span class="dn">5</span><span class="dl">수</span></th>
+      <th class="cd"><span class="dn">6</span><span class="dl">목</span></th>
+      <th class="cd"><span class="dn">7</span><span class="dl">금</span></th>
+      <th class="cd week-start"><span class="dn">10</span><span class="dl">월</span></th>
+      <th class="cd"><span class="dn">11</span><span class="dl">화</span></th>
+      <th class="cd"><span class="dn">12</span><span class="dl">수</span></th>
+      <th class="cd"><span class="dn">13</span><span class="dl">목</span></th>
+      <th class="cd"><span class="dn">14</span><span class="dl">금</span></th>
+      <th class="cd holiday week-start"><span class="dn">17</span><span class="dl">월</span><span class="hd-name">광복절</span></th>
+      <th class="cd"><span class="dn">18</span><span class="dl">화</span></th>
+      <th class="cd"><span class="dn">19</span><span class="dl">수</span></th>
+      <th class="cd"><span class="dn">20</span><span class="dl">목</span></th>
+      <th class="cd"><span class="dn">21</span><span class="dl">금</span></th>
+      <th class="cd week-start"><span class="dn">24</span><span class="dl">월</span></th>
+      <th class="cd"><span class="dn">25</span><span class="dl">화</span></th>
+      <th class="cd"><span class="dn">26</span><span class="dl">수</span></th>
+      <th class="cd"><span class="dn">27</span><span class="dl">목</span></th>
+      <th class="cd today"><span class="dn">28</span><span class="dl">금</span></th>
+      <th class="cd week-start"><span class="dn">31</span><span class="dl">월</span></th>
+    </tr>
+  </thead>
+  <tbody>
+
+  <tr class="gr"><td colspan="22"><span class="gdot" style="background:var(--pj-royal)"></span>게임 마케팅<span class="gcount">4</span></td></tr>
+
+  <!-- 현희진 · 태스크 1 -->
+  <tr>
+    <td class="cn"><div class="pi">
+      <div class="av" style="background:color-mix(in srgb,var(--pj-royal) 13%,transparent);color:var(--pj-royal)">현</div>
+      <div><div class="pn">현희진</div><div class="pr">모션디자인</div></div>
+    </div></td>
+    <td class="cell bar week-start" colspan="4"><div class="bt">
+      <div class="ms-zone"><div class="ms-dot" style="background:var(--ms1)"></div></div>
+      <div class="bf" style="background:var(--pj-royal)"><span class="bl" style="color:var(--tc-royal)">v 로얄홀덤 신규 배너 3종</span></div>
+    </div></td>
+    <td class="cell"></td>
+    <td class="cell bar week-start" colspan="5"><div class="bt">
+      <div class="bf wip" style="background:var(--pj-classic)"><span class="bl" style="color:var(--tc-classic)">m 클래식 이벤트 모션</span></div>
+    </div></td>
+    <td class="cell holiday-cell week-start"></td>
+    <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td>
+    <td class="cell bar week-start" colspan="4"><div class="bt">
+      <div class="ms-zone"><div class="ms-dot" style="background:var(--ms2)"></div><div class="ms-dot" style="background:var(--ms3)"></div></div>
+      <div class="bf" style="background:var(--pj-royal)"><span class="bl" style="color:var(--tc-royal)">v 로얄홀덤 추석 배너</span></div>
+    </div></td>
+    <td class="cell today"></td>
+    <td class="cell week-start"></td>
+  </tr>
+
+  <!-- 현희진 · 태스크 2 -->
+  <tr>
+    <td class="cn"><div class="pi">
+      <div class="av" style="background:color-mix(in srgb,var(--pj-royal) 13%,transparent);color:var(--pj-royal)">현</div>
+      <div><div class="pn">현희진</div><div class="pr">모션디자인</div></div>
+    </div></td>
+    <td class="cell week-start"></td><td class="cell"></td>
+    <td class="cell bar" colspan="5"><div class="bt">
+      <div class="bf" style="background:var(--pj-mpoker)"><span class="bl" style="color:var(--tc-mpoker)">c 모바일포커 프로모션 카드</span></div>
+    </div></td>
+    <td class="cell"></td><td class="cell"></td><td class="cell"></td>
+    <td class="cell holiday-cell week-start"></td><td class="cell"></td>
+    <td class="cell bar" colspan="5"><div class="bt">
+      <div class="bf" style="background:var(--pj-matgo)"><span class="bl" style="color:var(--tc-matgo)">m 신맞고 인트로</span></div>
+    </div></td>
+    <td class="cell"></td><td class="cell"></td>
+    <td class="cell today"></td>
+    <td class="cell week-start"></td>
+  </tr>
+
+  <!-- 이서준 -->
+  <tr>
+    <td class="cn"><div class="pi">
+      <div class="av" style="background:color-mix(in srgb,var(--pj-hangame) 13%,transparent);color:var(--pj-hangame)">이</div>
+      <div><div class="pn">이서준</div><div class="pr">그래픽</div></div>
+    </div></td>
+    <td class="cell week-start"></td><td class="cell"></td>
+    <td class="cell bar" colspan="7"><div class="bt">
+      <div class="bf wip" style="background:var(--pj-hangame)"><span class="bl" style="color:var(--tc-hangame)">w hangame 랜딩 리뉴얼</span></div>
+    </div></td>
+    <td class="cell"></td>
+    <td class="cell holiday-cell week-start"></td>
+    <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td>
+    <td class="cell bar week-start" colspan="6"><div class="bt">
+      <div class="ms-zone"><div class="ms-dot" style="background:var(--ms2)"></div></div>
+      <div class="bf" style="background:var(--pj-uparu)"><span class="bl" style="color:var(--tc-uparu)">v 우파루 썸네일 8종</span></div>
+    </div></td>
+  </tr>
+
+  <!-- 박지우 -->
+  <tr>
+    <td class="cn"><div class="pi">
+      <div class="av" style="background:color-mix(in srgb,var(--pj-sutda) 13%,transparent);color:var(--pj-sutda)">박</div>
+      <div><div class="pn">박지우</div><div class="pr">영상편집</div></div>
+    </div></td>
+    <td class="cell bar week-start" colspan="6"><div class="bt">
+      <div class="bf" style="background:var(--pj-sutda)"><span class="bl" style="color:var(--tc-sutda)">b 섯다 8월 방송편집</span></div>
+    </div></td>
+    <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td>
+    <td class="cell holiday-cell week-start"></td>
+    <td class="cell"><div class="lv-fill"><span class="lv-icon">🏖️</span><span class="lv-lbl">휴무</span></div></td>
+    <td class="cell"><div class="lv-fill"></div></td>
+    <td class="cell"></td><td class="cell"></td>
+    <td class="cell bar week-start" colspan="5"><div class="bt">
+      <div class="bf" style="background:var(--pj-pcpoker)"><span class="bl" style="color:var(--tc-pcpoker)">b PC포커 하이라이트</span></div>
+    </div></td>
+    <td class="cell week-start"></td>
+  </tr>
+
+  <tr class="gr"><td colspan="22"><span class="gdot" style="background:var(--pj-oshi)"></span>브랜드 · 신사업<span class="gcount">3</span></td></tr>
+
+  <!-- 정민호 -->
+  <tr>
+    <td class="cn"><div class="pi">
+      <div class="av" style="background:color-mix(in srgb,var(--pj-cloud) 13%,transparent);color:var(--pj-cloud)">정</div>
+      <div><div class="pn">정민호</div><div class="pr">UI 디자인</div></div>
+    </div></td>
+    <td class="cell bar week-start" colspan="11"><div class="bt">
+      <div class="ms-zone"><div class="ms-dot" style="background:var(--ms1)"></div><div class="ms-dot" style="background:var(--ms2)"></div></div>
+      <div class="bf wip" style="background:var(--pj-cloud)"><span class="bl" style="color:var(--tc-cloud)">w Cloud 콘솔 페이지 개편</span></div>
+    </div></td>
+    <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td>
+    <td class="cell bar week-start" colspan="5"><div class="bt">
+      <div class="bf" style="background:var(--pj-payco)"><span class="bl" style="color:var(--tc-payco)">w 페이코 프로모션</span></div>
+    </div></td>
+    <td class="cell week-start"></td>
+  </tr>
+
+  <!-- 한소연 -->
+  <tr>
+    <td class="cn"><div class="pi">
+      <div class="av" style="background:color-mix(in srgb,var(--pj-oshi) 13%,transparent);color:var(--pj-oshi)">한</div>
+      <div><div class="pn">한소연</div><div class="pr">그래픽</div></div>
+    </div></td>
+    <td class="cell week-start"></td><td class="cell"></td><td class="cell"></td>
+    <td class="cell bar" colspan="5"><div class="bt">
+      <div class="bf" style="background:var(--pj-oshi)"><span class="bl" style="color:var(--tc-oshi)">c 최애의아이 콜라보</span></div>
+    </div></td>
+    <td class="cell"></td><td class="cell"></td>
+    <td class="cell holiday-cell week-start"></td><td class="cell"></td>
+    <td class="cell bar" colspan="5"><div class="bt">
+      <div class="bf" style="background:var(--pj-ticket)"><span class="bl" style="color:var(--tc-ticket)">v 티켓링크 배너</span></div>
+    </div></td>
+    <td class="cell"></td><td class="cell"></td>
+    <td class="cell today"></td>
+    <td class="cell week-start"></td>
+  </tr>
+
+  <!-- 오세훈 -->
+  <tr>
+    <td class="cn"><div class="pi">
+      <div class="av" style="background:color-mix(in srgb,var(--pj-rnd) 13%,transparent);color:var(--pj-rnd)">오</div>
+      <div><div class="pn">오세훈</div><div class="pr">모션디자인</div></div>
+    </div></td>
+    <td class="cell week-start"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td>
+    <td class="cell bar week-start" colspan="9"><div class="bt">
+      <div class="ms-zone"><div class="ms-dot" style="background:var(--ms3)"></div></div>
+      <div class="bf" style="background:var(--pj-rnd)"><span class="bl" style="color:var(--tc-rnd)">m R&amp;D 인트로 모션</span></div>
+    </div></td>
+    <td class="cell"></td>
+    <td class="cell week-start"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td>
+    <td class="cell today"></td>
+    <td class="cell week-start"></td>
+  </tr>
+
+  </tbody>
+</table>
+</div>
+</div>
+
+<!-- ══ 안내 ══ -->
+<div class="note">
+  <h3>비교 목업 안내</h3>
+  <p>우측 상단 <b>현재 ↔ Supabase</b> 버튼으로 같은 화면·같은 데이터를 토글합니다. 마크업과 치수(셀 40px, 이름칸 105px, 행 높이 60px, 바 높이 = 셀−10px)는 <b>실제 index.html과 동일</b>하게 맞췄고, 바뀌는 건 토큰뿐입니다.</p>
+  <p>실제 앱 구조를 반영한 부분 — <b>주말 컬럼 없음</b>(평일 21칸) · <b>한 사람이 여러 행</b>(태스크 단위) · 셀 상단 <b>10px 마일스톤 존</b> · 8/17 광복절 대체공휴일 · 주 시작선.</p>
+  <p><b>⚠️ Supabase 스킨의 한계 — 프로젝트가 20개인데 액센트는 7개입니다.</b> 브랜드 규칙상 액센트는 보라·인디고·핑크·크림슨·토마토·옐로 정도가 전부라, 나머지 13개는 그레이 사다리(#707070 → #dfdfdf)로 밀어야 합니다. 목업에서 <b>Cloud·페이코·최애의아이·티켓링크</b>가 회색인 게 그 결과입니다. 현재의 무지개 팔레트가 <b>색으로 프로젝트를 구분하는 기능</b>은 더 잘합니다. 이건 취향이 아니라 트레이드오프입니다.</p>
+  <p>표시된 팀원·일정은 샘플입니다. 실제 데이터·기능은 연결돼 있지 않습니다.</p>
+</div>
+
+<script>
+function setSkin(s){
+  document.body.dataset.skin=s;
+  document.getElementById('sk-cur').classList.toggle('on',s==='current');
+  document.getElementById('sk-sup').classList.toggle('on',s==='supabase');
+  document.getElementById('cur-month').textContent = s==='current' ? 'August 2026' : '2026-08';
+}
+</script>
+</body>
+</html>
