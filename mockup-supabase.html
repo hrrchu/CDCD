@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NHN MD — Supabase 스타일 목업</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💿</text></svg>">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   SUPABASE DESIGN SYSTEM TOKENS
+   출처: design-md/supabase/DESIGN.md
+   ═══════════════════════════════════════════════ */
+:root{
+  /* Brand — 유일한 색채 이벤트 */
+  --primary:#3ecf8e;
+  --primary-deep:#24b47e;
+  --on-primary:#171717;   /* 초록 위 텍스트는 흰색이 아니라 근접 블랙 */
+  /* Surface */
+  --canvas:#ffffff;
+  --canvas-soft:#fafafa;
+  --canvas-night:#1c1c1c;
+  /* Hairline 사다리 */
+  --hl-cool:#ededed;
+  --hl:#dfdfdf;
+  --hl-strong:#c7c7c7;
+  /* Ink 사다리 */
+  --ink:#171717;
+  --ink-2:#212121;
+  --ink-mute:#707070;
+  --ink-mute-2:#9a9a9a;
+  --ink-faint:#b2b2b2;
+  /* Accent — 차트/데이터 전용, 시스템 색 아님 */
+  --a-purple:#6b01c2; --a-violet:#644fc1; --a-yellow:#ffdb13;
+  --a-tomato:#ff2201; --a-pink:#c7007e;   --a-indigo:#054cff;
+  --a-crimson:#e2005a;
+  /* Elevation */
+  --e1:0 1px 3px rgba(0,0,0,.06);
+  --e2:0 8px 24px rgba(0,0,0,.08);
+  --e3:0 16px 48px rgba(0,0,0,.12);
+  /* Radius */
+  --r-xs:4px; --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:16px; --r-full:9999px;
+  /* Metrics */
+  --cell:40px; --nc:136px;
+  --mono:ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--canvas)}
+body{
+  font-family:'Pretendard',Inter,'Helvetica Neue',Helvetica,Arial,sans-serif;
+  color:var(--ink);min-height:100vh;padding-bottom:46px;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ═══ NAV BAR ═══ */
+.page-header{
+  display:flex;flex-direction:column;align-items:flex-start;gap:12px;
+  padding:16px 24px 12px;background:var(--canvas);
+  border-bottom:1px solid var(--hl-cool);position:sticky;top:0;z-index:300;
+}
+.brand{display:flex;align-items:center;gap:8px}
+.brand-mark{
+  width:22px;height:22px;border-radius:var(--r-sm);background:var(--primary);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:var(--on-primary);font-weight:600;flex-shrink:0;
+}
+.nav-logo{font-size:16px;font-weight:500;color:var(--ink);letter-spacing:-.3px}
+.nav-logo span{color:var(--ink-mute);font-weight:400}
+
+.hrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:100%}
+
+/* 월 네비 — 아웃라인 그룹, 6px */
+.mnav{
+  display:flex;align-items:center;background:var(--canvas);
+  border:1px solid var(--hl);border-radius:var(--r-sm);overflow:hidden;
+}
+.mnav button{
+  background:none;border:none;color:var(--ink-mute);cursor:pointer;
+  font-size:14px;width:28px;height:32px;transition:.12s;line-height:1;
+}
+.mnav button:hover{background:var(--canvas-soft);color:var(--ink)}
+#cur-month{
+  font-family:var(--mono);font-size:13px;font-weight:400;color:var(--ink);
+  min-width:88px;text-align:center;border-left:1px solid var(--hl-cool);
+  border-right:1px solid var(--hl-cool);padding:0 4px;line-height:32px;
+}
+
+/* ═══ 버튼 — 6px, 필 금지 ═══ */
+.btn{
+  padding:8px 16px;border-radius:var(--r-sm);border:1px solid transparent;
+  cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;
+  line-height:1;transition:.12s;white-space:nowrap;
+}
+.btn-p{background:var(--primary);color:var(--on-primary);font-weight:500}
+.btn-p:hover{background:var(--primary-deep)}
+.btn-o{background:var(--canvas);color:var(--ink);border-color:var(--hl-strong)}
+.btn-o:hover{background:var(--canvas-soft)}
+.btn-s{background:var(--canvas);color:var(--ink-mute);border-color:var(--hl)}
+.btn-s:hover{color:var(--ink);border-color:var(--hl-strong)}
+.btn-dk{background:var(--canvas-night);color:#fff}
+.btn-dk:hover{background:#000}
+.btn-i{
+  width:32px;height:32px;padding:0;border-radius:var(--r-sm);
+  background:var(--canvas);border:1px solid var(--hl);color:var(--ink-mute);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;cursor:pointer;transition:.12s;flex-shrink:0;
+}
+.btn-i:hover{background:var(--canvas-soft);color:var(--ink);border-color:var(--hl-strong)}
+
+/* 연결 상태 — pill-tag-soft */
+.status{
+  margin-left:auto;display:flex;align-items:center;gap:7px;
+  padding:5px 12px;border-radius:var(--r-full);background:var(--canvas-soft);
+  border:1px solid var(--hl-cool);font-size:12px;font-weight:400;
+  color:var(--ink);flex-shrink:0;cursor:pointer;
+}
+.status:hover{border-color:var(--hl)}
+.status .dot{width:6px;height:6px;border-radius:50%;background:var(--primary)}
+
+/* 월 선택 */
+.month-picker{display:flex;gap:2px;flex-wrap:wrap;align-items:center}
+.mp{
+  font-family:var(--mono);font-size:12px;font-weight:400;color:var(--ink-mute);
+  background:transparent;border:1px solid transparent;padding:4px 9px;
+  border-radius:var(--r-xs);cursor:pointer;transition:.12s;
+}
+.mp:hover{background:var(--canvas-soft);color:var(--ink)}
+.mp.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.mp-sep{width:1px;height:14px;background:var(--hl-cool);margin:0 6px}
+.mp-meta{font-family:var(--mono);font-size:12px;color:var(--ink-faint)}
+
+/* ═══ SUB TABS — 세그먼트 컨트롤 ═══ */
+.sub-tabs{
+  display:inline-flex;gap:0;margin:20px 24px 12px;
+  border:1px solid var(--hl);border-radius:var(--r-sm);overflow:hidden;background:var(--canvas);
+}
+.sub-tab{
+  padding:8px 16px;font-size:14px;font-weight:400;color:var(--ink-mute);
+  cursor:pointer;transition:.12s;user-select:none;
+  border-right:1px solid var(--hl-cool);
+}
+.sub-tab:last-child{border-right:none}
+.sub-tab:hover{background:var(--canvas-soft);color:var(--ink)}
+.sub-tab.active{background:var(--canvas-soft);color:var(--ink);font-weight:500;box-shadow:inset 0 -2px 0 var(--ink)}
+
+/* ═══ GANTT PANEL — 12px 컨테이너 + 헤어라인 + Level 2 그림자 ═══ */
+.panel{
+  background:var(--canvas);border:1px solid var(--hl);border-radius:var(--r-lg);
+  margin:0 24px;overflow:hidden;box-shadow:var(--e2);
+}
+.panel-bar{
+  display:flex;align-items:center;gap:10px;padding:10px 16px;
+  background:var(--canvas-soft);border-bottom:1px solid var(--hl-cool);
+}
+.panel-title{font-size:14px;font-weight:500;color:var(--ink)}
+.panel-meta{font-family:var(--mono);font-size:12px;color:var(--ink-mute-2);margin-left:auto}
+.tag{
+  font-size:12px;font-weight:400;padding:2px 8px;border-radius:var(--r-full);
+  background:var(--primary);color:var(--on-primary);
+}
+.tag-soft{
+  font-size:12px;font-weight:400;padding:2px 8px;border-radius:var(--r-full);
+  background:var(--canvas);color:var(--ink);border:1px solid var(--hl);
+}
+
+.gs{overflow-x:auto}
+table{border-collapse:collapse;min-width:100%;user-select:none}
+
+thead th{
+  background:var(--canvas-soft);padding:0;
+  border-bottom:1px solid var(--hl);position:sticky;top:0;z-index:10;
+}
+th.cn{
+  width:var(--nc);min-width:var(--nc);text-align:left;padding:9px 16px;
+  font-size:12px;font-weight:400;color:var(--ink-mute);
+  position:sticky;left:0;z-index:20;background:var(--canvas-soft);
+  border-right:1px solid var(--hl-cool);
+}
+th.cd{
+  width:var(--cell);min-width:var(--cell);text-align:center;
+  padding:7px 0 8px;vertical-align:bottom;border-right:1px solid var(--hl-cool);
+}
+th.cd .dn{
+  display:block;font-family:var(--mono);font-size:13px;font-weight:400;
+  color:var(--ink-2);line-height:1;
+}
+th.cd .dl{display:block;font-size:12px;font-weight:400;color:var(--ink-faint);margin-top:4px;line-height:1}
+th.cd.hol .dn{color:var(--ink-mute-2)}
+th.cd.hol .dl{color:var(--ink-faint)}
+th.cd.hol{background:#f5f5f5}
+th.cd.today .dn{
+  color:var(--on-primary);background:var(--primary);border-radius:50%;
+  width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  margin:0 auto;font-weight:500;
+}
+th.cd.today .dl{color:var(--ink)}
+th.week-start,td.week-start{border-left:1px solid var(--hl)!important}
+
+tbody tr{border-bottom:1px solid var(--hl-cool)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover td.cn{background:var(--canvas-soft)}
+
+/* 그룹 행 */
+tr.gr td{
+  background:var(--canvas-soft);padding:7px 16px;font-size:12px;font-weight:500;
+  color:var(--ink-mute);border-bottom:1px solid var(--hl-cool);
+  border-top:1px solid var(--hl-cool);
+}
+.gdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:8px;vertical-align:middle}
+.gcount{font-family:var(--mono);font-size:12px;color:var(--ink-faint);margin-left:8px}
+
+/* 이름 셀 — 무채색 유지 */
+td.cn{
+  position:sticky;left:0;z-index:20;background:var(--canvas);
+  width:var(--nc);min-width:var(--nc);max-width:var(--nc);
+  padding:0;cursor:default;overflow:hidden;transition:background .12s;
+  border-right:1px solid var(--hl-cool);
+}
+.pi{display:flex;align-items:center;gap:10px;padding:8px 16px}
+.av{
+  width:30px;height:30px;border-radius:var(--r-full);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:500;color:var(--ink);
+  background:var(--canvas-soft);border:1px solid var(--hl);
+}
+.pn{font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
+.pr{font-size:12px;font-weight:400;color:var(--ink-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
+
+/* 날짜 셀 */
+td.cell{
+  width:var(--cell);min-width:var(--cell);height:52px;
+  border-right:1px solid var(--hl-cool);
+  cursor:crosshair;position:relative;vertical-align:middle;
+}
+td.cell.today{background:rgba(62,207,142,.07);box-shadow:inset 1px 0 0 rgba(62,207,142,.45),inset -1px 0 0 rgba(62,207,142,.45)}
+td.cell.hol{background:#fbfbfb}
+td.cell:hover{background:var(--canvas-soft)}
+
+/* ═══ 일정 바 — 6px, 필 아님. 색은 차트 액센트에서만 ═══ */
+td.bar{padding:0}
+.bf{
+  height:24px;border-radius:var(--r-sm);margin:0 3px;display:flex;
+  align-items:center;padding:0 9px;cursor:grab;
+  transition:filter .12s,box-shadow .12s;box-shadow:var(--e1);
+}
+.bf:hover{filter:brightness(1.05);box-shadow:var(--e2)}
+.bl{
+  font-size:12px;font-weight:500;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;letter-spacing:-.1px;
+}
+.on-light{color:var(--on-primary)}
+.on-dark{color:#fff}
+/* 진행중 — 좌측 2px 인디케이터 */
+.bf.wip{box-shadow:var(--e1),inset 3px 0 0 rgba(0,0,0,.35)}
+/* 휴가 — 무채색 아웃라인 */
+.bf.lv{
+  background:var(--canvas);border:1px dashed var(--hl-strong);box-shadow:none;
+  justify-content:center;
+}
+.bf.lv .bl{color:var(--ink-mute);font-weight:400}
+/* 마일스톤 */
+.ms{
+  position:absolute;top:4px;left:4px;right:4px;height:4px;
+  border-radius:var(--r-xs);background:var(--a-yellow);
+}
+
+/* ═══ LEGEND — pill-tag-soft ═══ */
+.legend{
+  display:flex;gap:5px;padding:7px 24px;background:var(--canvas);
+  border-top:1px solid var(--hl);overflow-x:auto;flex-wrap:nowrap;
+  align-items:center;position:fixed;bottom:0;left:0;right:0;z-index:400;
+  box-shadow:0 -1px 3px rgba(0,0,0,.06);
+}
+.legend-item{
+  display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400;
+  color:var(--ink);padding:3px 10px;border-radius:var(--r-full);
+  background:var(--canvas-soft);border:1px solid var(--hl-cool);
+  white-space:nowrap;cursor:pointer;transition:.12s;
+}
+.legend-item:hover{border-color:var(--hl-strong);background:var(--canvas)}
+.legend-item.on{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:500}
+.ldot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.legend-add{
+  display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;
+  color:var(--ink);padding:3px 10px;border-radius:var(--r-full);
+  border:1px dashed var(--hl-strong);cursor:pointer;transition:.12s;white-space:nowrap;
+}
+.legend-add:hover{border-color:var(--ink);background:var(--canvas-soft)}
+
+/* ═══ MODAL — 16px, Level 3 ═══ */
+.mb{
+  position:fixed;inset:0;background:rgba(23,23,23,.4);z-index:900;
+  display:none;align-items:center;justify-content:center;padding:24px;
+}
+.mb.open{display:flex}
+.modal{
+  background:var(--canvas);border-radius:var(--r-xl);width:440px;max-width:100%;
+  padding:32px;box-shadow:var(--e3);
+}
+.mt{font-size:28px;font-weight:500;color:var(--ink);letter-spacing:-.42px;line-height:1.2;margin-bottom:6px}
+.msub{font-size:13px;font-weight:400;color:var(--ink-mute);line-height:1.45;margin-bottom:24px}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:13px;font-weight:400;color:var(--ink-mute);margin-bottom:6px}
+.fg input,.fg select{
+  width:100%;background:var(--canvas);border:1px solid var(--hl);color:var(--ink);
+  font-family:inherit;font-size:16px;font-weight:400;
+  padding:8px 12px;border-radius:var(--r-sm);outline:none;transition:.12s;min-height:36px;
+}
+.fg input:focus,.fg select:focus{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.fg input::placeholder{color:var(--ink-faint)}
+.fg .hint{font-family:var(--mono);font-size:12px;color:var(--ink-faint);margin-top:6px;display:block}
+.mrow{display:flex;gap:8px;justify-content:flex-end;margin-top:28px}
+
+/* ═══ 코드블록 — 브랜드의 개발자 DNA ═══ */
+.code{
+  background:var(--canvas-night);color:#fff;font-family:var(--mono);
+  font-size:14px;line-height:1.5;padding:16px;border-radius:var(--r-sm);
+  margin-top:16px;overflow-x:auto;
+}
+.code .c{color:#9a9a9a}
+.code .g{color:var(--primary)}
+
+/* ═══ 안내 카드 — card-feature-light ═══ */
+.note{
+  margin:24px;padding:32px;border-radius:var(--r-lg);background:var(--canvas);
+  border:1px solid var(--hl);font-size:16px;font-weight:400;color:var(--ink-mute);
+  line-height:1.5;max-width:920px;
+}
+.note h3{font-size:22px;font-weight:500;color:var(--ink);margin-bottom:12px;letter-spacing:-.2px}
+.note b{color:var(--ink);font-weight:500}
+.note p{margin-bottom:10px}
+.note p:last-of-type{margin-bottom:0}
+
+@media(max-width:768px){
+  :root{--nc:112px;--cell:34px}
+  .panel{margin:0 12px}
+  .page-header{padding:12px 14px}
+  .sub-tabs{margin:14px 12px 10px;font-size:13px}
+  .sub-tab{padding:7px 11px;font-size:13px}
+  .legend{padding:6px 12px;gap:4px}
+  .note{margin:14px 12px;padding:20px}
+  .mt{font-size:22px;letter-spacing:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV BAR ── -->
+<div class="page-header">
+  <div class="brand">
+    <div class="brand-mark">◧</div>
+    <div class="nav-logo">NHN <span>marketing design</span></div>
+  </div>
+
+  <div class="hrow">
+    <div class="mnav">
+      <button>‹</button>
+      <span id="cur-month">2026-08</span>
+      <button>›</button>
+    </div>
+    <button class="btn-i" title="다크모드">🌙</button>
+    <button class="btn-i" title="일정바 진하기">🎨</button>
+    <button class="btn btn-s">🔒 관리자</button>
+    <button class="btn btn-s">프로젝트</button>
+    <button class="btn btn-s">팀원</button>
+    <button class="btn btn-o">휴가</button>
+    <button class="btn btn-p" onclick="document.getElementById('mb').classList.add('open')">＋ 일정 추가</button>
+    <button class="btn-i" title="일괄 삭제">🗑</button>
+    <button class="btn-i" title="마일스톤">🏁</button>
+    <div class="status"><span class="dot"></span>온라인</div>
+  </div>
+
+  <div class="month-picker">
+    <button class="mp">06</button>
+    <button class="mp">07</button>
+    <button class="mp on">08</button>
+    <button class="mp">09</button>
+    <button class="mp">10</button>
+    <button class="mp">11</button>
+    <button class="mp">12</button>
+    <span class="mp-sep"></span>
+    <span class="mp-meta">2026 · 6 members · 8 schedules</span>
+  </div>
+</div>
+
+<!-- ── SUB TABS ── -->
+<div class="sub-tabs">
+  <div class="sub-tab active">Schedule</div>
+  <div class="sub-tab">GRM</div>
+  <div class="sub-tab">Review</div>
+  <div class="sub-tab">Wiki</div>
+  <div class="sub-tab">Tool</div>
+  <div class="sub-tab">Idea</div>
+</div>
+
+<!-- ── GANTT ── -->
+<div class="panel">
+  <div class="panel-bar">
+    <span class="panel-title">2026년 8월 일정</span>
+    <span class="tag">진행중 3</span>
+    <span class="tag-soft">휴가 1</span>
+    <span class="panel-meta">synced 2026-08-28 14:32</span>
+  </div>
+<div class="gs">
+<table>
+  <thead>
+    <tr>
+      <th class="cn">팀원</th>
+      <th class="cd week-start"><span class="dn">24</span><span class="dl">월</span></th>
+      <th class="cd"><span class="dn">25</span><span class="dl">화</span></th>
+      <th class="cd"><span class="dn">26</span><span class="dl">수</span></th>
+      <th class="cd"><span class="dn">27</span><span class="dl">목</span></th>
+      <th class="cd today"><span class="dn">28</span><span class="dl">금</span></th>
+      <th class="cd hol"><span class="dn">29</span><span class="dl">토</span></th>
+      <th class="cd hol"><span class="dn">30</span><span class="dl">일</span></th>
+      <th class="cd week-start"><span class="dn">31</span><span class="dl">월</span></th>
+      <th class="cd"><span class="dn">01</span><span class="dl">화</span></th>
+      <th class="cd"><span class="dn">02</span><span class="dl">수</span></th>
+      <th class="cd"><span class="dn">03</span><span class="dl">목</span></th>
+      <th class="cd"><span class="dn">04</span><span class="dl">금</span></th>
+      <th class="cd hol"><span class="dn">05</span><span class="dl">토</span></th>
+      <th class="cd hol"><span class="dn">06</span><span class="dl">일</span></th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <tr class="gr"><td colspan="15"><span class="gdot" style="background:var(--a-indigo)"></span>게임 마케팅<span class="gcount">3</span></td></tr>
+
+    <!-- 현희진 -->
+    <tr>
+      <td class="cn"><div class="pi">
+        <div class="av">현</div>
+        <div><div class="pn">현희진</div><div class="pr">모션디자인</div></div>
+      </div></td>
+      <td class="cell week-start bar" colspan="4">
+        <div class="bf" style="background:var(--a-indigo)"><span class="bl on-dark">v 로얄홀덤 신규 배너 3종</span></div>
+      </td>
+      <td class="cell today"></td>
+      <td class="cell hol"></td>
+      <td class="cell hol"></td>
+      <td class="cell week-start bar" colspan="4">
+        <div class="bf wip" style="background:var(--a-violet)"><span class="bl on-dark">m 클래식 이벤트 모션</span></div>
+      </td>
+      <td class="cell hol"></td>
+      <td class="cell hol"></td>
+    </tr>
+
+    <!-- 이서준 -->
+    <tr>
+      <td class="cn"><div class="pi">
+        <div class="av">이</div>
+        <div><div class="pn">이서준</div><div class="pr">그래픽</div></div>
+      </div></td>
+      <td class="cell week-start bar" colspan="3">
+        <div class="bf" style="background:var(--a-yellow)"><span class="bl on-light">c 8월 카드뉴스</span></div>
+      </td>
+      <td class="cell"></td>
+      <td class="cell today bar" colspan="6">
+        <div class="bf wip" style="background:var(--a-tomato)"><span class="bl on-dark">w hangame 랜딩 리뉴얼</span></div>
+      </td>
+      <td class="cell"></td>
+      <td class="cell"></td>
+      <td class="cell hol"></td>
+      <td class="cell hol"></td>
+    </tr>
+
+    <!-- 박지우 -->
+    <tr>
+      <td class="cn"><div class="pi">
+        <div class="av">박</div>
+        <div><div class="pn">박지우</div><div class="pr">영상편집</div></div>
+      </div></td>
+      <td class="cell week-start"><div class="ms"></div></td>
+      <td class="cell bar" colspan="5">
+        <div class="bf" style="background:var(--a-crimson)"><span class="bl on-dark">b 섯다 방송편집</span></div>
+      </td>
+      <td class="cell hol"></td>
+      <td class="cell week-start"></td>
+      <td class="cell bar" colspan="4">
+        <div class="bf" style="background:#e5e5e5"><span class="bl on-light">v 우파루 썸네일</span></div>
+      </td>
+      <td class="cell hol"></td>
+      <td class="cell hol"></td>
+    </tr>
+
+    <tr class="gr"><td colspan="15"><span class="gdot" style="background:var(--a-purple)"></span>브랜드 · 신사업<span class="gcount">3</span></td></tr>
+
+    <!-- 정민호 -->
+    <tr>
+      <td class="cn"><div class="pi">
+        <div class="av">정</div>
+        <div><div class="pn">정민호</div><div class="pr">UI 디자인</div></div>
+      </div></td>
+      <td class="cell week-start bar" colspan="9">
+        <div class="bf" style="background:var(--a-purple)"><span class="bl on-dark">w Cloud 콘솔 페이지 개편</span></div>
+      </td>
+      <td class="cell"></td>
+      <td class="cell"></td>
+      <td class="cell"></td>
+      <td class="cell hol"></td>
+      <td class="cell hol"></td>
+    </tr>
+
+    <!-- 한소연 -->
+    <tr>
+      <td class="cn"><div class="pi">
+        <div class="av">한</div>
+        <div><div class="pn">한소연</div><div class="pr">그래픽</div></div>
+      </div></td>
+      <td class="cell week-start"></td>
+      <td class="cell"></td>
+      <td class="cell bar" colspan="3">
+        <div class="bf" style="background:var(--a-pink)"><span class="bl on-dark">c 최애의아이 콜라보</span></div>
+      </td>
+      <td class="cell hol"></td>
+      <td class="cell hol"></td>
+      <td class="cell week-start bar" colspan="2">
+        <div class="bf lv"><span class="bl">🏖 휴가</span></div>
+      </td>
+      <td class="cell bar" colspan="4">
+        <div class="bf" style="background:#d4d4d4"><span class="bl on-light">v 페이코 프로모션</span></div>
+      </td>
+      <td class="cell hol"></td>
+    </tr>
+
+    <!-- 오세훈 -->
+    <tr>
+      <td class="cn"><div class="pi">
+        <div class="av">오</div>
+        <div><div class="pn">오세훈</div><div class="pr">모션디자인</div></div>
+      </div></td>
+      <td class="cell week-start"></td>
+      <td class="cell"></td>
+      <td class="cell"></td>
+      <td class="cell bar" colspan="8">
+        <div class="bf" style="background:var(--canvas-night)"><span class="bl on-dark">m R&amp;D 인트로 모션</span></div>
+      </td>
+      <td class="cell"></td>
+      <td class="cell hol"></td>
+      <td class="cell hol"></td>
+    </tr>
+
+  </tbody>
+</table>
+</div>
+</div>
+
+<!-- ── 안내 카드 ── -->
+<div class="note">
+  <h3>목업 안내</h3>
+  <p>이 페이지는 <b>정적 화면</b>입니다. 실제 데이터·기능은 연결돼 있지 않고, 표시된 팀원·일정은 샘플입니다.</p>
+  <p>적용 규칙 — 캔버스 <b>#ffffff</b> 고정 · 텍스트 <b>#171717</b>(순검정 아님) · 헤어라인 <b>#ededed / #dfdfdf / #c7c7c7</b> 3단 · 버튼 <b>6px 각진 radius</b>(필 금지) · 카드 <b>12px</b> + Level 2 그림자 · 디스플레이 <b>weight 500 + 음수 자간</b>.</p>
+  <p>에메랄드 <b>#3ecf8e</b>는 화면당 <b>3곳</b>에만 씁니다 — 일정 추가 CTA, 오늘 날짜 마커, 연결 상태 점. 초록 위 텍스트는 흰색이 아니라 <b>근접 블랙</b>(브랜드의 고유 규칙)입니다.</p>
+  <p>프로젝트 색은 Supabase의 <b>액센트 = 차트 포인트 전용</b> 규칙을 따라 보라·인디고·크림슨·옐로 팔레트에서 뽑았고, <b>초록은 프로젝트 색에서 제외</b>했습니다 — CTA와 경쟁하지 않게 하기 위함입니다. 날짜·카운트·동기화 시각은 <b>시스템 모노</b>로 렌더링(개발자 DNA).</p>
+  <div class="code"><span class="c">// 적용 시 교체되는 토큰</span><br>
+--acc: <span class="g">#3ecf8e</span>;  <span class="c">/* was #4f8cff */</span><br>
+--bd:  #dfdfdf;  <span class="c">/* hairline */</span><br>
+--tx:  #171717;  <span class="c">/* ink, never pure black */</span></div>
+</div>
+
+<!-- ── LEGEND ── -->
+<div class="legend">
+  <div class="legend-item"><span class="ldot" style="background:#9a9a9a"></span>신사업</div>
+  <div class="legend-item on"><span class="ldot" style="background:#fff"></span>로얄홀덤 ✓</div>
+  <div class="legend-item"><span class="ldot" style="background:#054cff"></span>모바일포커</div>
+  <div class="legend-item"><span class="ldot" style="background:#644fc1"></span>PC포커</div>
+  <div class="legend-item"><span class="ldot" style="background:#6b01c2"></span>클래식</div>
+  <div class="legend-item"><span class="ldot" style="background:#b2b2b2"></span>로우바둑이</div>
+  <div class="legend-item"><span class="ldot" style="background:#e2005a"></span>섯다</div>
+  <div class="legend-item"><span class="ldot" style="background:#c7007e"></span>신맞고</div>
+  <div class="legend-item"><span class="ldot" style="background:#ff2201"></span>hangame</div>
+  <div class="legend-item"><span class="ldot" style="background:#ffdb13"></span>우파루</div>
+  <div class="legend-item"><span class="ldot" style="background:#707070"></span>인사</div>
+  <div class="legend-item"><span class="ldot" style="background:#c7007e"></span>최애의아이</div>
+  <div class="legend-item"><span class="ldot" style="background:#6b01c2"></span>Cloud</div>
+  <div class="legend-item"><span class="ldot" style="background:#1c1c1c"></span>R&amp;D</div>
+  <div class="legend-item"><span class="ldot" style="background:#c7c7c7"></span>어비스디아</div>
+  <div class="legend-item"><span class="ldot" style="background:#d4d4d4"></span>코미코</div>
+  <div class="legend-item"><span class="ldot" style="background:#9a9a9a"></span>수이플래시</div>
+  <div class="legend-item"><span class="ldot" style="background:#dfdfdf"></span>티켓링크</div>
+  <div class="legend-item"><span class="ldot" style="background:#ff2201"></span>페이코</div>
+  <div class="legend-item"><span class="ldot" style="background:#ededed"></span>Card_Vault</div>
+  <div class="legend-add">＋ 프로젝트</div>
+</div>
+
+<!-- ── MODAL ── -->
+<div class="mb" id="mb" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="mt">일정 추가</div>
+    <div class="msub">담당자와 기간을 지정하면 간트에 바로 반영됩니다.</div>
+    <div class="fg"><label>담당자</label><select><option>현희진 · 모션디자인</option><option>이서준 · 그래픽</option></select></div>
+    <div class="fg"><label>프로젝트</label><select><option>로얄홀덤</option><option>클래식</option></select></div>
+    <div class="fg"><label>일정 제목</label><input placeholder="v 신규 배너 3종">
+      <span class="hint">v 베리에이션 · m 모션 · c 카드뉴스 · w 웹 · b 방송</span></div>
+    <div class="fg"><label>기간</label><input placeholder="2026-08-24 ~ 2026-08-27"></div>
+    <div class="mrow">
+      <button class="btn btn-o" onclick="document.getElementById('mb').classList.remove('open')">취소</button>
+      <button class="btn btn-p" onclick="document.getElementById('mb').classList.remove('open')">저장</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
