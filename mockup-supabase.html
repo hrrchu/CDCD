@@ -13,8 +13,8 @@
    ═══════════════════════════════════════════════ */
 :root{
   /* Brand — 유일한 색채 이벤트 */
-  --primary:#3ecf8e;
-  --primary-deep:#24b47e;
+  --primary:#D9FB4B;
+  --primary-deep:#C2E63A;
   --on-primary:#171717;   /* 초록 위 텍스트는 흰색이 아니라 근접 블랙 */
   /* Surface */
   --canvas:#ffffff;
@@ -91,8 +91,9 @@ body{
   cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;
   line-height:1;transition:.12s;white-space:nowrap;
 }
-.btn-p{background:var(--primary);color:var(--on-primary);font-weight:500}
-.btn-p:hover{background:var(--primary-deep)}
+/* 라임은 흰 배경에서 명도차가 거의 없어 테두리로 형태를 잡아준다 */
+.btn-p{background:var(--primary);color:var(--on-primary);font-weight:500;border-color:var(--primary-deep)}
+.btn-p:hover{background:var(--primary-deep);border-color:#a9cc2c}
 .btn-o{background:var(--canvas);color:var(--ink);border-color:var(--hl-strong)}
 .btn-o:hover{background:var(--canvas-soft)}
 .btn-s{background:var(--canvas);color:var(--ink-mute);border-color:var(--hl)}
@@ -115,7 +116,7 @@ body{
   color:var(--ink);flex-shrink:0;cursor:pointer;
 }
 .status:hover{border-color:var(--hl)}
-.status .dot{width:6px;height:6px;border-radius:50%;background:var(--primary)}
+.status .dot{width:6px;height:6px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 1px rgba(23,23,23,.22)}
 
 /* 월 선택 */
 .month-picker{display:flex;gap:2px;flex-wrap:wrap;align-items:center}
@@ -232,7 +233,7 @@ td.cell{
   border-right:1px solid var(--hl-cool);
   cursor:crosshair;position:relative;vertical-align:middle;
 }
-td.cell.today{background:rgba(62,207,142,.07);box-shadow:inset 1px 0 0 rgba(62,207,142,.45),inset -1px 0 0 rgba(62,207,142,.45)}
+td.cell.today{background:rgba(217,251,75,.18);box-shadow:inset 1px 0 0 rgba(180,214,50,.75),inset -1px 0 0 rgba(180,214,50,.75)}
 td.cell.hol{background:#fbfbfb}
 td.cell:hover{background:var(--canvas-soft)}
 
@@ -550,10 +551,10 @@ td.bar{padding:0}
   <h3>목업 안내</h3>
   <p>이 페이지는 <b>정적 화면</b>입니다. 실제 데이터·기능은 연결돼 있지 않고, 표시된 팀원·일정은 샘플입니다.</p>
   <p>적용 규칙 — 캔버스 <b>#ffffff</b> 고정 · 텍스트 <b>#171717</b>(순검정 아님) · 헤어라인 <b>#ededed / #dfdfdf / #c7c7c7</b> 3단 · 버튼 <b>6px 각진 radius</b>(필 금지) · 카드 <b>12px</b> + Level 2 그림자 · 디스플레이 <b>weight 500 + 음수 자간</b>.</p>
-  <p>에메랄드 <b>#3ecf8e</b>는 화면당 <b>3곳</b>에만 씁니다 — 일정 추가 CTA, 오늘 날짜 마커, 연결 상태 점. 초록 위 텍스트는 흰색이 아니라 <b>근접 블랙</b>(브랜드의 고유 규칙)입니다.</p>
+  <p>키컬러 <b>#D9FB4B</b>는 화면당 <b>3곳</b>에만 씁니다 — 일정 추가 CTA, 오늘 날짜 마커, 연결 상태 점. 키컬러 위 텍스트는 흰색이 아니라 <b>근접 블랙 #171717</b>(원본 시스템의 고유 규칙을 유지)입니다.</p>
   <p>프로젝트 색은 Supabase의 <b>액센트 = 차트 포인트 전용</b> 규칙을 따라 보라·인디고·크림슨·옐로 팔레트에서 뽑았고, <b>초록은 프로젝트 색에서 제외</b>했습니다 — CTA와 경쟁하지 않게 하기 위함입니다. 폰트는 <b>전부 Pretendard</b>입니다 — 원본 시스템의 모노 타이포(날짜·카운트·코드)도 Pretendard로 통일했습니다.</p>
   <div class="code"><span class="c">// 적용 시 교체되는 토큰</span><br>
---acc: <span class="g">#3ecf8e</span>;  <span class="c">/* was #4f8cff */</span><br>
+--acc: <span class="g">#D9FB4B</span>;  <span class="c">/* was #4f8cff */</span><br>
 --bd:  #dfdfdf;  <span class="c">/* hairline */</span><br>
 --tx:  #171717;  <span class="c">/* ink, never pure black */</span></div>
 </div>

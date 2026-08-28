@@ -46,10 +46,10 @@ body[data-skin="current"]{
 body[data-skin="supabase"]{
   --bg:#ffffff; --sur:#ffffff; --sf2:#fafafa; --soft:#fafafa;
   --bd:#ededed; --bd2:#dfdfdf; --bd3:#c7c7c7;
-  --acc:#3ecf8e; --acc-deep:#24b47e; --on-acc:#171717;
+  --acc:#D9FB4B; --acc-deep:#C2E63A; --on-acc:#171717;
   --tx:#171717; --tx2:#212121; --tx3:#707070; --tx4:#9a9a9a;
   --hol:#9a9a9a; --hol-bg:#fbfbfb;
-  --today-bg:rgba(62,207,142,.08); --today-line:rgba(62,207,142,.5);
+  --today-bg:rgba(217,251,75,.18); --today-line:rgba(180,214,50,.75);
 
   /* 치수 */
   --r-btn:6px; --r-chip:9999px; --r-bar:6px; --r-card:12px; --r-input:6px; --r-panel:12px;
@@ -153,6 +153,9 @@ body[data-skin="supabase"] .btn-del{--del-bg:#fff;--del-tx:#171717;--del-bd:#dfd
 }
 body[data-skin="supabase"] #fb-indicator{font-weight:400}
 #fb-dot{width:7px;height:7px;border-radius:50%;background:var(--acc);flex-shrink:0}
+/* 라임은 흰 배경에서 명도차가 거의 없어 작은 요소는 테두리로 형태를 잡아준다 */
+body[data-skin="supabase"] #fb-dot{box-shadow:0 0 0 1px rgba(23,23,23,.22)}
+body[data-skin="supabase"] .btn-leave{border:1px solid var(--acc-deep)}
 
 /* 월 칩 */
 .month-picker{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
