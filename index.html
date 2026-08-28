@@ -1575,7 +1575,9 @@ th.cd:hover{background:rgba(79,140,255,.06)}
         <div class="lv-pill" data-type="checkup" onclick="selLvType('checkup')" style="background:#e2e8f0;color:#64748b">🏥 검진</div>
         <div class="lv-pill" data-type="refresh" onclick="selLvType('refresh')" style="background:#e2e8f0;color:#64748b">✨ 리프레쉬</div>
         <div class="lv-pill" data-type="lecture" onclick="selLvType('lecture')" style="background:#e2e8f0;color:#64748b">📚 특강</div>
-        <div class="lv-pill" data-type="halfday" onclick="selLvType('halfday')" style="background:#e2e8f0;color:#64748b">🌗 반차</div>
+        <div class="lv-pill" data-type="halfam"  onclick="selLvType('halfam')"  style="background:#e2e8f0;color:#64748b">🌅 오전반차</div>
+        <div class="lv-pill" data-type="halfpm"  onclick="selLvType('halfpm')"  style="background:#e2e8f0;color:#64748b">🌇 오후반차</div>
+        <div class="lv-pill" data-type="halfday" id="lv-pill-halfday" onclick="selLvType('halfday')" style="display:none;background:#e2e8f0;color:#64748b">🌗 반차(구)</div>
       </div>
     </div>
     <div class="fg"><label>메모 (선택)</label><input type="text" id="lm-note" placeholder="사유 등..."></div>
@@ -1769,7 +1771,9 @@ const LEAVE_TYPES = {
   checkup: {label:'검진',    color:'#64748b', bg:'#e2e8f0', icon:'🏥'},
   refresh: {label:'리프레쉬', color:'#64748b', bg:'#e2e8f0', icon:'✨'},
   lecture: {label:'특강',    color:'#64748b', bg:'#e2e8f0', icon:'📚', half:true},
-  halfday: {label:'반차',    color:'#64748b', bg:'#e2e8f0', icon:'🌗', half:true},
+  halfam:  {label:'오전반차', color:'#64748b', bg:'#e2e8f0', icon:'🌅', half:true},
+  halfpm:  {label:'오후반차', color:'#64748b', bg:'#e2e8f0', icon:'🌇', half:true},
+  halfday: {label:'반차',    color:'#64748b', bg:'#e2e8f0', icon:'🌗', half:true}, // legacy: 기존 데이터 호환용 (선택 목록에서는 제외)
 };
 let MS_TYPES = [
   {key:'storyboard', label:'스토리보드', color:'#042940'},
@@ -5567,6 +5571,9 @@ function saveTask(){
 let selLv='off';let pendingLv=null;
 function selLvType(type){
   selLv=type;
+  // legacy '반차' 레코드를 열 때만 구 항목 필 노출 (새로 고를 수는 없음)
+  const _legacyPill=document.getElementById('lv-pill-halfday');
+  if(_legacyPill) _legacyPill.style.display = type==='halfday' ? '' : 'none';
   document.querySelectorAll('.lv-pill').forEach(p=>{const t=p.dataset.type,lt=LEAVE_TYPES[t];p.style.borderColor=t===type?lt.color:'transparent';p.style.fontWeight=t===type?'700':'600'});
 }
 function openLeaveModal(personId, editIdx){
