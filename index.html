@@ -346,6 +346,7 @@ td.cell.leave.lv-e .lv-fill{border-radius:0 10px 10px 0;right:3px}
 td.cell.leave.lv-s.lv-e .lv-fill{border-radius:10px;left:3px;right:3px}
 td.cell.leave:hover .lv-fill{filter:brightness(.93)}
 td.cell.leave.lv-half .lv-fill{bottom:auto;height:calc(50% - 4px);left:3px!important;right:3px!important;border-radius:8px!important}
+td.cell.leave.lv-half.lv-half-pm .lv-fill{top:auto;bottom:3px}
 .lv-icon{font-size:15px;pointer-events:none;padding:0 4px}
 .lv-lbl{font-size:15px;font-weight:700;pointer-events:none;white-space:nowrap;overflow:hidden}
 
@@ -1772,7 +1773,7 @@ const LEAVE_TYPES = {
   refresh: {label:'리프레쉬', color:'#64748b', bg:'#e2e8f0', icon:'✨'},
   lecture: {label:'특강',    color:'#64748b', bg:'#e2e8f0', icon:'📚', half:true},
   halfam:  {label:'오전반차', color:'#64748b', bg:'#e2e8f0', icon:'🌅', half:true},
-  halfpm:  {label:'오후반차', color:'#64748b', bg:'#e2e8f0', icon:'🌇', half:true},
+  halfpm:  {label:'오후반차', color:'#64748b', bg:'#e2e8f0', icon:'🌇', half:true, pm:true},
   halfday: {label:'반차',    color:'#64748b', bg:'#e2e8f0', icon:'🌗', half:true}, // legacy: 기존 데이터 호환용 (선택 목록에서는 제외)
 };
 let MS_TYPES = [
@@ -4758,7 +4759,7 @@ function renderTable(){
             const li=(leaves[person.id]||[]).indexOf(lv);
             const lt=_lt;
             const lvS=n===dn(lv.start),lvE=n===dn(lv.end);
-            b+=`<td class="cell leave${isToday?' today':''}${isHolCell?' holiday-cell':''}${lvS?' lv-s':''}${lvE?' lv-e':''}${lt.half?' lv-half':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-idx="${idx}" data-ds="${dateStr}"
+            b+=`<td class="cell leave${isToday?' today':''}${isHolCell?' holiday-cell':''}${lvS?' lv-s':''}${lvE?' lv-e':''}${lt.half?' lv-half':''}${lt.pm?' lv-half-pm':''}${isWeekStart?' week-start':''}" data-task="${task.id}" data-idx="${idx}" data-ds="${dateStr}"
               draggable="true"
               ondragstart="lvGanttDragStart(event,'${person.id}',${li})"
               ondragover="event.preventDefault()"
@@ -4809,7 +4810,7 @@ function renderTable(){
               const li=(leaves[person.id]||[]).indexOf(lv);
               const lvS=n===dn(lv.start);
               lvOverlay=`<div onclick="event.stopPropagation();leaveClick(event,'${person.id}',${li})"
-                style="position:absolute;top:2px;left:2px;right:2px;height:calc(50% - 3px);background:${_lt.bg};color:${_lt.color};border-radius:7px;display:flex;align-items:center;z-index:5;cursor:pointer;overflow:hidden">
+                style="position:absolute;${_lt.pm?'bottom:2px':'top:2px'};left:2px;right:2px;height:calc(50% - 3px);background:${_lt.bg};color:${_lt.color};border-radius:7px;display:flex;align-items:center;z-index:5;cursor:pointer;overflow:hidden">
                 ${lvS?`<span class="lv-icon">${_lt.icon}</span><span class="lv-lbl">${_lt.label}</span>`:''}
               </div>`;
             }
@@ -4819,7 +4820,7 @@ function renderTable(){
 >
               <div class="bt" style="position:relative;height:100%">
                 ${msHtml}
-                ${lvHalfOverlap?`<div style="position:absolute;left:0;right:0;top:50%;bottom:0">${barsHtml}</div>`:barsHtml}
+                ${lvHalfOverlap?`<div style="position:absolute;left:0;right:0;${_lt.pm?'top:0;bottom:50%':'top:50%;bottom:0'}">${barsHtml}</div>`:barsHtml}
                 ${lvOverlay}
               </div>
               <div class="bub"></div>
