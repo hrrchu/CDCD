@@ -233,6 +233,12 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 .sub-tab.active{background:var(--sur);color:var(--acc);border-color:var(--bd)}
 .sub-content{display:none;background:var(--sur);border:1px solid var(--bd);border-radius:0 11px 11px 11px;margin:0 22px;box-shadow:var(--sh);overflow:auto}
 .sub-content.active{display:block}
+/* 부팅 베일 — Supabase 로드 전까지 시드 데이터 가림 */
+.boot-veil{position:fixed;inset:0;z-index:9000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .25s ease}
+.boot-veil.hide{opacity:0;pointer-events:none}
+.boot-spin{width:34px;height:34px;border:3px solid var(--bd2);border-top-color:var(--acc);border-radius:50%;animation:boot-rot .8s linear infinite}
+@keyframes boot-rot{to{transform:rotate(360deg)}}
+.boot-txt{font-size:14px;font-weight:600;color:var(--tx3);letter-spacing:.3px}
 /* 간트 패널은 화면 아래까지 채우기 */
 #scontent-0.active{display:flex;flex-direction:column}
 #scontent-0>.gs{flex:1 1 auto;min-height:0}
@@ -820,6 +826,11 @@ th.cd:hover{background:rgba(79,140,255,.06)}
 </style>
 </head>
 <body>
+<!-- 첫 진입 시 로컬 시드 데이터가 잠깐 보이는 것을 가림 -->
+<div class="boot-veil" id="boot-veil">
+  <div class="boot-spin"></div>
+  <div class="boot-txt">팀 데이터 불러오는 중…</div>
+</div>
 <div id="g-bub"></div>
 
 <!-- ── NAVIGATION ── -->
@@ -6658,7 +6669,18 @@ async function initSupabase(){
     console.error('Supabase error:', err);
     setFbIndicator('off');
     showToast('❌ ' + err.message, 'error');
+  } finally {
+    hideBootVeil();
   }
+}
+
+// 클라우드 데이터가 들어온 뒤(또는 실패/타임아웃 시) 베일 해제
+function hideBootVeil(){
+  const v = document.getElementById('boot-veil');
+  if(!v || v.dataset.done) return;
+  v.dataset.done = '1';
+  v.classList.add('hide');
+  setTimeout(()=>v.remove(), 300);
 }
 
 function loadFromSbData(payload){
@@ -7015,6 +7037,7 @@ init();
 initDarkMode();
 addTouchSupport();
 setTimeout(initSupabase, 300);
+setTimeout(hideBootVeil, 8000); // 연결 실패/오프라인 대비 안전장치
 </script>
 </body>
 </html>
