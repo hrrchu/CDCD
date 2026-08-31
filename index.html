@@ -785,7 +785,7 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-13</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-14</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -858,10 +858,10 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
   <!-- SUB 2: 근태 -->
   <div class="sub-content" id="scontent-2">
     <div class="sub-tabs" style="padding:14px 22px 0" id="kintai-tabs">
-      <div class="sub-tab active" id="kt-tab-leave" onclick="switchKintaiTab('leave')">휴가</div>
+      <div class="sub-tab active" id="kt-tab-rv-month" onclick="switchKintaiTab('rv-month')">리뷰</div>
+      <div class="sub-tab" id="kt-tab-leave" onclick="switchKintaiTab('leave')">휴가</div>
       <div class="sub-tab" id="kt-tab-ot"    onclick="switchKintaiTab('ot')">연장근로</div>
       <div class="sub-tab" id="kt-tab-rv-stats-month" onclick="switchKintaiTab('rv-stats-month')">통계</div>
-      <div class="sub-tab" id="kt-tab-rv-month" onclick="switchKintaiTab('rv-month')">리뷰</div>
     </div>
     <!-- 휴가 섹션 -->
     <div id="kintai-leave-wrap">
@@ -1746,9 +1746,19 @@ let CY=today.getFullYear(), CM=today.getMonth();
 //  NAV
 // ════════════════════════════════════════════
 let curPage=0;
+// ── 새로고침해도 보던 페이지/탭 유지 ──
+function _saveNav(){ try{ localStorage.setItem('cdnav2', JSON.stringify({p:curPage, s:curSubTab, k:_kintaiTab})); }catch(e){} }
+function _restoreNav(){
+  let nv=null; try{ nv=JSON.parse(localStorage.getItem('cdnav2')||'null'); }catch(e){}
+  if(!nv) return;
+  if(typeof nv.k==='string') _kintaiTab=nv.k;
+  if(typeof nv.p==='number'&&nv.p>0&&nv.p!==4) switchPage(nv.p);
+  if(typeof nv.s==='number'&&nv.s>0) switchSubTab(nv.s);
+}
 function switchPage(idx){
   hideBubNow();
   curPage=idx;
+  _saveNav();
   document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('active',i===idx));
   document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
   if(idx===0) renderGRM();
@@ -2895,9 +2905,10 @@ function editVote(voteId){
 
 
 
-let _kintaiTab = 'leave';
+let _kintaiTab = 'rv-month'; // Review 페이지 기본 탭 = 리뷰
 function switchKintaiTab(tab){
   _kintaiTab = tab;
+  _saveNav();
   const allTabs = ['leave','ot','rv-month','rv-stats-month'];
   allTabs.forEach(t=>{
     const b=document.getElementById('kt-tab-'+t);
@@ -3943,13 +3954,14 @@ let curSubTab=0;
 function switchSubTab(idx){
   hideBubNow();
   curSubTab=idx;
+  _saveNav();
   document.querySelectorAll('#schedule-subtabs .sub-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
   [0,1,2,3,4,5].forEach(i=>{
     const el=document.getElementById('scontent-'+i);
     if(el) el.classList.toggle('active',i===idx);
   });
   if(idx===1) renderGRM();
-  if(idx===2) switchKintaiTab('leave');
+  if(idx===2) switchKintaiTab(_kintaiTab);
   if(idx===3){ const tb=document.getElementById('p1-toolbar'); if(tb) tb.style.display='flex'; }
   if(idx===4) renderToolTable();
   if(idx===5){ renderIdeaBoard(); renderVotePage(); switchP3Tab(1); }
@@ -4571,6 +4583,7 @@ function init(){
   applyAdminMode();
   autoFitNc();
   fitPanelHeight();
+  _restoreNav();
 }
 function autoFitNc(){} // 고정값 사용
 
@@ -6741,7 +6754,7 @@ function loadFromSbData(payload){
   renderLegend(); renderHeader(); renderTable(); renderStats();
   applyAdminMode();
   if(curSubTab===1) renderGRM();
-  if(curSubTab===2) renderLeaveList();
+  if(curSubTab===2) switchKintaiTab(_kintaiTab); // 리뷰/휴가/연장근로/통계 중 현재 탭 갱신
   if(curSubTab===4) renderToolTable();
   if(curSubTab===5){ renderIdeaBoard(); renderVotePage(); }
   // 탭과 무관하게 항상 렌더 (데이터 로드 후 초기화)
