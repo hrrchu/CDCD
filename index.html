@@ -785,7 +785,7 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-11</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-12</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -4777,6 +4777,9 @@ function renderTable(){
             // 세로 분할은 실제로 겹치는 날에만 (겹침 없는 날은 꽉 채움). 위아래 순서는 고정 레인 기준이라 날짜별로 튀지 않음
             const msH=10;
             const nextLvHalf=!!lvHalfArr[idx+1];
+            // 시작/종료일이 주말·화면 범위 밖이면 실제 날짜와 일치하는 셀이 없어 바가 뚝 잘림 → 보이는 첫/마지막 셀을 시각적 시작/끝으로
+            const prevDn=idx>0?dn(wds[idx-1].ds):-Infinity;
+            const nextDn=idx+1<wds.length?dn(wds[idx+1].ds):Infinity;
             const sorted=[...rs].sort((a,b)=>((laneMap[tR.indexOf(a)]||{}).lane||0)-((laneMap[tR.indexOf(b)]||{}).lane||0));
             const barsHtml = sorted.map((rv,si)=>{
               const ri=tR.indexOf(rv);
@@ -4784,7 +4787,7 @@ function renderTable(){
               const bs=getBarStyle(proj,rv.status);
               // 같은 색 프로젝트끼리 겹치면 경계가 안 보임 → 아래쪽 바를 살짝 어두운 톤으로 차등
               const sameAbove=si>0&&(getProj(sorted[si-1].projectId)||{}).bar===proj.bar&&sorted[si-1].status===rv.status;
-              const isS=n===dn(rv.start),isE=n===dn(rv.end);
+              const isS=n===dn(rv.start)||prevDn<dn(rv.start), isE=n===dn(rv.end)||nextDn>dn(rv.end);
               const _wipGroup = ['wip','variation','revision'];
               const statusMatch = !_filterStatus ||
                 (_filterStatus==='wip' ? _wipGroup.includes(rv.status) : rv.status===_filterStatus);
