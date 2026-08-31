@@ -729,6 +729,10 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 :root[data-theme="dark"] .lv-fill{background:#2e2e2e!important;color:#9a9a9a!important}
 :root[data-theme="dark"] .lvov{background:#2e2e2e!important;color:#9a9a9a!important}
 :root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3d3d3d}
+/* 위키 표 다크: contenteditable 속성이 벗겨진 셀도 있어(execCommand가 속성 제거) 속성 기반 규칙만으론 절반만 다크 처리됨 → 표 셀 전체 강제 */
+:root[data-theme="dark"] #p1-body table td{background:var(--sur)!important;color:var(--tx)!important;border-color:var(--bd2)!important}
+:root[data-theme="dark"] #p1-body table th{background:#2e2e2e!important;color:var(--tx)!important;border-color:var(--bd2)!important}
+:root[data-theme="dark"] #p1-body table a{color:#8ab4f8}
 /* 메모 보드 다크: 입력칸 + 기본(흰) 메모 카드 반전, 파스텔 색 메모지는 유지 */
 :root[data-theme="dark"] .idea-new-area{background:var(--sur);border-color:var(--bd2);box-shadow:0 2px 8px rgba(0,0,0,.4)}
 :root[data-theme="dark"] .idea-new-placeholder{color:var(--tx3)}
@@ -777,7 +781,7 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:10px;opacity:.45;margin-left:6px;font-weight:400">v0831-2</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:10px;opacity:.45;margin-left:6px;font-weight:400">v0831-3</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -4713,6 +4717,13 @@ function renderTable(){
       tasks.filter(t=>t.personId===person.id).forEach(task=>{
         const tR=ranges[task.id]||[];
         const laneMap=ganttLanes(tR);
+        // 날짜별 반차·특강+일정 겹침 여부 미리 계산 (옆 셀에서 참조: 확장 중단용)
+        const lvHalfArr=wds.map(({ds})=>{
+          const n2=dn(ds);
+          const lv2=(leaves[person.id]||[]).find(l=>n2>=dn(l.start)&&n2<=dn(l.end));
+          const lt2=lv2?(LEAVE_TYPES[lv2.type]||LEAVE_TYPES.off):null;
+          return !!(lv2&&lt2&&lt2.half&&tR.some(r=>n2>=dn(r.start)&&n2<=dn(r.end)));
+        });
         b+=`<tr data-task="${task.id}" data-person="${person.id}" data-group="${group.id}" onmouseenter="rowEnter(this)" onmouseleave="rowLeave(this)" style="${!personHasProj?'opacity:.3':''}">`;
         const isFilteredPerson = _filterPersonId === person.id;
         b+=`<td class="cn" onclick="filterByPerson('${person.id}')" title="클릭: 이 담당자만 보기" style="cursor:pointer${isFilteredPerson?';background:rgba(217,251,75,.25);border-left:3px solid var(--key2)':''}">
@@ -4754,9 +4765,11 @@ function renderTable(){
               <div class="bub"></div>
             </td>`;
           } else if(rs.length>0){
-            // 겹치는 바들 세로 분할: 고정 레인 배정 — 바 전체 구간이 같은 높이/위치를 유지
+            // 세로 분할은 실제로 겹치는 날에만 (겹침 없는 날은 꽉 채움). 위아래 순서는 고정 레인 기준이라 날짜별로 튀지 않음
             const msH=10;
-            const barsHtml = rs.map(rv=>{
+            const nextLvHalf=!!lvHalfArr[idx+1];
+            const sorted=[...rs].sort((a,b)=>((laneMap[tR.indexOf(a)]||{}).lane||0)-((laneMap[tR.indexOf(b)]||{}).lane||0));
+            const barsHtml = sorted.map((rv,si)=>{
               const ri=tR.indexOf(rv);
               const proj=getProj(rv.projectId);
               const bs=getBarStyle(proj,rv.status);
@@ -4768,18 +4781,18 @@ function renderTable(){
               const cellPx=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cell"))||40;
               const span=dn(rv.end)-dn(rv.start)+1;
               const lblW=span*cellPx-8;
-              const lf=laneMap[ri]||{lane:0,lanes:1};
-              const n_=lf.lanes;
-              const topFrac=lf.lane/n_, heightFrac=1/n_;
-              const gapCss = n_>1&&lf.lane<n_-1 ? 'padding-bottom:2px;' : '';
+              const n_=sorted.length;
+              const topFrac=si/n_, heightFrac=1/n_;
+              const gapCss = n_>1&&si<n_-1 ? 'padding-bottom:2px;' : '';
               const rad = n_>1 ? 4 : 6; // 겹칠 땐 radius 살짝 축소
+              const roundAll=lvHalfOverlap; // 반차·특강 칸의 바 조각은 독립 알약처럼 사방 라운딩
               // 셀 보더가 투명이어도 폭을 차지해 바에 세로 이음새가 생김 → 오른쪽으로만 보더 폭만큼 확장해 이어붙임
               // border-collapse:collapse라 실제 보더 폭 = 일반 1px, 주 경계 2px(1px+2px 병합). 초과 확장 시 반투명 바가 이중으로 칠해져 밝은 줄 발생
-              const exR=isE?'0':(nextWeekStart?'-2px':'-1px');
+              const exR=(isE||roundAll||nextLvHalf)?'0':(nextWeekStart?'-2px':'-1px');
               return `<div style="position:absolute;top:calc(${msH}px + ${topFrac} * (100% - ${msH}px));left:0;right:${exR};height:calc(${heightFrac} * (100% - ${msH}px));${gapCss}box-sizing:border-box;overflow:${span===1?'hidden':'visible'};${dimmed?'opacity:0;':''}"
                 onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
                 onclick="barBfClick(event,'${task.id}',${ri})">
-                <div class="bf" style="position:absolute;top:0;bottom:auto;height:${n_>1&&lf.lane<n_-1?'calc(100% - 2px)':'100%'};left:0;right:0;overflow:visible;background:${bs.bg};opacity:${bs.op||1};box-shadow:${bs.shadow};${isS||isE?'width:auto;':''}${isS?`border-radius:${rad}px 0 0 ${rad}px;margin-left:2px;left:2px;`:''}${isE?`border-radius:0 ${rad}px ${rad}px 0;margin-right:2px;right:2px;`:''}${isS&&isE?`border-radius:${rad}px;margin:0 2px;left:2px;right:2px;`:''}">
+                <div class="bf" style="position:absolute;top:0;bottom:auto;height:${n_>1&&si<n_-1?'calc(100% - 2px)':'100%'};left:0;right:0;overflow:visible;background:${bs.bg};opacity:${bs.op||1};box-shadow:${bs.shadow};${roundAll?`width:auto;border-radius:${rad}px;margin:0 2px;left:2px;right:2px;`:`${isS||isE?'width:auto;':''}${isS?`border-radius:${rad}px 0 0 ${rad}px;margin-left:2px;left:2px;`:''}${isE?`border-radius:0 ${rad}px ${rad}px 0;margin-right:2px;right:2px;`:''}${isS&&isE?`border-radius:${rad}px;margin:0 2px;left:2px;right:2px;`:''}`}">
                   ${isS?`<span class="bl" style="color:${bs.tc};max-width:${lblW}px;font-size:${n_>1?'9px':'11px'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.rtitle||proj.name}</span>`:''}
                   ${isS?`<div class="rh rh-l" onmousedown="resizeMD(event,'${task.id}',${ri},'left',${idx})"></div>`:''}
                   ${isE?`<div class="rh rh-r" onmousedown="resizeMD(event,'${task.id}',${ri},'right',${idx})"></div>`:''}
