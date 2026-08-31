@@ -781,7 +781,7 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:10px;opacity:.45;margin-left:6px;font-weight:400">v0831-3</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:10px;opacity:.45;margin-left:6px;font-weight:400">v0831-4</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -1523,7 +1523,9 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
         <div class="lv-pill" data-type="offday"  onclick="selLvType('offday')"  style="background:#fff;color:var(--tx2);border:1px solid var(--bd2)">오프데이</div>
         <div class="lv-pill" data-type="checkup" onclick="selLvType('checkup')" style="background:#fff;color:var(--tx2);border:1px solid var(--bd2)">검진</div>
         <div class="lv-pill" data-type="refresh" onclick="selLvType('refresh')" style="background:#fff;color:var(--tx2);border:1px solid var(--bd2)">리프레쉬</div>
-        <div class="lv-pill" data-type="lecture" onclick="selLvType('lecture')" style="background:#fff;color:var(--tx2);border:1px solid var(--bd2)">특강</div>
+        <div class="lv-pill" data-type="lecture" onclick="selLvType('lecture')" style="background:#fff;color:var(--tx2);border:1px solid var(--bd2)">오전특강</div>
+        <div class="lv-pill" data-type="lecturepm" onclick="selLvType('lecturepm')" style="background:#fff;color:var(--tx2);border:1px solid var(--bd2)">오후특강</div>
+        <div class="lv-pill" data-type="lecturefull" onclick="selLvType('lecturefull')" style="background:#fff;color:var(--tx2);border:1px solid var(--bd2)">종일특강</div>
         <div class="lv-pill" data-type="halfam"  onclick="selLvType('halfam')"  style="background:#fff;color:var(--tx2);border:1px solid var(--bd2)">오전반차</div>
         <div class="lv-pill" data-type="halfpm"  onclick="selLvType('halfpm')"  style="background:#fff;color:var(--tx2);border:1px solid var(--bd2)">오후반차</div>
         <div class="lv-pill" data-type="halfday" id="lv-pill-halfday" onclick="selLvType('halfday')" style="display:none;background:#fff;color:var(--tx2);border:1px solid var(--bd2)">반차(구)</div>
@@ -1720,7 +1722,9 @@ const LEAVE_TYPES = {
   offday:  {label:'오프데이', color:'#707070', bg:'#ededed', icon:''},
   checkup: {label:'검진',    color:'#707070', bg:'#ededed', icon:''},
   refresh: {label:'리프레쉬', color:'#707070', bg:'#ededed', icon:''},
-  lecture: {label:'특강',    color:'#707070', bg:'#ededed', icon:'', half:true},
+  lecture: {label:'오전특강', color:'#707070', bg:'#ededed', icon:'', half:true}, // 기존 '특강' 데이터도 이 키 사용 (위 반칸 표시라 오전형)
+  lecturepm:   {label:'오후특강', color:'#707070', bg:'#ededed', icon:'', half:true, pm:true},
+  lecturefull: {label:'종일특강', color:'#707070', bg:'#ededed', icon:''},
   halfam:  {label:'오전반차', color:'#707070', bg:'#ededed', icon:'', half:true},
   halfpm:  {label:'오후반차', color:'#707070', bg:'#ededed', icon:'', half:true, pm:true},
   halfday: {label:'반차',    color:'#707070', bg:'#ededed', icon:'', half:true}, // legacy: 기존 데이터 호환용 (선택 목록에서는 제외)
@@ -2747,7 +2751,7 @@ function renderVotePage(){
     const total = v.opts.reduce((s,o)=>s+o.voters.length,0);
     const isDue = v.due && v.due < todayStr();
     const closed = v.closed || isDue;
-    const dueLabel = v.due ? `<span style="font-size:15px;color:${isDue?'#e53e3e':'var(--tx3)'}">⏰ ${v.due}${isDue?' (마감)':''}</span>` : '';
+    const dueLabel = v.due ? `<span style="font-size:15px;color:${isDue?'#1547F7':'var(--tx3)'}">⏰ ${v.due}${isDue?' (마감)':''}</span>` : '';
     const anonLabel = v.anon ? '<span style="font-size:15px;color:var(--tx3)">익명</span>' : '';
     const typeLabel = v.type==='multi'?'<span style="font-size:15px;color:var(--acc)">복수선택</span>':'';
 
@@ -2793,7 +2797,7 @@ function renderVotePage(){
           ${!closed?`<button class="btn btn-g" style="font-size:15px;padding:4px 10px" onclick="closeVote('${v.id}')">마감</button>`:'<span style="font-size:15px;padding:4px 8px;background:var(--sf2);color:var(--tx3);border:1px solid var(--bd);border-radius:6px">마감됨</span>'}
         </div>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">${dueLabel}${anonLabel}${typeLabel}<span style="font-size:15px;color:var(--tx3)">총 ${total}표</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:baseline">${dueLabel}${anonLabel}${typeLabel}<span style="font-size:15px;color:var(--tx3)">총 ${total}표</span></div>
       <div id="vote-voter-sel-${v.id}" style="margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span style="font-size:15px;color:var(--tx2);font-weight:600">참여:</span>
         <select onchange="setVoterCtx('${v.id}',this.value)" style="border:1px solid var(--bd2);border-radius:7px;padding:5px 8px;font-size:15px;font-family:'Pretendard',sans-serif;outline:none">
@@ -4785,14 +4789,15 @@ function renderTable(){
               const topFrac=si/n_, heightFrac=1/n_;
               const gapCss = n_>1&&si<n_-1 ? 'padding-bottom:2px;' : '';
               const rad = n_>1 ? 4 : 6; // 겹칠 땐 radius 살짝 축소
-              const roundAll=lvHalfOverlap; // 반차·특강 칸의 바 조각은 독립 알약처럼 사방 라운딩
+              // 반차·특강 칸: 바는 이어진 채로, 알약이 닿는 쪽 모서리만 라운딩 (조각으로 떼어내면 억지스러움 — 사용자 피드백)
+              const lvRound=lvHalfOverlap?(_lt&&_lt.pm?`border-radius:0 0 ${rad}px ${rad}px;`:`border-radius:${rad}px ${rad}px 0 0;`):'';
               // 셀 보더가 투명이어도 폭을 차지해 바에 세로 이음새가 생김 → 오른쪽으로만 보더 폭만큼 확장해 이어붙임
               // border-collapse:collapse라 실제 보더 폭 = 일반 1px, 주 경계 2px(1px+2px 병합). 초과 확장 시 반투명 바가 이중으로 칠해져 밝은 줄 발생
-              const exR=(isE||roundAll||nextLvHalf)?'0':(nextWeekStart?'-2px':'-1px');
+              const exR=(isE||nextLvHalf)?'0':(nextWeekStart?'-2px':'-1px');
               return `<div style="position:absolute;top:calc(${msH}px + ${topFrac} * (100% - ${msH}px));left:0;right:${exR};height:calc(${heightFrac} * (100% - ${msH}px));${gapCss}box-sizing:border-box;overflow:${span===1?'hidden':'visible'};${dimmed?'opacity:0;':''}"
                 onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
                 onclick="barBfClick(event,'${task.id}',${ri})">
-                <div class="bf" style="position:absolute;top:0;bottom:auto;height:${n_>1&&si<n_-1?'calc(100% - 2px)':'100%'};left:0;right:0;overflow:visible;background:${bs.bg};opacity:${bs.op||1};box-shadow:${bs.shadow};${roundAll?`width:auto;border-radius:${rad}px;margin:0 2px;left:2px;right:2px;`:`${isS||isE?'width:auto;':''}${isS?`border-radius:${rad}px 0 0 ${rad}px;margin-left:2px;left:2px;`:''}${isE?`border-radius:0 ${rad}px ${rad}px 0;margin-right:2px;right:2px;`:''}${isS&&isE?`border-radius:${rad}px;margin:0 2px;left:2px;right:2px;`:''}`}">
+                <div class="bf" style="position:absolute;top:0;bottom:auto;height:${n_>1&&si<n_-1?'calc(100% - 2px)':'100%'};left:0;right:0;overflow:visible;background:${bs.bg};opacity:${bs.op||1};box-shadow:${bs.shadow};${lvRound}${isS||isE?'width:auto;':''}${isS?`border-radius:${rad}px 0 0 ${rad}px;margin-left:2px;left:2px;`:''}${isE?`border-radius:0 ${rad}px ${rad}px 0;margin-right:2px;right:2px;`:''}${isS&&isE?`border-radius:${rad}px;margin:0 2px;left:2px;right:2px;`:''}">
                   ${isS?`<span class="bl" style="color:${bs.tc};max-width:${lblW}px;font-size:${n_>1?'9px':'11px'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.rtitle||proj.name}</span>`:''}
                   ${isS?`<div class="rh rh-l" onmousedown="resizeMD(event,'${task.id}',${ri},'left',${idx})"></div>`:''}
                   ${isE?`<div class="rh rh-r" onmousedown="resizeMD(event,'${task.id}',${ri},'right',${idx})"></div>`:''}
