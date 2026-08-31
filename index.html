@@ -785,7 +785,7 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-10</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-11</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -3613,15 +3613,16 @@ let toolRows = [
 ];
 let _toolDragIdx = null;
 
+// line = 좌측 스트라이프(비비드 팔레트, 사용자 지정 4색 + 동계열 확장), color = 필 텍스트(라이트 가독용 딥톤), bg = 필 틴트
 const TOOL_CATS = [
-  {value:'Font',   label:'Font',   bg:'#ede9fe', color:'#6d28d9'},
-  {value:'Sound',  label:'Sound',  bg:'#fce7f3', color:'#be185d'},
-  {value:'3D',     label:'3D',     bg:'#fff7ed', color:'#c2410c'},
-  {value:'2D',     label:'2D',     bg:'#ecfdf5', color:'#065f46'},
-  {value:'Motion', label:'Motion', bg:'#eff6ff', color:'#1d4ed8'},
-  {value:'AI',     label:'AI',     bg:'#f0fdf4', color:'#15803d'},
-  {value:'CD',     label:'CD',     bg:'#fefce8', color:'#a16207'},
-  {value:'기타',   label:'기타',   bg:'#fafafa', color:'#475569'},
+  {value:'Font',   label:'Font',   line:'#8A5CFF', bg:'#8A5CFF1A', color:'#6E3BFF'},
+  {value:'Sound',  label:'Sound',  line:'#E840F0', bg:'#E840F01A', color:'#C316CC'},
+  {value:'3D',     label:'3D',     line:'#FF5C1F', bg:'#FF5C1F1A', color:'#E04A0F'},
+  {value:'2D',     label:'2D',     line:'#35E06B', bg:'#35E06B1A', color:'#12A94B'},
+  {value:'Motion', label:'Motion', line:'#1547F7', bg:'#1547F71A', color:'#1547F7'},
+  {value:'AI',     label:'AI',     line:'#D9FB4B', bg:'#D9FB4B33', color:'#7A9406'},
+  {value:'CD',     label:'CD',     line:'#80FBF4', bg:'#80FBF433', color:'#0E9C94'},
+  {value:'기타',   label:'기타',   line:'#9a9a9a', bg:'#9a9a9a1A', color:'#707070'},
 ];
 function getToolCat(val){ return TOOL_CATS.find(c=>c.value===val)||TOOL_CATS[TOOL_CATS.length-1]; }
 
@@ -3633,7 +3634,7 @@ function renderToolTable(){
     const selOpts = TOOL_CATS.map(c=>`<option value="${c.value}"${(row.cat||'')==c.value?' selected':''}>${c.label}</option>`).join('');
     return `
     <tr class="tool-row" id="trow-${row.id}"
-      style="border-left:3px solid ${cat.color}"
+      style="border-left:3px solid ${cat.line||cat.color}"
       ondragover="toolRowDragOver(event,${idx})"
       ondragleave="toolRowDragLeave(event,${idx})"
       ondrop="toolRowDrop(event,${idx})"
@@ -4791,16 +4792,13 @@ function renderTable(){
               const cellPx=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cell"))||40;
               const span=dn(rv.end)-dn(rv.start)+1;
               const n_=sorted.length;
-              // 라벨은 바의 슬롯 모양(겹침 수·순서·반차 여부)이 시작일과 같게 유지되는 구간까지만 → 겹침 구간의 다른 바 텍스트와 충돌 방지
+              // 겹침에 참여하는 바(merged)는 라벨을 위쪽 고정 → 레인 순서가 레인 번호 정렬이라 텍스트가 자기 영역을 벗어나지 않음 (전체 길이 표시 가능)
+              // 반차·특강 홈 구간만 라벨 진입 금지 (홈에서 바가 위/아래 반칸으로 이동해 텍스트가 알약 위로 뜰 수 있음)
+              const merged=((laneMap[ri]||{}).lanes||1)>1;
               let lblSpan=1;
               if(isS){
                 for(let k=idx+1;k<wds.length;k++){
-                  const n2=dn(wds[k].ds);
-                  if(n2>dn(rv.end))break;
-                  const rsD=tR.filter(r=>n2>=dn(r.start)&&n2<=dn(r.end));
-                  if(rsD.length!==n_)break;
-                  rsD.sort((a,b)=>((laneMap[tR.indexOf(a)]||{}).lane||0)-((laneMap[tR.indexOf(b)]||{}).lane||0));
-                  if(rsD.indexOf(rv)!==si)break;
+                  if(dn(wds[k].ds)>dn(rv.end))break;
                   if(!!lvHalfArr[k]!==!!lvHalfArr[idx])break;
                   lblSpan++;
                 }
@@ -4818,7 +4816,7 @@ function renderTable(){
                 onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
                 onclick="barBfClick(event,'${task.id}',${ri})">
                 <div class="bf" style="position:absolute;top:0;bottom:auto;height:${n_>1&&si<n_-1?'calc(100% - 2px)':'100%'};left:0;right:0;overflow:visible;background:${bs.bg};opacity:${bs.op||1};box-shadow:${bs.shadow};${sameAbove?'filter:brightness(.8);':''}${isS||isE?'width:auto;':''}${isS?`border-radius:${rad}px 0 0 ${rad}px;margin-left:2px;left:2px;`:''}${isE?`border-radius:0 ${rad}px ${rad}px 0;margin-right:2px;right:2px;`:''}${isS&&isE?`border-radius:${rad}px;margin:0 2px;left:2px;right:2px;`:''}">
-                  ${isS?`<span class="bl" style="color:${bs.tc};max-width:${lblW}px;font-size:${n_>1?'9px':'11px'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.rtitle||proj.name}</span>`:''}
+                  ${isS?`<span class="bl" style="color:${bs.tc};max-width:${lblW}px;font-size:${n_>1?'9px':'11px'};${merged?'align-self:flex-start;margin-top:2px;':''}overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.rtitle||proj.name}</span>`:''}
                   ${isS?`<div class="rh rh-l" onmousedown="resizeMD(event,'${task.id}',${ri},'left',${idx})"></div>`:''}
                   ${isE?`<div class="rh rh-r" onmousedown="resizeMD(event,'${task.id}',${ri},'right',${idx})"></div>`:''}
                 </div>
