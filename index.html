@@ -281,8 +281,8 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .bd2t{font-family:'Pretendard',sans-serif;font-size:15px;color:var(--tx3);margin-bottom:4px}
 .bpp{font-size:15px;font-weight:700;margin-bottom:3px}
 .bt2{font-size:15px;color:var(--tx);line-height:1.5;margin-bottom:6px}
-.blink{display:flex;align-items:center;gap:5px;font-size:15px;color:#4f8cff;text-decoration:none;background:rgba(79,140,255,.07);padding:4px 7px;border-radius:5px;word-break:break-all}
-.blink:hover{background:rgba(79,140,255,.14)}
+.blink{display:flex;align-items:center;gap:5px;font-size:15px;color:#1547F7;text-decoration:none;background:rgba(21,71,247,.06);padding:4px 7px;border-radius:5px;word-break:break-all}
+.blink:hover{background:rgba(21,71,247,.12)}
 
 /* ── MODAL ── */
 .mb{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:500;display:none;align-items:center;justify-content:center}
@@ -292,7 +292,7 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 @keyframes mi{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .mt{font-size:18px;font-weight:700;color:var(--tx);margin-bottom:4px}
 .mss{font-size:15px;color:var(--tx3);margin-bottom:10px}
-.rbadge{display:inline-flex;align-items:center;gap:5px;background:#f0f7ff;border:1px solid #c7deff;color:#4f8cff;border-radius:6px;padding:3px 10px;font-size:15px;font-family:'Pretendard',sans-serif;margin-bottom:12px}
+.rbadge{display:inline-flex;align-items:center;gap:5px;background:#1547F710;border:1px solid #1547F740;color:#1547F7;border-radius:6px;padding:3px 10px;font-size:15px;font-family:'Pretendard',sans-serif;margin-bottom:12px}
 .fg{margin-bottom:11px}
 .fg label{display:block;font-size:15px;color:var(--tx2);margin-bottom:3px;font-weight:600}
 .fg input,.fg textarea,.fg select{width:100%;background:var(--sf2);border:1px solid var(--bd2);border-radius:7px;padding:7px 10px;color:var(--tx);font-family:'Pretendard',sans-serif;font-size:15px;outline:none;resize:vertical;transition:border-color .1s}
@@ -414,9 +414,9 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 /* ── FREE PAGES ── */
 .free-page{padding:32px 28px}
 .free-page-title{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:6px;outline:none;width:100%;border:none;background:none;font-family:'Pretendard',sans-serif}
-.free-page-title:focus{background:#f8f9ff;border-radius:6px;padding:2px 6px}
+.free-page-title:focus{background:#1547F70D;border-radius:6px;padding:2px 6px}
 .free-page-subtitle{font-size:13px;color:var(--tx3);margin-bottom:20px;outline:none;width:100%;border:none;background:none;font-family:'Pretendard',sans-serif}
-.free-page-subtitle:focus{background:#f8f9ff;border-radius:6px;padding:2px 6px}
+.free-page-subtitle:focus{background:#1547F70D;border-radius:6px;padding:2px 6px}
 .free-editor{width:100%;min-height:2400px;background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:18px;font-family:'Pretendard',sans-serif;font-size:15px;line-height:1.8;color:var(--tx);outline:none;box-shadow:var(--sh);white-space:pre-wrap;word-break:break-word;box-sizing:border-box}
 .free-editor:empty:before{content:attr(data-placeholder);color:var(--tx3);pointer-events:none;white-space:pre-wrap}
 [contenteditable][data-placeholder]:empty:before{content:attr(data-placeholder);color:var(--tx3);pointer-events:none;white-space:pre-wrap}
@@ -471,7 +471,7 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .tool-row:hover .tool-drag-cell{opacity:.7}
 .tool-drag-cell:active{cursor:grabbing}
 .tool-cell-input{width:100%;border:none;outline:none;background:transparent;font-family:'Pretendard',sans-serif;font-size:15px;color:var(--tx);padding:10px 14px;transition:background .1s;box-sizing:border-box}
-.tool-cell-input:focus{background:#f0f7ff}
+.tool-cell-input:focus{background:#1547F710}
 .tool-cell-input::placeholder{color:var(--tx3);opacity:.6}
 .tool-pw-wrap{display:flex;align-items:center;position:relative}
 .tool-pw-wrap input{padding-right:32px}
@@ -781,7 +781,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-24</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-25</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -866,8 +866,8 @@ td.cell.leave{border-right-color:transparent}
           <div class="grm-title" style="margin-bottom:0">휴가 목록 <span style="font-size:15px;font-weight:400;color:var(--tx3)" id="leave-list-label"></span></div>
           <div class="grm-sub">등록된 모든 휴가를 날짜 순으로 확인하고 관리할 수 있어요.</div>
           <div style="display:flex;gap:6px">
-            <button id="lv-tab-month" onclick="switchLeaveTab('month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">📅 월간</button>
-            <button id="lv-tab-year"  onclick="switchLeaveTab('year')"  class="btn btn-g" style="font-size:14px;padding:5px 14px">📆 연간</button>
+            <button id="lv-tab-month" onclick="switchLeaveTab('month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">월간</button>
+            <button id="lv-tab-year"  onclick="switchLeaveTab('year')"  class="btn btn-g" style="font-size:14px;padding:5px 14px">연간</button>
           </div>
         </div>
         <div id="leave-list-wrap"></div>
@@ -915,13 +915,13 @@ td.cell.leave{border-right-color:transparent}
         <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
           <!-- 리뷰 서브탭 -->
           <div id="rv-sub-review" style="display:flex;gap:6px">
-            <button id="rv-tab-month" onclick="switchRvTab('month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">📅 월간 리뷰</button>
-            <button id="rv-tab-year"  onclick="switchRvTab('year')"  class="btn btn-g" style="font-size:15px;padding:7px 18px">📆 연간 리뷰</button>
+            <button id="rv-tab-month" onclick="switchRvTab('month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">월간 리뷰</button>
+            <button id="rv-tab-year"  onclick="switchRvTab('year')"  class="btn btn-g" style="font-size:15px;padding:7px 18px">연간 리뷰</button>
           </div>
           <!-- 통계 서브탭 -->
           <div id="rv-sub-stats" style="display:none;gap:6px">
-            <button id="rv-tab-stats-month" onclick="switchRvTab('stats-month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">📊 월간 통계</button>
-            <button id="rv-tab-stats-year"  onclick="switchRvTab('stats-year')"  class="btn btn-g" style="font-size:15px;padding:7px 18px">📊 연간 통계</button>
+            <button id="rv-tab-stats-month" onclick="switchRvTab('stats-month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">월간 통계</button>
+            <button id="rv-tab-stats-year"  onclick="switchRvTab('stats-year')"  class="btn btn-g" style="font-size:15px;padding:7px 18px">연간 통계</button>
           </div>
         </div>
         <div id="rv-admin-list"></div>
@@ -939,8 +939,8 @@ td.cell.leave{border-right-color:transparent}
             <div class="grm-sub">팀원별 월간 연장근로 시간을 입력해요. 순위순으로 정렬돼요.</div>
           </div>
           <div style="display:flex;gap:6px">
-            <button id="ot-tab-month" onclick="switchOtTab('month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">📅 월간</button>
-            <button id="ot-tab-year"  onclick="switchOtTab('year')"  class="btn btn-g" style="font-size:14px;padding:5px 14px">📆 연간</button>
+            <button id="ot-tab-month" onclick="switchOtTab('month')" class="btn btn-p" style="font-size:14px;padding:5px 14px">월간</button>
+            <button id="ot-tab-year"  onclick="switchOtTab('year')"  class="btn btn-g" style="font-size:14px;padding:5px 14px">연간</button>
           </div>
         </div>
         <div id="ot-wrap" style="margin-top:12px"></div>
@@ -997,8 +997,8 @@ td.cell.leave{border-right-color:transparent}
       </div>
       <div style="display:flex;align-items:center;gap:4px">
         <span style="font-size:13px;color:var(--tx3)">배경</span>
-        <input type="color" class="tb-color" id="tb-hili-color" value="#ffff00" title="배경색" oninput="document.getElementById('tb-hili-hex').value=this.value">
-        <input type="text" id="tb-hili-hex" value="#ffff00" maxlength="7" placeholder="#ffff00"
+        <input type="color" class="tb-color" id="tb-hili-color" value="#D9FB4B" title="배경색" oninput="document.getElementById('tb-hili-hex').value=this.value">
+        <input type="text" id="tb-hili-hex" value="#D9FB4B" maxlength="7" placeholder="#D9FB4B"
           style="width:72px;border:1px solid var(--bd2);border-radius:5px;padding:3px 6px;font-size:13px;font-family:'Pretendard',sans-serif;outline:none"
           oninput="if(/^#[0-9a-fA-F]{6}$/.test(this.value))document.getElementById('tb-hili-color').value=this.value">
         <button class="tb-btn" onclick="tbExec('hiliteColor',document.getElementById('tb-hili-hex').value||document.getElementById('tb-hili-color').value)" style="font-size:13px;padding:3px 7px">적용</button>
@@ -1264,6 +1264,10 @@ td.cell.leave{border-right-color:transparent}
     </div>
     </div><!-- /col2 -->
     <div style="flex:0 0 440px;min-width:300px">
+    <div class="fg"><label>마감일 <span style="font-size:13px;color:var(--tx3)">(기본: 기간 마지막 날, 수정 가능)</span></label>
+      <input type="date" id="cm-due" oninput="_cmDueManual=true"
+        style="width:100%;border:1px solid var(--bd2);border-radius:8px;padding:6px 10px;font-size:14px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx);box-sizing:border-box">
+    </div>
     <div class="fg"><label>메모</label>
       <input type="hidden" id="wi-da-chk"><input type="hidden" id="wi-vid-chk"><input type="hidden" id="wi-da-cnt" value="0"><input type="hidden" id="wi-da-var-cnt" value="0"><input type="hidden" id="wi-vid-cnt" value="0"><input type="hidden" id="wi-vid-var-cnt" value="0">
       <div id="cm-text"
@@ -1333,7 +1337,7 @@ td.cell.leave{border-right-color:transparent}
       <div id="ms-type-list"></div>
       <div style="display:flex;gap:6px;margin-top:8px;align-items:center">
         <input type="text" id="ms-new-label" placeholder="새 종류 이름..." style="flex:1;background:var(--sf2);border:1px solid var(--bd2);border-radius:7px;padding:6px 9px;font-size:15px;font-family:'Pretendard',sans-serif;outline:none">
-        <input type="color" id="ms-new-color" value="#3b82f6" style="width:34px;height:34px;border:1px solid var(--bd2);border-radius:7px;padding:2px;cursor:pointer;flex-shrink:0">
+        <input type="color" id="ms-new-color" value="#1547F7" style="width:34px;height:34px;border:1px solid var(--bd2);border-radius:7px;padding:2px;cursor:pointer;flex-shrink:0">
         <button class="btn btn-p" onclick="addMsType()" style="padding:6px 12px;flex-shrink:0">추가</button>
       </div>
     </div>
@@ -1357,7 +1361,7 @@ td.cell.leave{border-right-color:transparent}
         <div style="font-size:14px;font-weight:700;color:var(--tx3);margin-bottom:8px">새 마일스톤 추가</div>
         <div style="display:flex;gap:6px;align-items:center">
           <input type="text" id="ms-mgr-new-label" placeholder="이름..." style="flex:1;border:1px solid var(--bd2);border-radius:7px;padding:6px 10px;font-size:15px;font-family:'Pretendard',sans-serif;outline:none">
-          <input type="color" id="ms-mgr-new-color" value="#3b82f6" style="width:36px;height:36px;border:1px solid var(--bd2);border-radius:7px;padding:2px;cursor:pointer;flex-shrink:0">
+          <input type="color" id="ms-mgr-new-color" value="#1547F7" style="width:36px;height:36px;border:1px solid var(--bd2);border-radius:7px;padding:2px;cursor:pointer;flex-shrink:0">
           <button class="btn btn-p" onclick="msMgrAdd()" style="flex-shrink:0">추가</button>
         </div>
       </div>
@@ -1930,8 +1934,16 @@ function setSpinnerDate(prefix, dateStr){
   refreshQuickDate(p);
 }
 
+// 일정 마감일: 사용자가 직접 수정하기 전까지는 종료일을 따라감
+let _cmDueManual=false;
+function syncCmDue(){
+  const el=document.getElementById('cm-due'); if(!el) return;
+  if(!_cmDueManual) el.value=document.getElementById('cm-end')?.value||'';
+}
+
 // 월일 4자리 표시칸(ds-quick)을 현재 값으로 갱신
 function refreshQuickDate(prefix){
+  if(prefix==='cm') syncCmDue(); // 종료일 변경 시 마감일 자동 추종
   const fmt=(m,d)=>String(m).padStart(2,'0')+String(d).padStart(2,'0');
   if(prefix==='hol'){
     const m=+document.getElementById('hol-m')?.value, d=+document.getElementById('hol-d')?.value;
@@ -2478,9 +2490,9 @@ function renderLadderPlayers(){
   if(!wrap) return;
   cnt.textContent = `(${_ladderPlayers.length}명)`;
   wrap.innerHTML = _ladderPlayers.map(p=>`
-    <span style="display:inline-flex;align-items:center;gap:4px;background:#f0f7ff;color:var(--acc);border:1px solid #bfdbfe;border-radius:20px;padding:4px 10px;font-size:15px;font-weight:600">
+    <span style="display:inline-flex;align-items:center;gap:4px;background:#1547F710;color:var(--acc);border:1px solid #1547F740;border-radius:20px;padding:4px 10px;font-size:15px;font-weight:600">
       ${p.name}
-      <button onclick="removeLadderPlayer('${p.name}')" style="background:none;border:none;cursor:pointer;color:#93c5fd;font-size:15px;line-height:1;padding:0">✕</button>
+      <button onclick="removeLadderPlayer('${p.name}')" style="background:none;border:none;cursor:pointer;color:#1547F799;font-size:15px;line-height:1;padding:0">✕</button>
     </span>`).join('');
   // 꽝 자동 = 전체 - 1, 당첨 = 1 고정
   const n = _ladderPlayers.length;
@@ -2604,7 +2616,7 @@ function drawLadder(revealed){
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0,0,W,H);
 
-  const COLS = ['#3b82f6','#10b981','#f59e0b','#e53e3e','#8b5cf6','#ec4899','#06b6d4','#84cc16','#f97316','#6366f1','#14b8a6','#a855f7'];
+  const COLS = ['#1547F7','#E840F0','#0E9C94','#7A9406'];
   const colX = col => PAD + col*CW + CW/2;
   const rowY = row => PAD + CH + row*CH;
 
@@ -2662,7 +2674,7 @@ function revealAllLadder(){
   drawLadder(true);
   document.getElementById('ladder-reveal-btn').style.display='none';
   const wrap = document.getElementById('ladder-result-list');
-  const COLS=['#3b82f6','#10b981','#f59e0b','#e53e3e','#8b5cf6','#ec4899','#06b6d4','#84cc16','#f97316','#6366f1','#14b8a6','#a855f7'];
+  const COLS=['#1547F7','#E840F0','#0E9C94','#7A9406'];
   wrap.innerHTML = _ladderPaths.map(({startCol,result})=>`
     <div style="background:var(--sur);border:2px solid ${COLS[startCol%COLS.length]};border-radius:10px;padding:10px 16px;text-align:center;min-width:90px">
       <div style="font-size:15px;color:${COLS[startCol%COLS.length]};font-weight:700;margin-bottom:2px">${_ladderPlayers[startCol].name}</div>
@@ -2686,7 +2698,7 @@ function renderLadderHistory(){
   const wrap = document.getElementById('ladder-history');
   if(!wrap) return;
   if(!ladderHistory.length){ wrap.innerHTML='<div style="font-size:14px;color:var(--tx3);padding:8px 0">아직 결과가 없어요</div>'; return; }
-  const COLS=['#3b82f6','#10b981','#f59e0b','#e53e3e','#8b5cf6','#ec4899','#06b6d4','#84cc16','#f97316','#6366f1','#14b8a6','#a855f7'];
+  const COLS=['#1547F7','#E840F0','#0E9C94','#7A9406'];
   wrap.innerHTML = ladderHistory.map((rec,i)=>{
     const d = new Date(rec.ts);
     const dateStr = d.toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
@@ -2801,7 +2813,7 @@ function renderVotePage(){
     const total = v.opts.reduce((s,o)=>s+o.voters.length,0);
     const isDue = v.due && v.due < todayStr();
     const closed = v.closed || isDue;
-    const dueLabel = v.due ? `<span class="${isDue?'vote-due':''}" style="font-size:15px;${isDue?'':'color:var(--tx3)'}">⏰ ${v.due}${isDue?' (마감)':''}</span>` : '';
+    const dueLabel = v.due ? `<span class="${isDue?'vote-due':''}" style="font-size:15px;${isDue?'':'color:var(--tx3)'}">${v.due}${isDue?' (마감)':''}</span>` : '';
     const anonLabel = v.anon ? '<span style="font-size:15px;color:var(--tx3)">익명</span>' : '';
     const typeLabel = v.type==='multi'?'<span style="font-size:15px;color:var(--acc)">복수선택</span>':'';
 
@@ -3280,7 +3292,7 @@ function renderReviewPage(){
             style="padding:8px 18px;border-radius:20px;border:2px solid var(--bd2);background:var(--sf2);color:var(--tx);font-size:15px;font-weight:600;cursor:pointer;position:relative;transition:.1s"
             onmouseover="this.style.borderColor='var(--acc)';this.style.color='var(--acc)'"
             onmouseout="this.style.borderColor='var(--bd2)';this.style.color='var(--tx)'">
-            ${p.name}${hasDraft?'<span style="position:absolute;top:-4px;right:-4px;width:8px;height:8px;border-radius:50%;background:#10b981;border:2px solid var(--sur)"></span>':''}
+            ${p.name}${hasDraft?'<span style="position:absolute;top:-4px;right:-4px;width:8px;height:8px;border-radius:50%;background:#E840F0;border:2px solid var(--sur)"></span>':''}
           </button>`;
         }).join('');
       }
@@ -3316,7 +3328,7 @@ function renderReviewYear(){
         return `<div style="padding:10px 16px;border-bottom:1px solid var(--bd)">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
             <span style="font-size:13px;font-weight:700;color:var(--acc);min-width:36px">${label}</span>
-            ${cmts?`<span style="font-size:13px;background:#dbeafe;color:#1d4ed8;border-radius:8px;padding:1px 7px">댓글 ${cmts}</span>`:''}
+            ${cmts?`<span style="font-size:13px;background:#80FBF433;color:#0E9C94;border-radius:8px;padding:1px 7px">댓글 ${cmts}</span>`:''}
           </div>
           <div style="font-size:14px;color:var(--tx);line-height:1.7;white-space:pre-wrap;background:var(--sf2);border-radius:7px;padding:8px 12px">${text}</div>
         </div>`;
@@ -3422,7 +3434,7 @@ function renderReviewAdmin(){
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <span style="font-size:15px;font-weight:700;color:var(--tx)">${p.name}</span>
         <span style="font-size:13px;color:var(--tx3)">${p.role}</span>
-        ${rv.text?'<span style="font-size:13px;background:#d1fae5;color:#065f46;border-radius:10px;padding:2px 8px">작성됨</span>':'<span style="font-size:13px;background:var(--sf2);color:#94a3b8;border-radius:10px;padding:2px 8px">미작성</span>'}
+        ${rv.text?'<span style="font-size:13px;background:#D9FB4B33;color:#7A9406;border-radius:10px;padding:2px 8px">작성됨</span>':'<span style="font-size:13px;background:var(--sf2);color:#94a3b8;border-radius:10px;padding:2px 8px">미작성</span>'}
       </div>
       ${rv.text?`<div style="font-size:14px;color:var(--tx);line-height:1.7;background:var(--sf2);border-radius:7px;padding:10px 12px;margin-bottom:10px;white-space:pre-wrap">${rv.text}</div>`:'<div style="font-size:14px;color:var(--tx3);margin-bottom:10px">아직 작성하지 않았어요</div>'}
       <div style="font-size:13px;font-weight:700;color:var(--tx3);margin-bottom:6px">관리자 댓글${comments.length?' ('+comments.length+')':''}</div>
@@ -3905,7 +3917,7 @@ function detectP1Links(text){
   if(!urls.length){ wrap.innerHTML=''; return; }
   wrap.innerHTML = urls.map(url=>`
     <a href="${escH(url)}" target="_blank" rel="noopener"
-      style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:20px;font-size:15px;color:#2563eb;text-decoration:none;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+      style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:#1547F710;border:1px solid #1547F740;border-radius:20px;font-size:15px;color:#2563eb;text-decoration:none;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
       <span style="overflow:hidden;text-overflow:ellipsis">${escH(url.replace(/^https?:\/\//,'').substring(0,50))}${url.length>53?'...':''}</span>
     </a>`).join('');
 }
@@ -4096,7 +4108,7 @@ function renderBdManualList(){
         const proj = PROJECTS.find(p=>p.id===r.projectId);
         const key = `${task.id}:${ri}`;
         const chk = _bdManualSel.has(key);
-        html += `<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;cursor:pointer;background:${chk?'#f0f7ff':'transparent'};margin-bottom:2px">
+        html += `<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;cursor:pointer;background:${chk?'#1547F710':'transparent'};margin-bottom:2px">
           <input type="checkbox" ${chk?'checked':''} onchange="toggleBdManual('${key}',this.checked)" style="width:14px;height:14px;accent-color:var(--acc);flex-shrink:0">
           <div style="min-width:0">
             <span style="font-size:15px;font-weight:600;color:var(--tx)">${person.name}</span>
@@ -4366,10 +4378,10 @@ function setIdeaTagFilter(tag){
   renderIdeaBoard();
 }
 const IDEA_TAGS = [
-  {label:'💡 아이디어', bg:'#fef9c3', color:'#7c6500'},
-  {label:'🔥 핫이슈',  bg:'#ffe4e6', color:'#9f1239'},
-  {label:'⚠️ 업무이슈', bg:'#fee2e2', color:'#991b1b'},
-  {label:'📌 기타',    bg:'#dbeafe', color:'#1e40af'},
+  {label:'💡 아이디어', bg:'#D9FB4B33', color:'#7A9406'},
+  {label:'🔥 핫이슈',  bg:'#E840F01A', color:'#C316CC'},
+  {label:'⚠️ 업무이슈', bg:'#1547F71A', color:'#1547F7'},
+  {label:'📌 기타',    bg:'#80FBF433', color:'#0E9C94'},
 ];
 
 const NOTE_COLORS = [
@@ -4654,7 +4666,7 @@ function applyStatusBtns(){
     const btn = document.getElementById('sf-'+s);
     if(!btn) return;
     const on = _filterStatus === s;
-    const colors = {wip:'#4f8cff', plan:'#6366f1', done:'#707070'};
+    const colors = {wip:'#1547F7', plan:'#E840F0', done:'#707070'};
     btn.style.background   = on ? colors[s] : '';
     btn.style.color        = on ? '#fff' : '';
     btn.style.borderColor  = on ? colors[s] : '';
@@ -5411,6 +5423,7 @@ function openScheduleAdd(){ if(!_isAdmin){showToast('관리자만 사용할 수 
   cmSetContent('cm-text','');
   cmSetContent('cm-link','');
   setCmStatus('wip');
+  _cmDueManual=false; syncCmDue();
   document.getElementById('cm-del').style.display = 'none';
   renderPsel(null);
   // 작업항목 초기화
@@ -5433,6 +5446,7 @@ function openModal(taskId,start,end,editIdx){
   if(saveBtn){ saveBtn.style.display = readOnly ? 'none' : ''; }
   // cm-rtitle만 readOnly 제한, cm-status는 팀원도 변경 가능
   const rtEl=document.getElementById('cm-rtitle'); if(rtEl) rtEl.disabled=readOnly;
+  const dueEl2=document.getElementById('cm-due'); if(dueEl2) dueEl2.disabled=readOnly;
   const statusEl=document.getElementById('cm-status'); if(statusEl) statusEl.disabled=false;
   // 저장 버튼은 항상 표시 (비관리자는 상태만 저장)
   const saveBtnEl = document.querySelector('#cmod .btn-p');
@@ -5455,6 +5469,10 @@ function openModal(taskId,start,end,editIdx){
   cmSetContent('cm-text', r?.text||'');
   cmSetContent('cm-link', r?.link||'');
   setCmStatus(r?.status||'wip');
+  // 마감일: 저장된 값이 종료일과 다르면 수동 지정 상태로 간주 (종료일 변경 시 안 따라감)
+  _cmDueManual = !!(r?.due) && r.due !== (r?.end || end);
+  const _dueEl=document.getElementById('cm-due');
+  if(_dueEl) _dueEl.value = r?.due || end || '';
   document.getElementById('cm-del').style.display=editIdx!=null?'':'none';
   renderPsel(r?.projectId||null);
   // 마일스톤 렌더링 (기존 일정의 시작일 기준)
@@ -5589,7 +5607,7 @@ function saveComment(){
     da:false, daCnt:0, daVarCnt:0, vid:false, vidCnt:0, vidVarCnt:0,
   };
   const rtitle=document.getElementById('cm-rtitle').value.trim();
-  const entry={start,end,projectId:selProjId,rtitle,text:cmGetText('cm-text'),link:cmGetLink(),status:document.getElementById('cm-status').value,workItems};
+  const entry={start,end,projectId:selProjId,rtitle,text:cmGetText('cm-text'),link:cmGetLink(),status:document.getElementById('cm-status').value,workItems,due:(document.getElementById('cm-due')?.value)||end};
 
   if(isNew){
     start = document.getElementById('cm-start').value;
@@ -6787,7 +6805,7 @@ function loadFromSbData(payload){
   // avatarImgs는 id:2 row에서만 로드 (여기서 덮어쓰지 않음)
   if(payload.ideaCards)  ideaCards  = payload.ideaCards;
   if(payload.toolRows)   toolRows   = payload.toolRows;
-  if(payload.MS_TYPES && payload.MS_TYPES.length) MS_TYPES = payload.MS_TYPES.map(t=>({key:t.key||'ms_'+Date.now(),label:t.label||'',color:t.color||'#4f8cff',...t}));
+  if(payload.MS_TYPES && payload.MS_TYPES.length) MS_TYPES = payload.MS_TYPES.map(t=>({key:t.key||'ms_'+Date.now(),label:t.label||'',color:t.color||'#1547F7',...t}));
   if(payload.activityLog) activityLog = payload.activityLog;
   if(payload.votes)       votes       = payload.votes;
   if(payload.p1Html !== undefined) p1SetHtml(payload.p1Html);
