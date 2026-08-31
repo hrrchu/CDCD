@@ -726,6 +726,34 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 :root[data-theme="dark"] .lv-fill{background:#2e2e2e!important;color:#9a9a9a!important}
 :root[data-theme="dark"] .lvov{background:#2e2e2e!important;color:#9a9a9a!important}
 :root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3d3d3d}
+/* 메모 보드 다크: 입력칸 + 기본(흰) 메모 카드 반전, 파스텔 색 메모지는 유지 */
+:root[data-theme="dark"] .idea-new-area{background:var(--sur);border-color:var(--bd2);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+:root[data-theme="dark"] .idea-new-placeholder{color:var(--tx3)}
+:root[data-theme="dark"] .idea-new-body-input{background:transparent!important}
+:root[data-theme="dark"] .idea-new-title-input{background:transparent!important}
+:root[data-theme="dark"] .idea-search{background:var(--sf2)!important}
+:root[data-theme="dark"] .idea-search:focus{background:var(--sf2)!important;box-shadow:0 0 0 3px rgba(255,255,255,.08)}
+:root[data-theme="dark"] .idea-card-w{background:var(--sur)!important;border-color:var(--bd2)!important;color:var(--tx)!important}
+:root[data-theme="dark"] .idea-card-w .idea-card-title{color:rgba(255,255,255,.87)}
+:root[data-theme="dark"] .idea-card-w .idea-card-body{color:rgba(255,255,255,.62)}
+:root[data-theme="dark"] .idea-card-w .idea-card-date{color:rgba(255,255,255,.35)}
+:root[data-theme="dark"] .idea-card-w .idea-tag-pill{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
+:root[data-theme="dark"] .idea-card-w .idea-card-tool-btn{background:rgba(255,255,255,.1);color:rgba(255,255,255,.55)}
+:root[data-theme="dark"] .idea-card-w .idea-card-tool-btn:hover{background:rgba(255,255,255,.18)}
+:root[data-theme="dark"] .idea-card-w .idea-card-pin{color:rgba(255,255,255,.4)}
+:root[data-theme="dark"] .idea-card-w .idea-card-drag-handle{color:rgba(255,255,255,.4)}
+:root[data-theme="dark"] .idea-card-w .idea-reaction{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14)}
+:root[data-theme="dark"] .idea-card-w .idea-reaction:hover{background:rgba(255,255,255,.14)}
+:root[data-theme="dark"] .idea-card-w .idea-reaction.active{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.35)}
+:root[data-theme="dark"] .idea-card-w .idea-reaction-cnt{color:rgba(255,255,255,.6)}
+:root[data-theme="dark"] .idea-card-w .idea-reaction-add{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.45)}
+:root[data-theme="dark"] .idea-card-w .idea-comments{border-top-color:rgba(255,255,255,.12)}
+:root[data-theme="dark"] .idea-card-w .idea-comment-bubble{background:rgba(255,255,255,.08)}
+:root[data-theme="dark"] .idea-card-w .idea-comment-author{color:rgba(255,255,255,.5)}
+:root[data-theme="dark"] .idea-card-w .idea-comment-text{color:rgba(255,255,255,.78)}
+:root[data-theme="dark"] .idea-card-w .idea-comment-del{color:rgba(255,255,255,.35)}
+:root[data-theme="dark"] .idea-card-w .idea-add-comment button{background:rgba(255,255,255,.12);color:rgba(255,255,255,.6)}
+:root[data-theme="dark"] .idea-card-w .idea-color-dot.selected{border-color:rgba(255,255,255,.6)}
 </style>
 </head>
 <body>
@@ -2127,6 +2155,13 @@ function tbGetRow(){ return tbGetCell()?.closest('tr'); }
 function tbGetTable(){ return tbGetCell()?.closest('table'); }
 const CELL_STYLE = 'border:1px solid #d4d4d4;padding:8px 12px;min-width:80px;text-align:left;font-size:15px';
 
+// 표의 기존 셀에서 테두리 색 상속 (행/열 추가 시 색 어긋남 방지)
+function tbInheritBorderColor(table){
+  const src = table?.querySelector('td,th');
+  if(!src) return '#d4d4d4';
+  return src.style.borderColor || getComputedStyle(src).borderTopColor || '#d4d4d4';
+}
+
 function tbTableBorderColor(){
   const table = tbGetTable(); if(!table) return;
   const c = document.getElementById('tb-tbl-border')?.value || '#d4d4d4';
@@ -2137,10 +2172,12 @@ function tbTableBorderColor(){
 function tbTableAddRow(){
   const row = tbGetRow(); if(!row) return;
   const cols = row.cells.length;
+  const bc = tbInheritBorderColor(row.closest('table'));
   const newRow = document.createElement('tr');
   for(let c=0;c<cols;c++){
     const td = document.createElement('td');
     td.setAttribute('style', CELL_STYLE);
+    td.style.borderColor = bc;
     td.contentEditable = 'true';
     newRow.appendChild(td);
   }
@@ -2158,9 +2195,11 @@ function tbTableAddCol(){
   const table = tbGetTable(); if(!table) return;
   const cell = tbGetCell();
   const colIdx = cell ? cell.cellIndex : 0;
+  const bc = tbInheritBorderColor(table);
   Array.from(table.rows).forEach((row,ri)=>{
     const newCell = document.createElement(ri===0?'th':'td');
     newCell.setAttribute('style', ri===0 ? CELL_STYLE+';background:#fafafa;font-weight:700' : CELL_STYLE);
+    newCell.style.borderColor = bc;
     newCell.contentEditable = 'true';
     const ref = row.cells[colIdx+1]||null;
     row.insertBefore(newCell, ref);
@@ -4290,6 +4329,7 @@ function renderIdeaBoard(){
     const cardBg = card.color || '#ffffff';
     const cardBorder = nc.border;
     const cardTx = '#1a1d27';
+    const isWhiteCard = !card.color || card.color.toLowerCase()==='#ffffff'; // 기본 흰 메모지 → 다크모드에서 CSS로 반전
     const tag=IDEA_TAGS.find(t=>t.label===card.tag)||IDEA_TAGS[0];
     const dateStr=new Date(card.ts).toLocaleDateString('ko-KR',{month:'short',day:'numeric'});
     const reactions=Object.entries(card.reactions||{}).filter(([,p])=>p.length).map(([emoji,pids])=>{
@@ -4313,7 +4353,7 @@ function renderIdeaBoard(){
     const personSel='<option value="">익명</option>'+getPeople().map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
     const colorDots=NOTE_COLORS.map(n=>`<div class="idea-color-dot${card.color===n.bg?' selected':''}" style="background:${n.bg}" title="${n.name}" onclick="setNoteColor(${idx},'${n.bg}')"></div>`).join('');
     const colorPicker=`<input type="color" value="${card.color||'#ffffff'}" title="자유 색상" onchange="setNoteColor(${idx},this.value)" style="width:22px;height:22px;border:1px solid rgba(0,0,0,.15);border-radius:4px;padding:1px;cursor:pointer;flex-shrink:0">`;
-    return `<div class="idea-card" style="background:${cardBg};border-color:${cardBorder};${cardTx?'color:'+cardTx:''};${active?'':'opacity:0.2;pointer-events:none;filter:grayscale(0.5)'}"
+    return `<div class="idea-card${isWhiteCard?' idea-card-w':''}" style="background:${cardBg};border-color:${cardBorder};${cardTx?'color:'+cardTx:''};${active?'':'opacity:0.2;pointer-events:none;filter:grayscale(0.5)'}"
 >
 
       <button class="idea-card-pin${card.pinned?' pinned':''}" onclick="togglePin(${idx})" title="${card.pinned?'핀 해제':'핀 고정'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="${card.pinned?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 4h6v4l2.5 4.5H6.5L9 8V4z"/></svg></button>
@@ -4571,6 +4611,25 @@ function msBarsHtml(taskId, dateStr){
   return `<div class="ms-zone">${bars}</div>`;
 }
 
+// 겹치는 일정 범위에 고정 레인 배정 — 날짜별로 바 높이/위치가 튀지 않게 전 구간 동일 슬롯 유지
+function ganttLanes(tR){
+  const info=tR.map(()=>({lane:0,lanes:1}));
+  const order=tR.map((r,i)=>i).sort((a,b)=>dn(tR[a].start)-dn(tR[b].start)||dn(tR[a].end)-dn(tR[b].end));
+  let cluster=[],laneEnds=[],clusterEnd=-Infinity;
+  const flush=()=>{const lc=laneEnds.length||1;cluster.forEach(i=>info[i].lanes=lc);cluster=[];laneEnds=[]};
+  order.forEach(i=>{
+    const s=dn(tR[i].start),e=dn(tR[i].end);
+    if(s>clusterEnd)flush();
+    let ln=laneEnds.findIndex(le=>le<s);
+    if(ln<0){ln=laneEnds.length;laneEnds.push(e)}else laneEnds[ln]=Math.max(laneEnds[ln],e);
+    info[i].lane=ln;
+    cluster.push(i);
+    clusterEnd=Math.max(clusterEnd,e);
+  });
+  flush();
+  return info;
+}
+
 function renderTable(){
   // 멀티 월: 현재 달 + 선택 달을 날짜 순서로 합산
   const allMonths = [{y:CY,m:CM}, ..._multiMonths].sort((a,b)=>a.y!==b.y?a.y-b.y:a.m-b.m);
@@ -4634,6 +4693,7 @@ function renderTable(){
       const personHasProj = !_filterProjId || tasks.filter(t=>t.personId===person.id).some(t=>(ranges[t.id]||[]).some(r=>r.projectId===_filterProjId));
       tasks.filter(t=>t.personId===person.id).forEach(task=>{
         const tR=ranges[task.id]||[];
+        const laneMap=ganttLanes(tR);
         b+=`<tr data-task="${task.id}" data-person="${person.id}" data-group="${group.id}" onmouseenter="rowEnter(this)" onmouseleave="rowLeave(this)" style="${!personHasProj?'opacity:.3':''}">`;
         const isFilteredPerson = _filterPersonId === person.id;
         b+=`<td class="cn" onclick="filterByPerson('${person.id}')" title="클릭: 이 담당자만 보기" style="cursor:pointer${isFilteredPerson?';background:rgba(217,251,75,.25);border-left:3px solid var(--key2)':''}">
@@ -4674,9 +4734,9 @@ function renderTable(){
               <div class="bub"></div>
             </td>`;
           } else if(rs.length>0){
-            // 겹치는 바들 세로 분할: 첫 번째 2/3, 나머지 1/3 균등 분할
+            // 겹치는 바들 세로 분할: 고정 레인 배정 — 바 전체 구간이 같은 높이/위치를 유지
             const msH=10;
-            const barsHtml = rs.map((rv,si)=>{
+            const barsHtml = rs.map(rv=>{
               const ri=tR.indexOf(rv);
               const proj=getProj(rv.projectId);
               const bs=getBarStyle(proj,rv.status);
@@ -4688,15 +4748,15 @@ function renderTable(){
               const cellPx=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cell"))||40;
               const span=dn(rv.end)-dn(rv.start)+1;
               const lblW=span*cellPx-8;
-              // 겹침: 균등 분할 + 조각 사이 2px 간격
-              const n_=rs.length;
-              const topFrac = si/n_, heightFrac = 1/n_;
-              const gapCss = n_>1 ? (si<n_-1?'padding-bottom:2px;':'') : '';
+              const lf=laneMap[ri]||{lane:0,lanes:1};
+              const n_=lf.lanes;
+              const topFrac=lf.lane/n_, heightFrac=1/n_;
+              const gapCss = n_>1&&lf.lane<n_-1 ? 'padding-bottom:2px;' : '';
               const rad = n_>1 ? 4 : 6; // 겹칠 땐 radius 살짝 축소
               return `<div style="position:absolute;top:calc(${msH}px + ${topFrac} * (100% - ${msH}px));left:0;right:0;height:calc(${heightFrac} * (100% - ${msH}px));${gapCss}box-sizing:border-box;overflow:${span===1?'hidden':'visible'};${dimmed?'opacity:0;':''}"
                 onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
                 onclick="barBfClick(event,'${task.id}',${ri})">
-                <div class="bf" style="position:absolute;top:0;bottom:auto;height:${n_>1&&si<n_-1?'calc(100% - 2px)':'100%'};left:0;right:0;overflow:visible;background:${bs.bg};opacity:${bs.op||1};box-shadow:${bs.shadow};${isS?`border-radius:${rad}px 0 0 ${rad}px;margin-left:2px;left:2px;`:''}${isE?`border-radius:0 ${rad}px ${rad}px 0;margin-right:2px;right:2px;`:''}${isS&&isE?`border-radius:${rad}px;margin:0 2px;left:2px;right:2px;`:''}">
+                <div class="bf" style="position:absolute;top:0;bottom:auto;height:${n_>1&&lf.lane<n_-1?'calc(100% - 2px)':'100%'};left:0;right:0;overflow:visible;background:${bs.bg};opacity:${bs.op||1};box-shadow:${bs.shadow};${isS?`border-radius:${rad}px 0 0 ${rad}px;margin-left:2px;left:2px;`:''}${isE?`border-radius:0 ${rad}px ${rad}px 0;margin-right:2px;right:2px;`:''}${isS&&isE?`border-radius:${rad}px;margin:0 2px;left:2px;right:2px;`:''}">
                   ${isS?`<span class="bl" style="color:${bs.tc};max-width:${lblW}px;font-size:${n_>1?'9px':'11px'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.rtitle||proj.name}</span>`:''}
                   ${isS?`<div class="rh rh-l" onmousedown="resizeMD(event,'${task.id}',${ri},'left',${idx})"></div>`:''}
                   ${isE?`<div class="rh rh-r" onmousedown="resizeMD(event,'${task.id}',${ri},'right',${idx})"></div>`:''}
