@@ -785,7 +785,7 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-9</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-10</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -4790,8 +4790,22 @@ function renderTable(){
               const dimmed=(_filterProjId&&rv.projectId!==_filterProjId)||!statusMatch;
               const cellPx=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cell"))||40;
               const span=dn(rv.end)-dn(rv.start)+1;
-              const lblW=span*cellPx-8;
               const n_=sorted.length;
+              // 라벨은 바의 슬롯 모양(겹침 수·순서·반차 여부)이 시작일과 같게 유지되는 구간까지만 → 겹침 구간의 다른 바 텍스트와 충돌 방지
+              let lblSpan=1;
+              if(isS){
+                for(let k=idx+1;k<wds.length;k++){
+                  const n2=dn(wds[k].ds);
+                  if(n2>dn(rv.end))break;
+                  const rsD=tR.filter(r=>n2>=dn(r.start)&&n2<=dn(r.end));
+                  if(rsD.length!==n_)break;
+                  rsD.sort((a,b)=>((laneMap[tR.indexOf(a)]||{}).lane||0)-((laneMap[tR.indexOf(b)]||{}).lane||0));
+                  if(rsD.indexOf(rv)!==si)break;
+                  if(!!lvHalfArr[k]!==!!lvHalfArr[idx])break;
+                  lblSpan++;
+                }
+              }
+              const lblW=lblSpan*cellPx-8;
               const topFrac=si/n_, heightFrac=1/n_;
               const gapCss = n_>1&&si<n_-1 ? 'padding-bottom:2px;' : '';
               const rad = n_>1 ? 4 : 6; // 겹칠 땐 radius 살짝 축소
