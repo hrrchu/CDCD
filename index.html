@@ -200,7 +200,7 @@ tbody tr.drop-target td.cn{background:#f5fbdc!important}
 tbody tr.drop-target{background:#fafdf0!important;outline:2px solid var(--key2)}
 
 /* ── BAR ── */
-td.cell.bar{cursor:crosshair;padding:0}
+td.cell.bar{cursor:crosshair;padding:0;border-right-color:transparent}
 td.cell.bar:active{cursor:crosshair}
 .bt{width:100%;height:100%;position:relative;cursor:crosshair}
 .bf{height:calc(100% - 10px);width:100%;position:absolute;bottom:0;top:10px;left:0;right:0;display:flex;align-items:center;transition:filter .1s;cursor:grab}
@@ -219,7 +219,7 @@ td.cell.move-preview{background:rgba(217,251,75,.28)!important}
 td.cell.move-preview .bf{opacity:.68;filter:brightness(1.08)}
 
 /* ── BAR ── */
-td.cell.bar{cursor:crosshair;padding:0}
+td.cell.bar{cursor:crosshair;padding:0;border-right-color:transparent}
 td.cell.bar:active{cursor:crosshair}
 .bt{width:100%;height:100%;position:relative;cursor:crosshair}
 .bf{height:calc(100% - 10px);width:100%;position:absolute;bottom:0;top:10px;left:0;right:0;display:flex;align-items:center;transition:filter .1s;cursor:grab}
@@ -256,13 +256,13 @@ td.cell.bar:hover .rh{opacity:1}
 
 /* ── LEAVE CELLS ── */
 td.cell.leave{cursor:pointer;padding:0}
-.lv-fill{position:absolute;inset:3px 0;display:flex;align-items:center;transition:filter .1s}
+.lv-fill{position:absolute;top:10px;bottom:0;left:0;right:0;display:flex;align-items:center;transition:filter .1s} /* 일정 바와 동일 높이 (상단 10px = 마일스톤 존) */
 td.cell.leave.lv-s .lv-fill{border-radius:6px 0 0 6px;left:3px}
 td.cell.leave.lv-e .lv-fill{border-radius:0 6px 6px 0;right:3px}
 td.cell.leave.lv-s.lv-e .lv-fill{border-radius:6px;left:3px;right:3px}
 td.cell.leave:hover .lv-fill{filter:brightness(.93)}
-td.cell.leave.lv-half .lv-fill{bottom:auto;height:calc(50% - 4px);left:3px!important;right:3px!important;border-radius:6px!important}
-td.cell.leave.lv-half.lv-half-pm .lv-fill{top:auto;bottom:3px}
+td.cell.leave.lv-half .lv-fill{bottom:auto;height:calc(50% - 7px);left:3px!important;right:3px!important;border-radius:6px!important}
+td.cell.leave.lv-half.lv-half-pm .lv-fill{top:auto;bottom:2px}
 .lv-icon{display:none}
 .lv-lbl{font-size:11px;font-weight:600;pointer-events:none;white-space:nowrap;overflow:hidden;padding-left:6px}
 
@@ -393,7 +393,7 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 /* ── GRM SECTION ── */
 .grm-wrap{padding:20px 22px 28px}
 .grm-title{font-size:16px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.grm-sub{font-size:16px;color:var(--tx2);margin-bottom:18px}
+.grm-sub{font-size:12px;color:var(--tx3);margin-bottom:14px}
 .grm-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:700px){.grm-grid{grid-template-columns:1fr}}
 .grm-card{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:16px;box-shadow:var(--sh)}
@@ -413,7 +413,7 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .free-page{padding:32px 28px}
 .free-page-title{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:6px;outline:none;width:100%;border:none;background:none;font-family:'Pretendard',sans-serif}
 .free-page-title:focus{background:#f8f9ff;border-radius:6px;padding:2px 6px}
-.free-page-subtitle{font-size:15px;color:var(--tx3);margin-bottom:24px;outline:none;width:100%;border:none;background:none;font-family:'Pretendard',sans-serif}
+.free-page-subtitle{font-size:12px;color:var(--tx3);margin-bottom:20px;outline:none;width:100%;border:none;background:none;font-family:'Pretendard',sans-serif}
 .free-page-subtitle:focus{background:#f8f9ff;border-radius:6px;padding:2px 6px}
 .free-editor{width:100%;min-height:2400px;background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:18px;font-family:'Pretendard',sans-serif;font-size:15px;line-height:1.8;color:var(--tx);outline:none;box-shadow:var(--sh);white-space:pre-wrap;word-break:break-word;box-sizing:border-box}
 .free-editor:empty:before{content:attr(data-placeholder);color:var(--tx3);pointer-events:none;white-space:pre-wrap}
@@ -670,6 +670,62 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .ms-icon{font-size:15px!important}
 .av{font-size:14px!important}
 .tm-av{font-size:15px!important}
+
+/* ── 바 연속 구간 칸 분할선 제거 ── */
+td.cell.leave{border-right-color:transparent}
+td.cell.bar.week-start:not(.bs){border-left-color:transparent!important}
+td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
+
+/* ═══════════════════════════════════════════
+   DARK MODE v2 — Supabase 스킨의 잉크 반전
+   라이트: 잉크=#171717 / 다크: 잉크=#ededed
+   키컬러 #D9FB4B 는 양쪽 동일
+   ═══════════════════════════════════════════ */
+:root[data-theme="dark"]{
+  --bg:#171717;--sur:#1c1c1c;--sf2:#242424;
+  --bd:#2a2a2a;--bd2:#3d3d3d;
+  --acc:#ededed;--tx:#ededed;--tx2:#d4d4d4;--tx3:#9a9a9a;
+  --sh:0 1px 3px rgba(0,0,0,.4);
+}
+/* 잉크 필 위 텍스트: 흰→검 반전 */
+:root[data-theme="dark"] .btn-p{color:#171717}
+:root[data-theme="dark"] .status-btn.active{color:#171717}
+:root[data-theme="dark"] .tb-btn.active{color:#171717}
+:root[data-theme="dark"] .idea-new-submit{color:#171717}
+:root[data-theme="dark"] .month-chip.selected{background:#ededed;color:#171717;border-color:#ededed}
+:root[data-theme="dark"] .legend-item.on{background:#ededed;color:#171717;border-color:#ededed}
+/* 인라인 #fff 배경 일괄 반전 (인라인보다 !important CSS가 우선) */
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] [contenteditable]{background:var(--sf2)!important;color:var(--tx)!important;border-color:var(--bd2)!important}
+:root[data-theme="dark"] .modal{background:var(--sur)}
+:root[data-theme="dark"] .mnav{background:var(--sf2);border-color:var(--bd2)}
+:root[data-theme="dark"] .month-chip:not(.selected){background:var(--sf2)}
+:root[data-theme="dark"] .date-spinner{background:var(--sf2)}
+:root[data-theme="dark"] .date-spinner .ds-arrow{background:#2e2e2e;border-color:var(--bd2)}
+:root[data-theme="dark"] .ds-day{background:var(--sf2);border-color:var(--bd2)}
+:root[data-theme="dark"] .page-header button:not(.btn-leave){background:var(--sf2)!important;color:var(--tx2)!important;border-color:var(--bd2)!important}
+:root[data-theme="dark"] .ppill{background:var(--sf2)!important;color:var(--tx)!important}
+:root[data-theme="dark"] .lv-pill{background:var(--sf2)!important;color:var(--tx2)!important}
+:root[data-theme="dark"] #cmod .status-btn{background:var(--sf2)}
+:root[data-theme="dark"] #cmod .status-btn.active{background:var(--acc);color:#171717}
+:root[data-theme="dark"] #cmod .status-btn.active[data-status="wip"]{background:var(--key);color:#171717}
+:root[data-theme="dark"] #fb-indicator{background:var(--sf2)!important;color:var(--tx3)!important;border-color:var(--bd)!important}
+:root[data-theme="dark"] tbody tr:hover{background:#202020}
+:root[data-theme="dark"] tbody tr:hover td.cn{background:#202020}
+:root[data-theme="dark"] td.cell.holiday-cell{background:#1a1a1a}
+:root[data-theme="dark"] th.cd.holiday{background:#1a1a1a}
+:root[data-theme="dark"] th.cd:hover{background:rgba(255,255,255,.05)}
+:root[data-theme="dark"] td.cell.empty:hover{background:#212121!important}
+:root[data-theme="dark"] td.cell.empty:hover::after{color:#5a5a5a}
+:root[data-theme="dark"] .sub-content{box-shadow:0 8px 24px rgba(0,0,0,.35)}
+:root[data-theme="dark"] .grm-card{background:var(--sur)}
+:root[data-theme="dark"] .av{background:var(--sf2)!important;color:var(--tx)!important;border-color:var(--bd2)}
+:root[data-theme="dark"] .bub,:root[data-theme="dark"] #g-bub,:root[data-theme="dark"] .dm-popup{background:#242424!important;border-color:#3d3d3d!important;color:#ededed!important}
+:root[data-theme="dark"] .lv-fill{background:#2e2e2e!important;color:#9a9a9a!important}
+:root[data-theme="dark"] .lvov{background:#2e2e2e!important;color:#9a9a9a!important}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3d3d3d}
 </style>
 </head>
 <body>
@@ -698,6 +754,7 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
         <span id="cur-month"></span>
         <button onclick="chM(1)">›</button>
       </div>
+      <button id="theme-btn" onclick="toggleTheme()" title="다크모드 전환" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid var(--bd2);background:#fff;cursor:pointer;padding:0;color:var(--tx2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
       <button onclick="openBarOpMod()" title="일정바 진하기 조절" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid var(--bd2);background:#fff;cursor:pointer;padding:0;color:var(--tx2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="7" x2="21" y2="7"/><circle cx="15" cy="7" r="3" fill="#fff"/><line x1="3" y1="17" x2="21" y2="17"/><circle cx="9" cy="17" r="3" fill="#fff"/></svg></button>
       <button id="admin-btn" class="btn btn-g" onclick="toggleAdmin()" style="display:flex;align-items:center;gap:4px"><span id="admin-label">관리자</span></button>
       <button class="btn btn-g" onclick="openProjMgr()">프로젝트</button>
@@ -761,11 +818,11 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
   <!-- SUB 2: LEAVE LIST -->
   <!-- SUB 2: 근태 -->
   <div class="sub-content" id="scontent-2">
-    <div style="display:flex;gap:6px;padding:16px 22px 0;flex-wrap:wrap" id="kintai-tabs">
-      <button id="kt-tab-leave" onclick="switchKintaiTab('leave')" class="btn btn-p" style="font-size:15px;padding:7px 20px">휴가</button>
-      <button id="kt-tab-ot"    onclick="switchKintaiTab('ot')"    class="btn btn-g" style="font-size:15px;padding:7px 20px">연장근로</button>
-      <button id="kt-tab-rv-stats-month" onclick="switchKintaiTab('rv-stats-month')" class="btn btn-g" style="font-size:15px;padding:7px 20px">통계</button>
-      <button id="kt-tab-rv-month" onclick="switchKintaiTab('rv-month')" class="btn btn-g" style="font-size:15px;padding:7px 20px">리뷰</button>
+    <div class="sub-tabs" style="padding:14px 22px 0" id="kintai-tabs">
+      <div class="sub-tab active" id="kt-tab-leave" onclick="switchKintaiTab('leave')">휴가</div>
+      <div class="sub-tab" id="kt-tab-ot"    onclick="switchKintaiTab('ot')">연장근로</div>
+      <div class="sub-tab" id="kt-tab-rv-stats-month" onclick="switchKintaiTab('rv-stats-month')">통계</div>
+      <div class="sub-tab" id="kt-tab-rv-month" onclick="switchKintaiTab('rv-month')">리뷰</div>
     </div>
     <!-- 휴가 섹션 -->
     <div id="kintai-leave-wrap">
@@ -910,6 +967,7 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
           style="width:72px;border:1px solid var(--bd2);border-radius:5px;padding:3px 6px;font-size:12px;font-family:'Pretendard',sans-serif;outline:none"
           oninput="if(/^#[0-9a-fA-F]{6}$/.test(this.value))document.getElementById('tb-hili-color').value=this.value">
         <button class="tb-btn" onclick="tbExec('hiliteColor',document.getElementById('tb-hili-hex').value||document.getElementById('tb-hili-color').value)" style="font-size:12px;padding:3px 7px">적용</button>
+        <button class="tb-btn" onclick="tbExec('hiliteColor','transparent')" title="선택 영역 배경색 제거" style="font-size:12px;padding:3px 7px">없음</button>
       </div>
       <div class="tb-sep"></div>
       <!-- 정렬 -->
@@ -933,6 +991,8 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
         <button class="tb-btn" onmousedown="event.preventDefault()" onclick="tbTableAddCol()" title="열 추가">열+</button>
         <button class="tb-btn" onmousedown="event.preventDefault()" onclick="tbTableDelCol()" title="열 삭제">열−</button>
         <button class="tb-btn" onmousedown="event.preventDefault()" onclick="tbTableDelTable()" title="표 삭제" style="color:#e53e3e">표 삭제</button>
+        <input type="color" class="tb-color" id="tb-tbl-border" value="#d4d4d4" title="표 선색" onmousedown="event.stopPropagation()">
+        <button class="tb-btn" onmousedown="event.preventDefault()" onclick="tbTableBorderColor()" title="현재 표의 모든 선 색상 변경">선색</button>
       </span>
       <div class="tb-sep"></div>
       <button class="tb-btn" onclick="tbExec('removeFormat')" title="서식 초기화" style="color:#e53e3e">✕서식</button>
@@ -2067,6 +2127,13 @@ function tbGetRow(){ return tbGetCell()?.closest('tr'); }
 function tbGetTable(){ return tbGetCell()?.closest('table'); }
 const CELL_STYLE = 'border:1px solid #d4d4d4;padding:8px 12px;min-width:80px;text-align:left;font-size:15px';
 
+function tbTableBorderColor(){
+  const table = tbGetTable(); if(!table) return;
+  const c = document.getElementById('tb-tbl-border')?.value || '#d4d4d4';
+  table.querySelectorAll('td,th').forEach(cell=>{ cell.style.borderColor = c; });
+  table.style.borderColor = c;
+  p1BodyInput();
+}
 function tbTableAddRow(){
   const row = tbGetRow(); if(!row) return;
   const cols = row.cells.length;
@@ -2657,7 +2724,7 @@ function renderVotePage(){
           <div style="height:100%;width:${pct}%;background:var(--acc);border-radius:4px;transition:width .4s"></div>
         </div>
         ${!v.anon && o.voters.length ? `<div style="margin-left:30px;margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">
-          ${o.voters.map(vid=>{const p=people.find(p=>p.id===vid); return p?`<span style="font-size:15px;background:#f0f7ff;color:var(--acc);padding:2px 7px;border-radius:10px">${p.name}</span>`:''}).join('')}
+          ${o.voters.map(vid=>{const p=people.find(p=>p.id===vid); return p?`<span style="font-size:15px;background:var(--sf2);color:var(--tx2);border:1px solid var(--bd);padding:2px 7px;border-radius:10px">${p.name}</span>`:''}).join('')}
         </div>` : ''}
       </div>`;
     }).join('');
@@ -2676,8 +2743,8 @@ function renderVotePage(){
         <div style="font-size:15px;font-weight:700;color:var(--tx)">${v.q}</div>
         <div style="display:flex;gap:6px;flex-shrink:0">
           ${!closed?`<button class="btn btn-g" style="font-size:15px;padding:4px 10px" onclick="editVote('${v.id}')">편집</button>`:''}
-          <button class="btn" style="font-size:15px;padding:4px 10px;background:#fff5f5;color:#e53e3e;border:1px solid #fca5a5" onclick="deleteVote('${v.id}')">삭제</button>
-          ${!closed?`<button class="btn btn-g" style="font-size:15px;padding:4px 10px" onclick="closeVote('${v.id}')">마감</button>`:'<span style="font-size:15px;padding:4px 8px;background:#fafafa;color:var(--tx3);border-radius:6px">마감됨</span>'}
+          <button class="btn" style="font-size:15px;padding:4px 10px;background:transparent;color:#e53e3e;border:1px solid var(--bd2)" onclick="deleteVote('${v.id}')">삭제</button>
+          ${!closed?`<button class="btn btn-g" style="font-size:15px;padding:4px 10px" onclick="closeVote('${v.id}')">마감</button>`:'<span style="font-size:15px;padding:4px 8px;background:var(--sf2);color:var(--tx3);border:1px solid var(--bd);border-radius:6px">마감됨</span>'}
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">${dueLabel}${anonLabel}${typeLabel}<span style="font-size:15px;color:var(--tx3)">총 ${total}표</span></div>
@@ -2780,7 +2847,7 @@ function switchKintaiTab(tab){
   const allTabs = ['leave','ot','rv-month','rv-stats-month'];
   allTabs.forEach(t=>{
     const b=document.getElementById('kt-tab-'+t);
-    if(b){ b.className=tab===t?'btn btn-p':'btn btn-g'; b.style.fontSize='15px'; b.style.padding='7px 20px'; }
+    if(b) b.classList.toggle('active', tab===t);
   });
   document.getElementById('kintai-leave-wrap').style.display = tab==='leave' ? '' : 'none';
   document.getElementById('kintai-ot-wrap').style.display    = tab==='ot'    ? '' : 'none';
@@ -4400,6 +4467,7 @@ function resetBarOp(){
 function getBarStyle(proj,status){
   const hex=proj.bar;
   const tc=textFor(hex);
+  // 진행중 스트로크: 바 색과 대비되는 쪽(라벨색 기준)으로 인셋 링
   if(status==='wip')       return {bg:hex, tc, op:BAR_OP.wip,  shadow:'none'};
   if(status==='variation') return {bg:hex, tc, op:BAR_OP.wip,  shadow:'none'};
   if(status==='revision')  return {bg:hex, tc, op:BAR_OP.wip,  shadow:'none'};
@@ -4412,6 +4480,18 @@ function statusBadge(s){return{plan:'',wip:'',done:'',blocked:'',variation:'',re
 // ════════════════════════════════════════════
 //  RENDER
 // ════════════════════════════════════════════
+// ── DARK MODE v2 ──
+function applyTheme(dark){
+  if(dark) document.documentElement.setAttribute('data-theme','dark');
+  else document.documentElement.removeAttribute('data-theme');
+}
+function toggleTheme(){
+  const dark = document.documentElement.getAttribute('data-theme')!=='dark';
+  localStorage.setItem('cdtheme2', dark?'dark':'light');
+  applyTheme(dark);
+}
+(function(){ applyTheme(localStorage.getItem('cdtheme2')==='dark'); })();
+
 function init(){
   set3MonthView();
   renderLegend();renderGRM();
@@ -4608,16 +4688,16 @@ function renderTable(){
               const cellPx=parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cell"))||40;
               const span=dn(rv.end)-dn(rv.start)+1;
               const lblW=span*cellPx-8;
-              // 첫 번째: 2/3, 나머지: 1/3 균등
-              let topFrac, heightFrac;
-              if(rs.length===1){ topFrac=0; heightFrac=1; }
-              else if(si===0){ topFrac=0; heightFrac=1/3; }
-              else { topFrac=1/3+(si-1)*(2/3/(rs.length-1)); heightFrac=2/3/(rs.length-1); }
-              return `<div style="position:absolute;top:calc(${msH}px + ${topFrac} * (100% - ${msH}px));left:0;right:0;height:calc(${heightFrac} * (100% - ${msH}px));overflow:${span===1?'hidden':'visible'};${dimmed?'opacity:0;':''}"
+              // 겹침: 균등 분할 + 조각 사이 2px 간격
+              const n_=rs.length;
+              const topFrac = si/n_, heightFrac = 1/n_;
+              const gapCss = n_>1 ? (si<n_-1?'padding-bottom:2px;':'') : '';
+              const rad = n_>1 ? 4 : 6; // 겹칠 땐 radius 살짝 축소
+              return `<div style="position:absolute;top:calc(${msH}px + ${topFrac} * (100% - ${msH}px));left:0;right:0;height:calc(${heightFrac} * (100% - ${msH}px));${gapCss}box-sizing:border-box;overflow:${span===1?'hidden':'visible'};${dimmed?'opacity:0;':''}"
                 onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
                 onclick="barBfClick(event,'${task.id}',${ri})">
-                <div class="bf" style="position:absolute;top:0;bottom:0;left:0;right:0;height:100%;overflow:visible;background:${bs.bg};opacity:${bs.op||1};${isS?'border-radius:6px 0 0 6px;margin-left:2px;left:2px;':''}${isE?'border-radius:0 6px 6px 0;margin-right:2px;right:2px;':''}${isS&&isE?'border-radius:6px;margin:0 2px;left:2px;right:2px;':''}">
-                  ${isS?`<span class="bl" style="color:${bs.tc};max-width:${lblW}px;font-size:${rs.length>1&&si>0?'10px':'12px'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.rtitle||proj.name}</span>`:''}
+                <div class="bf" style="position:absolute;top:0;bottom:auto;height:${n_>1&&si<n_-1?'calc(100% - 2px)':'100%'};left:0;right:0;overflow:visible;background:${bs.bg};opacity:${bs.op||1};box-shadow:${bs.shadow};${isS?`border-radius:${rad}px 0 0 ${rad}px;margin-left:2px;left:2px;`:''}${isE?`border-radius:0 ${rad}px ${rad}px 0;margin-right:2px;right:2px;`:''}${isS&&isE?`border-radius:${rad}px;margin:0 2px;left:2px;right:2px;`:''}">
+                  ${isS?`<span class="bl" style="color:${bs.tc};max-width:${lblW}px;font-size:${n_>1?'9px':'11px'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rv.rtitle||proj.name}</span>`:''}
                   ${isS?`<div class="rh rh-l" onmousedown="resizeMD(event,'${task.id}',${ri},'left',${idx})"></div>`:''}
                   ${isE?`<div class="rh rh-r" onmousedown="resizeMD(event,'${task.id}',${ri},'right',${idx})"></div>`:''}
                 </div>
@@ -4629,8 +4709,8 @@ function renderTable(){
             if(lvHalfOverlap){
               const li=(leaves[person.id]||[]).indexOf(lv);
               const lvS=n===dn(lv.start);
-              lvOverlay=`<div onclick="event.stopPropagation();leaveClick(event,'${person.id}',${li})"
-                style="position:absolute;${_lt.pm?'bottom:2px':'top:2px'};left:2px;right:2px;height:calc(50% - 3px);background:${_lt.bg};color:${_lt.color};border-radius:6px;display:flex;align-items:center;z-index:5;cursor:pointer;overflow:hidden">
+              lvOverlay=`<div class="lvov" onclick="event.stopPropagation();leaveClick(event,'${person.id}',${li})"
+                style="position:absolute;${_lt.pm?'bottom:0;height:calc(50% - 6px)':'top:10px;height:calc(50% - 11px)'};left:2px;right:2px;background:${_lt.bg};color:${_lt.color};border-radius:6px;display:flex;align-items:center;z-index:5;cursor:pointer;overflow:hidden">
                 ${lvS?`<span class="lv-icon">${_lt.icon}</span><span class="lv-lbl">${_lt.label}</span>`:''}
               </div>`;
             }
@@ -5766,7 +5846,7 @@ function renderGRM(){
       const pctSum = memberEntries.reduce((s,[,d])=>s+(totalWD>0?Math.round(d/totalWD*100):0),0);
       const adjSum = getProjAdj(proj.id);
       const adjBadge = adjSum!=null
-        ? `<div style="font-size:12px;font-family:'Pretendard',sans-serif;font-weight:600;padding:2px 8px;border-radius:10px;background:#fafafa;color:var(--tx);border:1px solid var(--bd2)">보정 ${adjSum}%</div>`
+        ? `<div style="font-size:12px;font-family:'Pretendard',sans-serif;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd2)">보정 ${adjSum}%</div>`
         : '';
       html+=`<div class="grm-card" style="margin-bottom:12px">
         <div style="margin-bottom:8px">
@@ -5776,7 +5856,7 @@ function renderGRM(){
           </div>
           <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
             <div style="font-size:13px;font-family:'Pretendard',sans-serif;color:var(--tx2);font-weight:600">${totalProjDays}인·일</div>
-            <div style="font-size:12px;font-family:'Pretendard',sans-serif;font-weight:600;padding:2px 8px;border-radius:10px;background:#fafafa;color:var(--tx);border:1px solid var(--bd2)">실공수 ${pctSum}%</div>
+            <div style="font-size:12px;font-family:'Pretendard',sans-serif;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd2)">실공수 ${pctSum}%</div>
             ${adjBadge}
           </div>
         </div>
@@ -5844,7 +5924,7 @@ function renderGRM(){
     }, 0);
     const hasAdj = tagEntries.some(([projId])=>getAdj(person.id,projId)!=null);
     const adjBadge = hasAdj
-      ? `<div style="font-family:'Pretendard',sans-serif;font-size:12px;font-weight:600;padding:2px 8px;border-radius:10px;background:#fafafa;color:var(--tx);border:1px solid var(--bd2)">보정 ${adjTotal}%</div>`
+      ? `<div style="font-family:'Pretendard',sans-serif;font-size:12px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd2)">보정 ${adjTotal}%</div>`
       : '';
 
     const emptyMsg=tagEntries.length===0
