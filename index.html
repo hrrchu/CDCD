@@ -192,10 +192,8 @@ tbody tr:hover td.cn{background:var(--sf2)}
 
 /* ── DAY CELLS ── */
 td.cell{width:var(--cell);min-width:var(--cell);height:60px;border-right:1px solid var(--bd);cursor:crosshair;position:relative;vertical-align:middle;overflow:visible}
-td.cell.today{background:rgba(217,251,75,.2);box-shadow:inset 1px 0 0 rgba(180,214,50,.7),inset -1px 0 0 rgba(180,214,50,.7)}
-/* 바 셀에서는 오늘 틴트가 반투명 바 아래로 비쳐 밝은 세로 줄로 보임 → 바 셀은 상단 마일스톤 띠(10px)에만 표시 */
-td.cell.bar.today{background:transparent;box-shadow:none}
-td.cell.bar.today::before{content:'';position:absolute;top:0;left:0;right:0;height:10px;background:rgba(217,251,75,.2);box-shadow:inset 1px 0 0 rgba(180,214,50,.7),inset -1px 0 0 rgba(180,214,50,.7);pointer-events:none}
+/* 오늘 컬럼 연두 라인: 바 위까지 덮는 반투명 오버레이 — 어떤 셀에서도 끊기지 않고 세로로 이어짐 (z 6: 휴가알약(5) 위, 바 라벨(10)·말풍선(1000) 아래) */
+td.cell.today::before{content:'';position:absolute;top:0;bottom:0;left:0;right:0;background:rgba(217,251,75,.2);box-shadow:inset 1px 0 0 rgba(180,214,50,.7),inset -1px 0 0 rgba(180,214,50,.7);pointer-events:none;z-index:6}
 td.cell.empty:hover{background:var(--sf2)!important}
 td.cell.empty:hover::after{content:'+';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:300;color:#c7c7c7;pointer-events:none}
 td.cell.creating{background:rgba(217,251,75,.4)!important}
@@ -785,7 +783,7 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-16</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-17</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
