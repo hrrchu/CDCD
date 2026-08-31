@@ -781,7 +781,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-20</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-21</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -1841,8 +1841,10 @@ function scrollToToday(){
   const cellRect = todayCell.getBoundingClientRect();
   // 현재 스크롤 위치 기준으로 오늘 셀의 절대 위치 계산
   const cellAbsLeft = cellRect.left - gsRect.left + gs.scrollLeft;
-  // 오늘이 왼쪽에서 10칸 위치에 오도록
-  gs.scrollLeft = Math.max(0, cellAbsLeft - (cellPx * 10));
+  // 오늘이 (sticky 이름칸 제외) 왼쪽에서 11번째 날짜 칸에 오도록 — 이름칸 폭(--nc)과 실제 칸 폭(보더 포함, cellRect.width) 기준
+  const ncPx = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nc'))||105;
+  const colW = cellRect.width || cellPx;
+  gs.scrollLeft = Math.max(0, cellAbsLeft - ncPx - colW * 10);
 }
 
 function set3MonthView(){
