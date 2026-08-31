@@ -781,7 +781,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-19</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-20</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -4699,7 +4699,7 @@ function renderTable(){
       onclick="openDateMemo('${ds}')"
       onmouseenter="showDateMemoBub(this,'${ds}')"
       onmouseleave="hideDateMemoBub()">
-      ${isMonthStart?`<span style="font-size:15px;color:var(--acc);font-weight:700;display:block;line-height:1">${M2[+ds.slice(5,7)-1]}월</span>`:''}
+      ${isMonthStart?`<span style="font-size:15px;color:var(--acc);font-weight:700;display:block;line-height:1;margin-bottom:4px">${M2[+ds.slice(5,7)-1]}월</span>`:''}
       <span class="dn">${d}</span>
       <span class="dl">${DAY[dow]}</span>
       ${isHol&&!isCustomHol?`<span class="hd-name">${hname}</span>`:''}
