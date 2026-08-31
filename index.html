@@ -156,7 +156,7 @@ th.cn{width:var(--nc);min-width:0;font-size:15px;color:var(--tx3);text-transform
 th.cn{position:relative}
 th.ct{display:none}
 th.cd{width:var(--cell);min-width:var(--cell);text-align:center;font-family:'Pretendard',sans-serif;font-size:15px;color:var(--tx3);padding:7px 0 8px;vertical-align:bottom}
-th.week-start, td.week-start{border-left:2px solid var(--bd2)!important}
+th.week-start{border-left:2px solid var(--bd2)!important} /* 주 구분선은 달력 숫자(헤더)에만 — 본문 셀에는 없음 (사용자 확정) */
 th.month-start, td.month-start{border-left:2.5px solid var(--acc)!important}
 th.custom-holiday .dn, th.custom-holiday .dl{color:#e53e3e!important}
 th.custom-holiday{background:rgba(229,62,62,.06)}
@@ -675,8 +675,6 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 
 /* ── 바 연속 구간 칸 분할선 제거 ── */
 td.cell.leave{border-right-color:transparent}
-td.cell.bar.week-start:not(.bs){border-left-color:transparent!important}
-td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
 /* ═══════════════════════════════════════════
    DARK MODE v2 — Supabase 스킨의 잉크 반전
@@ -783,7 +781,7 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-17</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-18</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -4834,9 +4832,9 @@ function renderTable(){
               const rad = n_>1 ? 4 : 6; // 겹칠 땐 radius 살짝 축소
               // 셀 보더가 투명이어도 폭을 차지해 바에 세로 이음새가 생김 → 오른쪽으로만 보더 폭만큼 확장해 이어붙임
               // border-collapse:collapse라 실제 보더 폭 = 일반 1px, 주 경계 2px(1px+2px 병합). 초과 확장 시 반투명 바가 이중으로 칠해져 밝은 줄 발생
-              const exR=(isE||nextLvHalf)?'0':(nextWeekStart?'-2px':'-1px');
+              const exR=(isE||nextLvHalf)?'0':'-1px'; // 본문 셀 보더는 이제 전부 1px (주 구분선은 헤더 전용)
               // 반차·특강 홈 칸: 옆 셀이 이 칸으로 확장하지 않으므로(전체 높이 삐져나옴 방지) 홈 조각이 자기 왼쪽 보더 틈을 직접 덮음
-              const exL=(lvHalfOverlap&&!isS)?(isWeekStart?'-2px':'-1px'):'0';
+              const exL=(lvHalfOverlap&&!isS)?'-1px':'0';
               return `<div style="position:absolute;top:calc(${msH}px + ${topFrac} * (100% - ${msH}px));left:${exL};right:${exR};height:calc(${heightFrac} * (100% - ${msH}px));${gapCss}box-sizing:border-box;overflow:${span===1?'hidden':'visible'};${dimmed?'opacity:0;':''}"
                 onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
                 onclick="barBfClick(event,'${task.id}',${ri})">
