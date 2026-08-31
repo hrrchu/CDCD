@@ -781,7 +781,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-18</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-19</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -4816,17 +4816,8 @@ function renderTable(){
                   lblSpan++;
                 }
               }
-              // 제목이 바보다 길면 뒤따르는 빈 칸(일정·휴가 없는 날)으로 라벨 연장 — 흰 글자(어두운 바)는 배경 위에서 안 보여 제외
-              let freeSpan=0;
-              if(isS && bs.tc!=='#ffffff'){
-                for(let k=idx+lblSpan;k<wds.length&&freeSpan<5;k++){
-                  const n2=dn(wds[k].ds);
-                  if(tR.some(r=>n2>=dn(r.start)&&n2<=dn(r.end)))break;
-                  if((leaves[person.id]||[]).some(l=>n2>=dn(l.start)&&n2<=dn(l.end)))break;
-                  freeSpan++;
-                }
-              }
-              const lblW=(lblSpan+freeSpan)*cellPx-8;
+              // 라벨은 바 안에서만 표시(초과분 말줄임) — 바 밖 연장은 "삐져나온다" 피드백으로 기각됨
+              const lblW=lblSpan*cellPx-8;
               const topFrac=si/n_, heightFrac=1/n_;
               const gapCss = n_>1&&si<n_-1 ? 'padding-bottom:2px;' : '';
               const rad = n_>1 ? 4 : 6; // 겹칠 땐 radius 살짝 축소
