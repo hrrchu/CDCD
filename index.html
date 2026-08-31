@@ -27,7 +27,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tx);mi
 .nav-tab.active{color:var(--acc);border-bottom-color:var(--acc)}
 .nav-title-input{background:none;border:none;outline:none;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:600;color:inherit;width:auto;cursor:pointer;padding:0}
 .nav-title-input:focus{cursor:text;background:#fafafa;border-radius:3px;padding:1px 3px}
-.nav-logo{font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#333;margin-left:8px;flex-shrink:0}
+.nav-logo{font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:var(--tx);margin-left:8px;flex-shrink:0}
 .nav-logo span{color:var(--tx3);font-weight:400}
 
 /* ── PAGE ── */
@@ -3714,6 +3714,22 @@ function p1SetHtml(html){
   const el = document.getElementById('p1-body');
   if(!el) return;
   el.innerHTML = html || '';
+  p1FixTableBorders();
+}
+
+// 과거 행/열 추가로 테두리색이 섞여 저장된 표 정규화 — 첫 셀(원본) 색으로 통일.
+// 표시 시점에만 고치고, 다음 편집 때 자연히 저장됨 (여기서 fbPush 금지: 로드→푸시 루프 방지)
+function p1FixTableBorders(){
+  const el = document.getElementById('p1-body');
+  if(!el) return;
+  el.querySelectorAll('table').forEach(table=>{
+    const cells = [...table.querySelectorAll('td,th')];
+    const src = cells.find(c=>c.style.borderColor);
+    if(!src) return;
+    const bc = src.style.borderColor;
+    cells.forEach(c=>{ if(c.style.borderColor!==bc) c.style.borderColor = bc; });
+    if(table.style.borderColor && table.style.borderColor!==bc) table.style.borderColor = bc;
+  });
 }
 
 function p1Paste(e){
@@ -4706,6 +4722,7 @@ function renderTable(){
         wds.forEach(({ds:dateStr, dow},idx)=>{
           const isToday=dateStr===td0, n=dn(dateStr), isHolCell=!!getHoliday(dateStr);
           const isWeekStart = dow===1;
+          const nextWeekStart = wds[idx+1]?.dow===1; // 다음 셀이 주 시작(보더 2px)이면 이음새 폭이 3px
           const rs=tR.filter(r=>n>=dn(r.start)&&n<=dn(r.end)); // 이 날짜에 걸치는 모든 범위
           const r=rs[0]||null; // 첫 번째 (하위호환)
           const lv=(leaves[person.id]||[]).find(l=>n>=dn(l.start)&&n<=dn(l.end));
@@ -4753,7 +4770,10 @@ function renderTable(){
               const topFrac=lf.lane/n_, heightFrac=1/n_;
               const gapCss = n_>1&&lf.lane<n_-1 ? 'padding-bottom:2px;' : '';
               const rad = n_>1 ? 4 : 6; // 겹칠 땐 radius 살짝 축소
-              return `<div style="position:absolute;top:calc(${msH}px + ${topFrac} * (100% - ${msH}px));left:0;right:0;height:calc(${heightFrac} * (100% - ${msH}px));${gapCss}box-sizing:border-box;overflow:${span===1?'hidden':'visible'};${dimmed?'opacity:0;':''}"
+              // 셀 보더(일반 1px, 주 시작 2px)가 투명이어도 폭을 차지해 바에 세로 이음새가 생김
+              // → 오른쪽 한 방향으로만 보더 폭만큼 확장해 이어붙임 (양방향 확장 시 반투명 바가 이중으로 칠해짐)
+              const exR=isE?'0':(nextWeekStart?'-3px':'-1px');
+              return `<div style="position:absolute;top:calc(${msH}px + ${topFrac} * (100% - ${msH}px));left:0;right:${exR};height:calc(${heightFrac} * (100% - ${msH}px));${gapCss}box-sizing:border-box;overflow:${span===1?'hidden':'visible'};${dimmed?'opacity:0;':''}"
                 onmousedown="barMD(event,'${task.id}','${person.id}',${ri},${idx})"
                 onclick="barBfClick(event,'${task.id}',${ri})">
                 <div class="bf" style="position:absolute;top:0;bottom:auto;height:${n_>1&&lf.lane<n_-1?'calc(100% - 2px)':'100%'};left:0;right:0;overflow:visible;background:${bs.bg};opacity:${bs.op||1};box-shadow:${bs.shadow};${isS?`border-radius:${rad}px 0 0 ${rad}px;margin-left:2px;left:2px;`:''}${isE?`border-radius:0 ${rad}px ${rad}px 0;margin-right:2px;right:2px;`:''}${isS&&isE?`border-radius:${rad}px;margin:0 2px;left:2px;right:2px;`:''}">
