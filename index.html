@@ -785,7 +785,7 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-12</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-13</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -3343,7 +3343,7 @@ function showReviewWrite(personId){
         ${comments.map(c=>`
           <div style="background:var(--sf2);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:14px;color:var(--tx);line-height:1.6">
             <span style="font-size:13px;color:var(--tx3);margin-right:8px">${new Date(c.ts).toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit'})}</span>
-            ${c.text}
+            <span style="white-space:pre-wrap">${c.text}</span>
           </div>`).join('')}`;
     } else {
       cmtWrap.style.display='none';
@@ -3386,8 +3386,9 @@ function renderReviewAdmin(){
           <button onclick="deleteReviewComment('${p.id}','${ym}',${ci})" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:15px;padding:0;flex-shrink:0">×</button>
         </div>`).join('')}
       <div style="display:flex;gap:6px;margin-top:6px">
-        <input type="text" id="rv-cmt-${p.id}" placeholder="댓글 달기..." onkeydown="if(event.key==='Enter')event.preventDefault()"
-          style="flex:1;border:1px solid var(--bd2);border-radius:7px;padding:6px 10px;font-size:14px;outline:none;background:var(--sur);color:var(--tx)">
+        <textarea id="rv-cmt-${p.id}" placeholder="댓글 달기... (Enter 줄바꿈)" rows="1"
+          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+          style="flex:1;border:1px solid var(--bd2);border-radius:7px;padding:6px 10px;font-size:14px;outline:none;background:var(--sur);color:var(--tx);resize:none;overflow:hidden;line-height:1.5;font-family:'Pretendard',sans-serif"></textarea>
         <button onclick="addReviewComment('${p.id}','${ym}')" class="btn btn-p" style="font-size:14px;padding:5px 12px">등록</button>
       </div>
     </div>`;
