@@ -781,7 +781,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-22</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-23</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -1585,6 +1585,7 @@ td.cell.leave{border-right-color:transparent}
     <div class="mt">팀원</div>
     <div class="mss">그룹과 담당자를 추가·수정·삭제할 수 있어요</div>
     <div style="max-height:420px;overflow-y:auto" id="team-list"></div>
+    <input type="file" id="av-file-input" accept="image/*" style="display:none" onchange="onAvatarFile(this)">
     <div style="margin-top:10px">
       <button class="btn btn-p" style="width:100%" onclick="addNewGroup()">+ 그룹 추가</button>
     </div>
@@ -1714,7 +1715,43 @@ let avatarImgs = {};
 // helper: render avatar — image if available, else initial letter
 function renderAv(person, gc){
   const ac = person.ac || gc;
+  const img = avatarImgs[person.id];
+  if(img) return `<div class="av" style="overflow:hidden;padding:0"><img src="${img}" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:50%"></div>`;
   return `<div class="av" style="background:${ac}22;color:${ac}">${person.name.charAt(0)||'?'}</div>`;
+}
+
+// ── 아바타 사진 업로드 (팀원 모달) — Supabase id:2 행에 별도 저장 (메인 payload 비대 방지)
+let _avPickMid=null;
+function pickAvatar(mid){
+  _avPickMid=mid;
+  document.getElementById('av-file-input').click();
+}
+function onAvatarFile(input){
+  const f=input.files&&input.files[0]; input.value='';
+  const mid=_avPickMid; if(!f||!mid) return;
+  const img=new Image();
+  img.onload=()=>{
+    const S=128, c=document.createElement('canvas'); c.width=S; c.height=S;
+    const ctx=c.getContext('2d');
+    const r=Math.max(S/img.width,S/img.height), w=img.width*r, h=img.height*r;
+    ctx.drawImage(img,(S-w)/2,(S-h)/2,w,h);
+    avatarImgs[mid]=c.toDataURL('image/jpeg',.85);
+    URL.revokeObjectURL(img.src);
+    renderTeamList(); renderTable(); pushAvatarsToSb();
+    showToast('사진 등록 완료');
+  };
+  img.onerror=()=>{ showToast('이미지를 읽을 수 없어요','error'); };
+  img.src=URL.createObjectURL(f);
+}
+function removeAvatar(mid){
+  delete avatarImgs[mid];
+  renderTeamList(); renderTable(); pushAvatarsToSb();
+  showToast('사진 삭제됨');
+}
+async function pushAvatarsToSb(){
+  if(!_sb) return;
+  try{ await _sb.from(SB_TABLE).upsert({ id: 2, payload: { avatarImgs, _updated: Date.now() } }); }
+  catch(e){ console.error('avatar push', e); showToast('사진 저장 실패','error'); }
 }
 
 const LEAVE_TYPES = {
@@ -6349,7 +6386,10 @@ function renderTeamList(){
   const html=GROUPS.map((g)=>{
     const memberRows=g.members.map((m)=>{
       const ac=m.ac||g.gc;
-      const avInner=`<span style="font-size:15px;font-weight:700;pointer-events:none">${m.name.charAt(0)||'?'}</span>`;
+      const _avImg=avatarImgs[m.id];
+      const avInner=_avImg
+        ? `<img src="${_avImg}" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none">`
+        : `<span style="font-size:15px;font-weight:700;pointer-events:none">${m.name.charAt(0)||'?'}</span>`;
       return `
       <div class="team-member-row" id="tmrow-${g.id}-${m.id}"
         ondragover="memberDragOver(event)"
@@ -6360,7 +6400,11 @@ function renderTeamList(){
           onmousedown="event.stopPropagation()"
           ondragstart="memberDragStart(event,'${g.id}','${m.id}')"
           ondragend="memberDragEnd()"><span></span><span></span><span></span></div>
-        <div class="tm-av" style="background:${ac}22;color:${ac}">${avInner}</div>
+        <div class="tm-av-wrap" onclick="pickAvatar('${m.id}')" title="클릭해서 프로필 사진 등록">
+          <div class="tm-av" style="background:${ac}22;color:${ac}">${avInner}</div>
+          <div class="tm-av-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          ${_avImg?`<button onclick="event.stopPropagation();removeAvatar('${m.id}')" title="사진 삭제" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;border:1px solid var(--bd2);background:var(--sur);color:var(--tx3);font-size:11px;line-height:1;cursor:pointer;padding:0;z-index:2">×</button>`:''}
+        </div>
         <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0">
           <input class="tm-name-input" value="${m.name}" placeholder="이름" draggable="false" oninput="updateMember('${g.id}','${m.id}','name',this.value)">
           <input class="tm-role-input" value="${m.role}" placeholder="역할" draggable="false" oninput="updateMember('${g.id}','${m.id}','role',this.value)">
@@ -6668,6 +6712,12 @@ async function initSupabase(){
       loadFromSbData(data.payload);
       showToast('Supabase 연결 완료! 팀 데이터를 불러왔어요.');
     }
+
+    // 아바타 사진은 id:2 행에서 별도 로드 (메인 payload 비대 방지)
+    try{
+      const { data: avData } = await _sb.from(SB_TABLE).select('payload').eq('id', 2).single();
+      if(avData?.payload?.avatarImgs){ avatarImgs = avData.payload.avatarImgs; renderTable(); }
+    }catch(e){ /* 행 없으면 무시 (첫 사진 등록 시 생성됨) */ }
 
     _sbChannel = _sb.channel(SB_CHANNEL)
       .on('postgres_changes', {
