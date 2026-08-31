@@ -785,7 +785,7 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-14</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-15</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -2779,15 +2779,15 @@ function renderVotePage(){
       return `<div style="margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
           <button onclick="castVote('${v.id}','${o.id}')"
-            style="flex-shrink:0;width:22px;height:22px;border-radius:50%;border:2px solid ${voted?'var(--acc)':'var(--bd2)'};background:${voted?'var(--acc)':'#fff'};cursor:${closed?'default':'pointer'};transition:.15s">
+            style="flex-shrink:0;width:15px;height:15px;border-radius:50%;border:1.5px solid ${voted?'var(--acc)':'var(--bd2)'};background:${voted?'var(--acc)':'var(--sur)'};cursor:${closed?'default':'pointer'};transition:.15s;padding:0">
           </button>
           <span style="font-size:15px;font-weight:${voted?700:400};color:var(--tx);flex:1">${o.label}</span>
           <span style="font-size:15px;color:var(--tx2);font-weight:600">${o.voters.length}표 (${pct}%)</span>
         </div>
-        <div style="height:7px;background:var(--bg);border-radius:4px;overflow:hidden;margin-left:30px">
+        <div style="height:7px;background:var(--bg);border-radius:4px;overflow:hidden;margin-left:23px">
           <div style="height:100%;width:${pct}%;background:var(--acc);border-radius:4px;transition:width .4s"></div>
         </div>
-        ${!v.anon && o.voters.length ? `<div style="margin-left:30px;margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">
+        ${!v.anon && o.voters.length ? `<div style="margin-left:23px;margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">
           ${o.voters.map(vid=>{const p=people.find(p=>p.id===vid); return p?`<span style="font-size:15px;background:var(--sf2);color:var(--tx2);border:1px solid var(--bd);padding:2px 7px;border-radius:10px">${p.name}</span>`:''}).join('')}
         </div>` : ''}
       </div>`;
@@ -4820,7 +4820,17 @@ function renderTable(){
                   lblSpan++;
                 }
               }
-              const lblW=lblSpan*cellPx-8;
+              // 제목이 바보다 길면 뒤따르는 빈 칸(일정·휴가 없는 날)으로 라벨 연장 — 흰 글자(어두운 바)는 배경 위에서 안 보여 제외
+              let freeSpan=0;
+              if(isS && bs.tc!=='#ffffff'){
+                for(let k=idx+lblSpan;k<wds.length&&freeSpan<5;k++){
+                  const n2=dn(wds[k].ds);
+                  if(tR.some(r=>n2>=dn(r.start)&&n2<=dn(r.end)))break;
+                  if((leaves[person.id]||[]).some(l=>n2>=dn(l.start)&&n2<=dn(l.end)))break;
+                  freeSpan++;
+                }
+              }
+              const lblW=(lblSpan+freeSpan)*cellPx-8;
               const topFrac=si/n_, heightFrac=1/n_;
               const gapCss = n_>1&&si<n_-1 ? 'padding-bottom:2px;' : '';
               const rad = n_>1 ? 4 : 6; // 겹칠 땐 radius 살짝 축소
