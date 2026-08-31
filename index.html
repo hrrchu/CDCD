@@ -734,6 +734,9 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 :root[data-theme="dark"] #p1-body table td{background:var(--sur)!important;color:var(--tx)!important;border-color:var(--bd2)!important}
 :root[data-theme="dark"] #p1-body table th{background:#2e2e2e!important;color:var(--tx)!important;border-color:var(--bd2)!important}
 :root[data-theme="dark"] #p1-body table a{color:#8ab4f8}
+/* 투표 마감 강조: 라이트 파랑, 다크 라임 */
+.vote-due{color:#1547F7}
+:root[data-theme="dark"] .vote-due{color:#D9FB4B}
 /* 메모 보드 다크: 입력칸 + 기본(흰) 메모 카드 반전, 파스텔 색 메모지는 유지 */
 :root[data-theme="dark"] .idea-new-area{background:var(--sur);border-color:var(--bd2);box-shadow:0 2px 8px rgba(0,0,0,.4)}
 :root[data-theme="dark"] .idea-new-placeholder{color:var(--tx3)}
@@ -782,7 +785,7 @@ td.cell.leave.week-start:not(.lv-s){border-left-color:transparent!important}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:10px;opacity:.45;margin-left:6px;font-weight:400">v0831-7</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:10px;opacity:.45;margin-left:6px;font-weight:400">v0831-8</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -2752,7 +2755,7 @@ function renderVotePage(){
     const total = v.opts.reduce((s,o)=>s+o.voters.length,0);
     const isDue = v.due && v.due < todayStr();
     const closed = v.closed || isDue;
-    const dueLabel = v.due ? `<span style="font-size:15px;color:${isDue?'#1547F7':'var(--tx3)'}">⏰ ${v.due}${isDue?' (마감)':''}</span>` : '';
+    const dueLabel = v.due ? `<span class="${isDue?'vote-due':''}" style="font-size:15px;${isDue?'':'color:var(--tx3)'}">⏰ ${v.due}${isDue?' (마감)':''}</span>` : '';
     const anonLabel = v.anon ? '<span style="font-size:15px;color:var(--tx3)">익명</span>' : '';
     const typeLabel = v.type==='multi'?'<span style="font-size:15px;color:var(--acc)">복수선택</span>':'';
 
