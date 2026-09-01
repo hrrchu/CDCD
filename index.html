@@ -785,7 +785,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-32</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-33</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -6304,23 +6304,57 @@ function renderLeaveListYear(){
   }
 
   const MN=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-  // 사람별 연간 합계
+  // 사람별 연간 합계 — 월간 사람별 합산과 동일한 카드 리스트 형식
   const yearSummary = {};
-  people.forEach(p=>{ yearSummary[p.id]={name:p.name,pid:p.id,total:0}; });
+  people.forEach(p=>{ yearSummary[p.id]={name:p.name,role:p.role,pid:p.id,total:0,byType:{}}; });
   people.forEach(person=>{
     (leaves[person.id]||[]).forEach(lv=>{
-      const s = new Date(lv.start);
-      if(s.getFullYear()===CY) yearSummary[person.id].total += countWeekdays(lv.start,lv.end);
+      const sdt = new Date(lv.start);
+      if(sdt.getFullYear()===CY){
+        const d=countWeekdays(lv.start,lv.end);
+        yearSummary[person.id].total += d;
+        yearSummary[person.id].byType[lv.type]=(yearSummary[person.id].byType[lv.type]||0)+d;
+      }
     });
   });
   const ysFiltered = Object.values(yearSummary).filter(s=>s.total>0).sort((a,b)=>b.total-a.total);
+  const yTotalDays = ysFiltered.reduce((a,x)=>a+x.total,0);
 
-  let html = `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;padding:12px 14px;background:var(--sf2);border-radius:10px;border:1px solid var(--bd)">
-    <span style="font-weight:700;color:var(--tx);font-size:15px;width:100%;margin-bottom:4px">${CY}년 연간 합산</span>
-    ${ysFiltered.map(s=>`<div style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;background:var(--sur);border:1px solid var(--bd);border-radius:20px;font-size:15px">
-      ${avChip(s.pid,s.name)}<span style="font-weight:600;color:var(--tx)">${s.name}</span>
-      <span style="font-family:'Pretendard',sans-serif;font-weight:700;color:var(--acc)">${s.total}일</span>
-    </div>`).join('')}
+  let html = `<div class="lv-section" style="margin-bottom:24px">
+    <div class="lv-section-hd">
+      <span>${CY}년 사람별 합산</span>
+      <span class="lv-section-cnt">총 ${ysFiltered.length}명 · ${yTotalDays}일</span>
+    </div>
+    <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+    ${ysFiltered.map((s,ri)=>{
+      const g=GROUPS.find(g=>g.members.some(m=>m.id===s.pid));
+      const ac=(g?.members.find(m=>m.id===s.pid)?.ac)||g?.gc||'#999';
+      const img=avatarImgs[s.pid];
+      const avHtml=img
+        ?`<img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`
+        :`<span style="font-size:15px;font-weight:700">${s.name.charAt(0)}</span>`;
+      const barW=yTotalDays>0?Math.round(s.total/yTotalDays*100):0;
+      const typeBreakdown=Object.entries(s.byType).map(([type,d])=>{
+        const lt=LEAVE_TYPES[type]||LEAVE_TYPES.off;
+        return `<span style="color:${lt.color};font-size:15px;font-weight:600">${lt.icon} ${d}일</span>`;
+      }).join('<span style="color:var(--bd2);margin:0 3px">·</span>');
+      return `<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:var(--sur);border:1px solid var(--bd)">
+        <span style="font-size:15px;min-width:24px;text-align:center">${ri+1}</span>
+        <div style="width:26px;height:26px;border-radius:50%;background:${ac}22;color:${ac};display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">${avHtml}</div>
+        <div style="min-width:60px">
+          <div style="font-size:15px;font-weight:700;color:var(--tx)">${s.name}</div>
+          <div style="font-size:15px;color:var(--tx3)">${s.role}</div>
+        </div>
+        <div style="flex:1">
+          <div style="background:var(--sf2);border-radius:4px;height:6px;overflow:hidden">
+            <div style="height:100%;width:${barW}%;background:${ac};border-radius:4px;transition:width .4s"></div>
+          </div>
+          <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${typeBreakdown}</div>
+        </div>
+        <div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:var(--tx);min-width:36px;text-align:right">${s.total}<span style="font-size:13px;color:var(--tx3)">일</span></div>
+      </div>`;
+    }).join('')}
+    </div>
   </div>`;
 
   byMonth.forEach(({m, items})=>{
