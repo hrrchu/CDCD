@@ -781,7 +781,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-27</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-28</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -1265,8 +1265,14 @@ td.cell.leave{border-right-color:transparent}
     </div><!-- /col2 -->
     <div style="flex:0 0 440px;min-width:300px">
     <div class="fg"><label>마감일 <span style="font-size:13px;color:var(--tx3)">(기본: 기간 마지막 날, 수정 가능)</span></label>
-      <input type="date" id="cm-due" oninput="_cmDueManual=true"
-        style="width:100%;border:1px solid var(--bd2);border-radius:8px;padding:6px 10px;font-size:14px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx);box-sizing:border-box">
+      <div style="display:flex;gap:6px;align-items:stretch">
+        <input type="date" id="cm-due" oninput="_cmDueManual=true"
+          style="flex:1;min-width:0;border:1px solid var(--bd2);border-radius:8px;padding:6px 10px;font-size:14px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx);box-sizing:border-box;transition:.15s">
+        <button type="button" id="cm-due-tbd" onclick="setCmDueMode('tbd')"
+          style="flex-shrink:0;border:1px solid var(--bd2);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;background:var(--sf2);color:var(--tx2);cursor:pointer;transition:.12s">미정</button>
+        <button type="button" id="cm-due-asap" onclick="setCmDueMode('asap')"
+          style="flex-shrink:0;border:1px solid var(--bd2);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;background:var(--sf2);color:var(--tx2);cursor:pointer;transition:.12s">ASAP</button>
+      </div>
     </div>
     <div class="fg"><label>메모</label>
       <input type="hidden" id="wi-da-chk"><input type="hidden" id="wi-vid-chk"><input type="hidden" id="wi-da-cnt" value="0"><input type="hidden" id="wi-da-var-cnt" value="0"><input type="hidden" id="wi-vid-cnt" value="0"><input type="hidden" id="wi-vid-var-cnt" value="0">
@@ -1934,11 +1940,31 @@ function setSpinnerDate(prefix, dateStr){
   refreshQuickDate(p);
 }
 
-// 일정 마감일: 사용자가 직접 수정하기 전까지는 종료일을 따라감
+// 일정 마감일: 사용자가 직접 수정하기 전까지는 종료일을 따라감. 미정/ASAP 모드면 날짜 입력 블락
 let _cmDueManual=false;
+let _cmDueMode=null; // null | 'tbd'(미정) | 'asap'
 function syncCmDue(){
+  if(_cmDueMode) return;
   const el=document.getElementById('cm-due'); if(!el) return;
   if(!_cmDueManual) el.value=document.getElementById('cm-end')?.value||'';
+}
+function setCmDueMode(mode){
+  _cmDueMode = _cmDueMode===mode ? null : mode; // 재클릭 시 해제
+  applyCmDueMode();
+  if(!_cmDueMode){ _cmDueManual=false; syncCmDue(); }
+}
+function applyCmDueMode(){
+  const inp=document.getElementById('cm-due');
+  const bt=document.getElementById('cm-due-tbd'), ba=document.getElementById('cm-due-asap');
+  if(!inp||!bt||!ba) return;
+  const paint=(b,is)=>{ b.style.background=is?'var(--acc)':'var(--sf2)'; b.style.color=is?'var(--bg)':'var(--tx2)'; b.style.borderColor=is?'var(--acc)':'var(--bd2)'; };
+  paint(bt,_cmDueMode==='tbd'); paint(ba,_cmDueMode==='asap');
+  const blocked=!!_cmDueMode;
+  inp.disabled = blocked || !_isAdmin;
+  inp.style.opacity = blocked?'.3':'';
+  inp.style.filter = blocked?'grayscale(1)':'';
+  inp.style.textDecoration = blocked?'line-through':'';
+  bt.disabled = !_isAdmin; ba.disabled = !_isAdmin;
 }
 
 // 월일 4자리 표시칸(ds-quick)을 현재 값으로 갱신
@@ -5421,7 +5447,7 @@ function openScheduleAdd(){ if(!_isAdmin){showToast('관리자만 사용할 수 
   cmSetContent('cm-text','');
   cmSetContent('cm-link','');
   setCmStatus('wip');
-  _cmDueManual=false; syncCmDue();
+  _cmDueManual=false; _cmDueMode=null; applyCmDueMode(); syncCmDue();
   document.getElementById('cm-del').style.display = 'none';
   renderPsel(null);
   // 작업항목 초기화
@@ -5467,10 +5493,12 @@ function openModal(taskId,start,end,editIdx){
   cmSetContent('cm-text', r?.text||'');
   cmSetContent('cm-link', r?.link||'');
   setCmStatus(r?.status||'wip');
-  // 마감일: 저장된 값이 종료일과 다르면 수동 지정 상태로 간주 (종료일 변경 시 안 따라감)
-  _cmDueManual = !!(r?.due) && r.due !== (r?.end || end);
+  // 마감일: 'tbd'/'asap'면 블락 모드, 날짜인데 종료일과 다르면 수동 지정 상태 (종료일 변경 시 안 따라감)
+  _cmDueMode = (r?.due==='tbd'||r?.due==='asap') ? r.due : null;
+  _cmDueManual = !_cmDueMode && !!(r?.due) && r.due !== (r?.end || end);
   const _dueEl=document.getElementById('cm-due');
-  if(_dueEl) _dueEl.value = r?.due || end || '';
+  if(_dueEl) _dueEl.value = (_cmDueMode ? (r?.end || end) : (r?.due || end)) || '';
+  applyCmDueMode();
   document.getElementById('cm-del').style.display=editIdx!=null?'':'none';
   renderPsel(r?.projectId||null);
   // 마일스톤 렌더링 (기존 일정의 시작일 기준)
@@ -5605,7 +5633,7 @@ function saveComment(){
     da:false, daCnt:0, daVarCnt:0, vid:false, vidCnt:0, vidVarCnt:0,
   };
   const rtitle=document.getElementById('cm-rtitle').value.trim();
-  const entry={start,end,projectId:selProjId,rtitle,text:cmGetText('cm-text'),link:cmGetLink(),status:document.getElementById('cm-status').value,workItems,due:(document.getElementById('cm-due')?.value)||end};
+  const entry={start,end,projectId:selProjId,rtitle,text:cmGetText('cm-text'),link:cmGetLink(),status:document.getElementById('cm-status').value,workItems,due:_cmDueMode?_cmDueMode:((document.getElementById('cm-due')?.value)||end)};
 
   if(isNew){
     start = document.getElementById('cm-start').value;
