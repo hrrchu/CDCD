@@ -785,7 +785,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-30</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-31</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -1648,7 +1648,18 @@ let GROUPS = [
     {id:'v7',pw:'i8guad',name:'김나현',role:'영상'},
   ]},
 ];
-function getPeople(){ return GROUPS.flatMap(g=>g.members); }
+function getPeople(){ return GROUPS.flatMap(g=>g.members).filter(m=>!m.inactive); } // 활성 팀원만
+function getAllPeople(){ return GROUPS.flatMap(g=>g.members); } // 퇴사(숨김) 포함 — 과거 데이터 이름 조회용
+function rebuildTasks(){
+  tasks = getPeople().map(p=>tasks.find(t=>t.personId===p.id)||{id:'tk_'+p.id, personId:p.id, name:'일정'});
+}
+function toggleMemberActive(gid, mid){
+  const g=GROUPS.find(g=>g.id===gid); const m=g?.members.find(m=>m.id===mid); if(!m) return;
+  m.inactive=!m.inactive;
+  rebuildTasks();
+  renderTeamList(); renderTable(); renderStats(); fbPush();
+  showToast(m.inactive?'팀원을 숨겼어요 (데이터는 유지)':'팀원을 다시 활성화했어요');
+}
 let tasks = getPeople().map(p=>({id:'tk_'+p.id, personId:p.id, name:'일정'}));
 let _filterProjId = null; // 레전드 프로젝트 필터
 let _filterPersonId = null; // 담당자 필터
@@ -3376,7 +3387,7 @@ let _rvSelectedId = null;
 
 function selectRvPerson(personId){
   _rvSelectedId = personId;
-  const person = getPeople().find(p=>p.id===personId);
+  const person = getAllPeople().find(p=>p.id===personId);
   document.getElementById('rv-pw-wrap').style.display='';
   document.getElementById('rv-pw-name').textContent = `${person?.name}님의 비밀번호를 입력하세요`;
   document.getElementById('rv-login-pw').value='';
@@ -3396,7 +3407,7 @@ function loginReview(){
   const pw = document.getElementById('rv-login-pw')?.value;
   const errEl = document.getElementById('rv-login-err');
   if(!personId){ errEl.textContent='이름을 선택해주세요'; errEl.style.display=''; return; }
-  const person = getPeople().find(p=>p.id===personId);
+  const person = getAllPeople().find(p=>p.id===personId);
   if(!person||person.pw!==pw){ errEl.textContent='비밀번호가 올바르지 않아요'; errEl.style.display=''; return; }
   errEl.style.display='none';
   _rvPersonId = personId;
@@ -3418,7 +3429,7 @@ function logoutReview(){
 
 function showReviewWrite(personId){
   const ym = `${CY}-${String(CM+1).padStart(2,'0')}`;
-  const person = getPeople().find(p=>p.id===personId);
+  const person = getAllPeople().find(p=>p.id===personId);
   const rv = monthlyReviews[ym]?.[personId]||{};
   const existing = rv.text||'';
   const comments = rv.comments||[];
@@ -4463,7 +4474,7 @@ function renderIdeaBoard(){
       return `<span class="idea-reaction${pids.includes('me')?' active':''}" onclick="toggleReaction(${idx},'${emoji}')">${emoji}<span class="idea-reaction-cnt">${pids.length}</span></span>`;
     }).join('');
     const comments=(card.comments||[]).map((c,ci)=>{
-      const m=c.pid?getPeople().find(p=>p.id===c.pid):null;
+      const m=c.pid?getAllPeople().find(p=>p.id===c.pid):null;
       const g=m?GROUPS.find(gr=>gr.members.find(p=>p.id===c.pid)):null;
       const ac=m?(m?.ac||g?.gc||'#999'):'#94a3b8';
       const img=c.pid?avatarImgs[c.pid]:null;
@@ -4801,7 +4812,7 @@ function renderTable(){
   let b='';
   GROUPS.forEach(group=>{
     // 필터 적용: 해당 프로젝트 일정 있는 멤버 위로 정렬
-    let members = [...group.members];
+    let members = group.members.filter(m=>!m.inactive);
     if(_filterProjId){
       members.sort((a,b)=>{
         const hasA = tasks.filter(t=>t.personId===a.id).some(t=>(ranges[t.id]||[]).some(r=>r.projectId===_filterProjId));
@@ -5277,7 +5288,7 @@ function openMsModal(e,taskId,dateStr){
   msPending={taskId,dateStr};
   const ms=getMsForCell(taskId,dateStr)||{};
   const task=tasks.find(t=>t.id===taskId);
-  const person=getPeople().find(p=>p.id===task?.personId);
+  const person=getAllPeople().find(p=>p.id===task?.personId);
   document.getElementById('ms-sub').textContent=`${person?.name||''} · ${dateStr}`;
   document.getElementById('ms-note').value=ms.note||'';
   renderMsGrid(ms);
@@ -5495,7 +5506,7 @@ function openModal(taskId,start,end,editIdx){
   // 비관리자도 링크 클릭 가능
   document.querySelectorAll('[contenteditable] a, [contenteditable=false] a').forEach(a=>{ a.style.pointerEvents='auto'; a.style.cursor='pointer'; });
   const task=tasks.find(t=>t.id===taskId);
-  const person=getPeople().find(p=>p.id===task?.personId);
+  const person=getAllPeople().find(p=>p.id===task?.personId);
   const r=editIdx!=null?(ranges[taskId]||[])[editIdx]:null;
   document.getElementById('cm-title').textContent=person?.name||'일정';
   document.getElementById('cm-sub').textContent=person?.role||'';
@@ -5664,7 +5675,7 @@ function saveComment(){
       // 겹침 허용 - 제거 안 함
       ranges[tid].push(e2);
       saveCmMs(tid, start); // 신규 등록에도 마일스톤 저장
-      addLog('등록', getPeople().find(p=>p.id===personId)?.name||'', getProj(selProjId)?.name||'', start, end);
+      addLog('등록', getAllPeople().find(p=>p.id===personId)?.name||'', getProj(selProjId)?.name||'', start, end);
     });
     closeCmod(); renderTable(); renderStats(); fbPush();
     showToast(`${personIds.length}명에게 일정 등록 완료`);
@@ -5679,7 +5690,7 @@ function saveComment(){
 
   // 활동 기록
   const task=tasks.find(t=>t.id===taskId);
-  const person=getPeople().find(p=>p.id===task?.personId);
+  const person=getAllPeople().find(p=>p.id===task?.personId);
   const proj=PROJECTS.find(p=>p.id===selProjId);
   addLog(editIdx!=null?'수정':'등록', person?.name, proj?.name, start, end);
 
@@ -5688,7 +5699,7 @@ function saveComment(){
 function deleteRange(){
   if(!pending||pending.editIdx==null)return;
   const task=tasks.find(t=>t.id===pending.taskId);
-  const person=getPeople().find(p=>p.id===task?.personId);
+  const person=getAllPeople().find(p=>p.id===task?.personId);
   const r=(ranges[pending.taskId]||[])[pending.editIdx];
   const proj=PROJECTS.find(p=>p.id===r?.projectId);
   addLog('삭제', person?.name, proj?.name, r?.start, r?.end);
@@ -6448,7 +6459,7 @@ function renderTeamList(){
         ? `<img src="${_avImg}" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none">`
         : `<span style="font-size:15px;font-weight:700;pointer-events:none">${m.name.charAt(0)||'?'}</span>`;
       return `
-      <div class="team-member-row" id="tmrow-${g.id}-${m.id}"
+      <div class="team-member-row" id="tmrow-${g.id}-${m.id}" style="${m.inactive?'opacity:.4':''}"
         ondragover="memberDragOver(event)"
         ondragleave="memberDragLeave(event)"
         ondrop="memberDrop(event,'${g.id}','${m.id}')">
@@ -6476,6 +6487,8 @@ function renderTeamList(){
           <div class="color-swatch" style="background:${ac};width:18px;height:18px;border-radius:50%;border:2px solid rgba(0,0,0,.1)" id="ac-sw-${m.id}"></div>
           <input type="color" value="${ac}" oninput="updateMemberColor('${g.id}','${m.id}',this.value)">
         </div>
+        <button onclick="toggleMemberActive('${g.id}','${m.id}')" title="${m.inactive?'재입사 — 다시 활성화':'퇴사 — 일정·목록에서 숨김 (데이터 유지)'}"
+          style="flex-shrink:0;border:1px solid ${m.inactive?'var(--acc)':'var(--bd2)'};border-radius:6px;padding:4px 9px;font-size:12px;font-weight:600;background:${m.inactive?'var(--acc)':'var(--sf2)'};color:${m.inactive?'var(--bg)':'var(--tx3)'};cursor:pointer;white-space:nowrap">${m.inactive?'활성화':'숨김'}</button>
         <button class="tm-del-btn" onclick="deleteMember('${g.id}','${m.id}')" title="삭제">×</button>
       </div>`;}).join('');
 
