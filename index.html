@@ -781,7 +781,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-28</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-29</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -1264,6 +1264,10 @@ td.cell.leave{border-right-color:transparent}
     </div>
     </div><!-- /col2 -->
     <div style="flex:0 0 440px;min-width:300px">
+    <div class="fg"><label>기획안 수령일</label>
+      <input type="date" id="cm-received"
+        style="width:100%;border:1px solid var(--bd2);border-radius:8px;padding:6px 10px;font-size:14px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx);box-sizing:border-box">
+    </div>
     <div class="fg"><label>마감일 <span style="font-size:13px;color:var(--tx3)">(기본: 기간 마지막 날, 수정 가능)</span></label>
       <div style="display:flex;gap:6px;align-items:stretch">
         <input type="date" id="cm-due" oninput="_cmDueManual=true"
@@ -5448,6 +5452,7 @@ function openScheduleAdd(){ if(!_isAdmin){showToast('관리자만 사용할 수 
   cmSetContent('cm-link','');
   setCmStatus('wip');
   _cmDueManual=false; _cmDueMode=null; applyCmDueMode(); syncCmDue();
+  const _rcNew=document.getElementById('cm-received'); if(_rcNew) _rcNew.value='';
   document.getElementById('cm-del').style.display = 'none';
   renderPsel(null);
   // 작업항목 초기화
@@ -5499,6 +5504,8 @@ function openModal(taskId,start,end,editIdx){
   const _dueEl=document.getElementById('cm-due');
   if(_dueEl) _dueEl.value = (_cmDueMode ? (r?.end || end) : (r?.due || end)) || '';
   applyCmDueMode();
+  const _rcEl=document.getElementById('cm-received');
+  if(_rcEl){ _rcEl.value = r?.received || ''; _rcEl.disabled = readOnly; }
   document.getElementById('cm-del').style.display=editIdx!=null?'':'none';
   renderPsel(r?.projectId||null);
   // 마일스톤 렌더링 (기존 일정의 시작일 기준)
@@ -5633,7 +5640,7 @@ function saveComment(){
     da:false, daCnt:0, daVarCnt:0, vid:false, vidCnt:0, vidVarCnt:0,
   };
   const rtitle=document.getElementById('cm-rtitle').value.trim();
-  const entry={start,end,projectId:selProjId,rtitle,text:cmGetText('cm-text'),link:cmGetLink(),status:document.getElementById('cm-status').value,workItems,due:_cmDueMode?_cmDueMode:((document.getElementById('cm-due')?.value)||end)};
+  const entry={start,end,projectId:selProjId,rtitle,text:cmGetText('cm-text'),link:cmGetLink(),status:document.getElementById('cm-status').value,workItems,due:_cmDueMode?_cmDueMode:((document.getElementById('cm-due')?.value)||end),received:(document.getElementById('cm-received')?.value)||''};
 
   if(isNew){
     start = document.getElementById('cm-start').value;
