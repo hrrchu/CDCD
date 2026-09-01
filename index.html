@@ -300,7 +300,11 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .ma{display:flex;gap:7px;justify-content:flex-start;margin-top:14px}
 .psel{display:flex;flex-wrap:wrap;gap:5px}
 /* ── 일정 등록 모달 컴팩트 ── */
-#cmod .mt{font-size:18px!important;margin-bottom:10px}
+#cmod .mt{font-size:18px!important;margin-bottom:6px}
+/* 일정 팝업 컴팩트: 뒤 달력이 보이도록 세로 높이 축소 */
+#cmod .modal{padding:16px 20px}
+#cmod .fg{margin-bottom:7px}
+#cmod .ma{padding-top:9px;margin-top:2px}
 #cmod .fg{margin-bottom:10px}
 #cmod .fg label{font-size:13px;color:var(--tx3);font-weight:600}
 #cmod .fg label span{font-size:11px!important}
@@ -781,7 +785,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-29</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-30</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -1264,18 +1268,20 @@ td.cell.leave{border-right-color:transparent}
     </div>
     </div><!-- /col2 -->
     <div style="flex:0 0 440px;min-width:300px">
-    <div class="fg"><label>기획안 수령일</label>
-      <input type="date" id="cm-received"
-        style="width:100%;border:1px solid var(--bd2);border-radius:8px;padding:6px 10px;font-size:14px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx);box-sizing:border-box">
-    </div>
-    <div class="fg"><label>마감일 <span style="font-size:13px;color:var(--tx3)">(기본: 기간 마지막 날, 수정 가능)</span></label>
-      <div style="display:flex;gap:6px;align-items:stretch">
-        <input type="date" id="cm-due" oninput="_cmDueManual=true"
-          style="flex:1;min-width:0;border:1px solid var(--bd2);border-radius:8px;padding:6px 10px;font-size:14px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx);box-sizing:border-box;transition:.15s">
-        <button type="button" id="cm-due-tbd" onclick="setCmDueMode('tbd')"
-          style="flex-shrink:0;border:1px solid var(--bd2);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;background:var(--sf2);color:var(--tx2);cursor:pointer;transition:.12s">미정</button>
-        <button type="button" id="cm-due-asap" onclick="setCmDueMode('asap')"
-          style="flex-shrink:0;border:1px solid var(--bd2);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;background:var(--sf2);color:var(--tx2);cursor:pointer;transition:.12s">ASAP</button>
+    <div style="display:flex;gap:10px">
+      <div class="fg" style="flex:0 0 150px"><label>기획안 수령일</label>
+        <input type="date" id="cm-received"
+          style="width:100%;border:1px solid var(--bd2);border-radius:8px;padding:5px 8px;font-size:13px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx);box-sizing:border-box">
+      </div>
+      <div class="fg" style="flex:1;min-width:0"><label>마감일 <span style="font-size:12px;color:var(--tx3)">(기본: 기간 끝)</span></label>
+        <div style="display:flex;gap:5px;align-items:stretch">
+          <input type="date" id="cm-due" oninput="_cmDueManual=true"
+            style="flex:1;min-width:0;border:1px solid var(--bd2);border-radius:8px;padding:5px 8px;font-size:13px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx);box-sizing:border-box;transition:.15s">
+          <button type="button" id="cm-due-tbd" onclick="setCmDueMode('tbd')"
+            style="flex-shrink:0;border:1px solid var(--bd2);border-radius:8px;padding:5px 9px;font-size:13px;font-weight:600;background:var(--sf2);color:var(--tx2);cursor:pointer;transition:.12s">미정</button>
+          <button type="button" id="cm-due-asap" onclick="setCmDueMode('asap')"
+            style="flex-shrink:0;border:1px solid var(--bd2);border-radius:8px;padding:5px 9px;font-size:13px;font-weight:600;background:var(--sf2);color:var(--tx2);cursor:pointer;transition:.12s">ASAP</button>
+        </div>
       </div>
     </div>
     <div class="fg"><label>메모</label>
@@ -1286,7 +1292,7 @@ td.cell.leave{border-right-color:transparent}
         data-placeholder="메모를 입력하세요..."
         onpaste="cmPaste(event,'cm-text')"
         oninput="cmTextInput()"
-        style="border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-size:14px;font-family:'Pretendard',sans-serif;line-height:1.6;min-height:84px;outline:none;white-space:pre-wrap;word-break:break-word;color:var(--tx);background:var(--sur)"
+        style="border:1px solid var(--bd2);border-radius:8px;padding:8px 10px;font-size:14px;font-family:'Pretendard',sans-serif;line-height:1.6;min-height:56px;outline:none;white-space:pre-wrap;word-break:break-word;color:var(--tx);background:var(--sur)"
       ></div>
     </div>
     <!-- 마일스톤 -->
