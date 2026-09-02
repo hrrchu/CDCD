@@ -573,6 +573,13 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
    MOBILE RESPONSIVE (iPhone optimized)
 ══════════════════════════════════════ */
 @media(max-width:768px){
+  /* 일정 팝업 모바일: 컬럼 세로 스택, 고정폭 해제 */
+  #cmod .modal{width:96vw;max-height:92vh;padding:12px 14px}
+  #cmod #cm-right-col{flex:1 1 100%;min-width:0;width:100%}
+  #cmod #cm-person-row{flex:1 1 100%;min-width:0}
+  #cmod #cm-dates-row > .fg{flex:1 1 100%!important}
+  #cmod .psel{max-height:150px;overflow-y:auto}
+
 
   /* ── NAV ── */
   .nav-tabs{padding:0;gap:0;overflow-x:auto;scrollbar-width:none}
@@ -785,7 +792,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-33</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-34</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -1267,8 +1274,8 @@ td.cell.leave{border-right-color:transparent}
       <div class="psel" id="cm-psel"></div>
     </div>
     </div><!-- /col2 -->
-    <div style="flex:0 0 440px;min-width:300px">
-    <div style="display:flex;gap:10px">
+    <div id="cm-right-col" style="flex:0 0 440px;min-width:300px">
+    <div id="cm-dates-row" style="display:flex;gap:10px;flex-wrap:wrap">
       <div class="fg" style="flex:0 0 150px"><label>기획안 수령일</label>
         <input type="date" id="cm-received"
           style="width:100%;border:1px solid var(--bd2);border-radius:8px;padding:5px 8px;font-size:13px;font-family:'Pretendard',sans-serif;outline:none;background:var(--sur);color:var(--tx);box-sizing:border-box">
