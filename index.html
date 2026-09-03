@@ -400,6 +400,9 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .grm-wrap{padding:20px 22px 28px}
 .grm-title{font-size:18px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:8px}
 .grm-sub{font-size:13px;color:var(--tx3);margin-bottom:14px}
+/* 숫자 입력칸 증감 화살표(스피너) 숨김 */
+.no-spin::-webkit-outer-spin-button,.no-spin::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.no-spin{-moz-appearance:textfield;appearance:textfield}
 .grm-vbtn{font-size:14px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bd2);background:var(--sf2);color:var(--tx2);cursor:pointer;transition:.15s;font-family:'Pretendard',sans-serif}
 .grm-vbtn:hover{background:var(--bd);color:var(--tx)}
 .grm-vbtn.active{background:var(--acc);color:#fff;border-color:var(--acc)}
@@ -796,7 +799,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0903-4</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0903-5</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -851,14 +854,12 @@ td.cell.leave{border-right-color:transparent}
   <div class="sub-content" id="scontent-1">
     <div class="grm-wrap">
       
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px">
-        <div class="grm-title" style="margin-bottom:0">GRM 공수 계산 <span style="font-size:15px;font-weight:600;color:var(--tx2)" id="grm-month-label"></span></div>
-        <div style="display:flex;gap:4px">
-          <button id="grm-view-person" class="grm-vbtn active" onclick="setGrmView('person')">작업자별</button>
-          <button id="grm-view-proj" class="grm-vbtn" onclick="setGrmView('proj')">프로젝트별</button>
-        </div>
+      <div class="grm-title">GRM 공수 계산 <span style="font-size:15px;font-weight:600;color:var(--tx2)" id="grm-month-label"></span></div>
+      <div class="grm-sub" style="margin-bottom:10px">현재 표시 월의 영업일 기준으로 공수를 계산합니다.</div>
+      <div style="display:flex;gap:4px;margin-bottom:14px">
+        <button id="grm-view-person" class="grm-vbtn active" onclick="setGrmView('person')">작업자별</button>
+        <button id="grm-view-proj" class="grm-vbtn" onclick="setGrmView('proj')">프로젝트별</button>
       </div>
-      <div class="grm-sub">현재 표시 월의 영업일 기준으로 공수를 계산합니다.</div>
       <div class="grm-grid" id="grm-grid"></div>
     </div>
   </div>
@@ -6113,7 +6114,7 @@ function renderGRM(){
         const adjVal=getAdj(personId,proj.id);
         const adjHtml=`<span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px">
           <span style="font-size:13px;color:var(--tx3)">보정</span>
-          <input type="number" min="0" max="200" placeholder="-"
+          <input type="number" class="no-spin" min="0" max="200" placeholder="-"
             value="${adjVal??''}"
             onblur="setAdj('${personId}','${proj.id}',this.value);renderGRM()" ${_isAdmin?'':'disabled'}
             onclick="event.stopPropagation()"
@@ -6191,7 +6192,7 @@ function renderGRM(){
       const isManual = manualProjIds.includes(projId);
       const adjHtml=`<span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px">
         <span style="font-size:13px;color:var(--tx3)">보정</span>
-        <input type="number" min="0" max="200" placeholder="-"
+        <input type="number" class="no-spin" min="0" max="200" placeholder="-"
           value="${adjVal??''}"
           onblur="setAdj('${person.id}','${projId}',this.value);renderGRM()" ${_isAdmin?'':'disabled'}
           onclick="event.stopPropagation()"
