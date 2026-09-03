@@ -792,7 +792,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0831-34</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0903-1</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -6042,34 +6042,77 @@ function renderGRM(){
     });
   });
 
+  // 프로젝트 → {personId: 일수} (프로젝트별 뷰와 월간 요약표가 공유)
+  const projPersonDays={};
+  PROJECTS.forEach(p=>{projPersonDays[p.id]={}});
+  tasks.forEach(task=>{
+    const pid=task.personId;
+    (ranges[task.id]||[]).forEach(r=>{
+      if(!r.projectId) return;
+      if(!projPersonDays[r.projectId]) projPersonDays[r.projectId]={};
+      wds.forEach(({ds})=>{
+        if(dn(ds)>=dn(r.start)&&dn(ds)<=dn(r.end)){
+          if(!projPersonDays[r.projectId][pid]) projPersonDays[r.projectId][pid]=0;
+          projPersonDays[r.projectId][pid]++;
+        }
+      });
+    });
+  });
+  const activeProjs = PROJECTS.filter(p=>Object.keys(projPersonDays[p.id]||{}).length>0);
+  // 실제 일정은 없지만 보정공수만 입력된 프로젝트도 표에는 포함
+  const adjOnlyProjs = PROJECTS.filter(p=>!activeProjs.some(a=>a.id===p.id) && getProjAdj(p.id)!=null);
+  const tableProjs = [...activeProjs, ...adjOnlyProjs];
+  // 실공수 = 영업일 대비 팀원별 공수%의 합 (카드 배지와 동일 계산)
+  const realPct = pj => Object.entries(projPersonDays[pj.id]||{})
+    .reduce((s,[,d])=>s+(totalWD>0?Math.round(d/totalWD*100):0),0);
+
+  // ── 월간 프로젝트 요약표 (두 뷰 공통, 맨 위) ──
+  let tblRows='', sumReal=0, sumAdj=0, hasAdj=false;
+  tableProjs.forEach(p=>{
+    const rp=realPct(p), ap=getProjAdj(p.id);
+    sumReal+=rp;
+    if(ap!=null){ sumAdj+=ap; hasAdj=true; }
+    tblRows+=`<tr style="border-bottom:1px solid var(--bd)">
+      <td style="padding:9px 10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:2px;background:${p.bar};flex-shrink:0;display:inline-block"></span>
+          <span style="font-size:15px;font-weight:600;color:var(--tx)">${p.name}</span>
+        </div>
+      </td>
+      <td style="padding:9px 10px;text-align:right;font-size:15px;font-family:'Pretendard',sans-serif;font-weight:700;color:var(--tx)">${rp}%</td>
+      <td style="padding:9px 10px;text-align:right;font-size:15px;font-family:'Pretendard',sans-serif;font-weight:700;color:${ap!=null?'var(--tx)':'var(--tx3)'}">${ap!=null?ap+'%':'-'}</td>
+    </tr>`;
+  });
+  const tableHtml = tableProjs.length ? `<div style="margin-bottom:16px;overflow-x:auto">
+    <div style="font-size:14px;font-weight:700;color:var(--tx2);margin-bottom:6px">${CY}년 ${M[CM]} 프로젝트별 공수</div>
+    <table style="width:100%;border-collapse:collapse;min-width:360px">
+      <thead><tr style="border-bottom:2px solid var(--bd)">
+        <th style="text-align:left;padding:8px 10px;font-size:13px;color:var(--tx3);font-weight:600">프로젝트</th>
+        <th style="text-align:right;padding:8px 10px;font-size:13px;color:var(--tx3);font-weight:600;width:96px">실공수</th>
+        <th style="text-align:right;padding:8px 10px;font-size:13px;color:var(--tx3);font-weight:600;width:96px">보정공수</th>
+      </tr></thead>
+      <tbody>${tblRows}
+        <tr style="border-top:2px solid var(--bd);background:var(--sf2)">
+          <td style="padding:9px 10px;font-size:15px;font-weight:700;color:var(--tx2)">합계</td>
+          <td style="padding:9px 10px;text-align:right;font-size:15px;font-family:'Pretendard',sans-serif;font-weight:700;color:var(--tx)">${sumReal}%</td>
+          <td style="padding:9px 10px;text-align:right;font-size:15px;font-family:'Pretendard',sans-serif;font-weight:700;color:${hasAdj?'var(--tx)':'var(--tx3)'}">${hasAdj?sumAdj+'%':'-'}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>` : '';
+
   // render
   const grid=document.getElementById('grm-grid');
   const people=getPeople();
 
   if(_grmView==='proj'){
     // ── 프로젝트별 뷰 ──
-    const projDays={};
-    PROJECTS.forEach(p=>{projDays[p.id]={}});
-    tasks.forEach(task=>{
-      const pid=task.personId;
-      (ranges[task.id]||[]).forEach(r=>{
-        if(!r.projectId) return;
-        if(!projDays[r.projectId]) projDays[r.projectId]={};
-        wds.forEach(({ds})=>{
-          if(dn(ds)>=dn(r.start)&&dn(ds)<=dn(r.end)){
-            if(!projDays[r.projectId][pid]) projDays[r.projectId][pid]=0;
-            projDays[r.projectId][pid]++;
-          }
-        });
-      });
-    });
-    const activeProjs = PROJECTS.filter(p=>Object.keys(projDays[p.id]||{}).length>0);
     let html='';
-    if(!activeProjs.length){
+    if(!tableProjs.length){
       html='<div style="color:var(--tx2);font-size:15px;padding:20px;text-align:center">이번 달 등록된 일정이 없어요</div>';
     }
     activeProjs.forEach(proj=>{
-      const pd=projDays[proj.id]||{};
+      const pd=projPersonDays[proj.id]||{};
       const totalProjDays=Object.values(pd).reduce((a,b)=>a+b,0);
       const memberEntries=Object.entries(pd).sort((a,b)=>b[1]-a[1]);
       // 각 팀원: 영업일 대비 본인 공수% (20일 중 10일 = 50%)
@@ -6123,7 +6166,7 @@ function renderGRM(){
         <div style="display:flex;flex-direction:column;align-items:flex-start;gap:1px">${tags}</div>
       </div>`;
     });
-    grid.innerHTML=`<div style="grid-column:1/-1">${html}</div>`;
+    grid.innerHTML=`<div style="grid-column:1/-1">${tableHtml}${html}</div>`;
     return;
   }
 
@@ -6221,7 +6264,7 @@ function renderGRM(){
 
   if(!people.length) html=`<div style="color:var(--tx3);font-size:15px;padding:20px;text-align:center">팀원 정보가 없어요</div>`;
 
-  grid.innerHTML=`<div style="grid-column:1/-1">${html}</div>`;
+  grid.innerHTML=`<div style="grid-column:1/-1">${tableHtml}${html}</div>`;
 }
 
 
