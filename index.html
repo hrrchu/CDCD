@@ -796,7 +796,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0903-3</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0903-4</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -851,8 +851,8 @@ td.cell.leave{border-right-color:transparent}
   <div class="sub-content" id="scontent-1">
     <div class="grm-wrap">
       
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div class="grm-title">GRM 공수 계산 <span style="font-size:15px;font-weight:600;color:var(--tx2)" id="grm-month-label"></span></div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+        <div class="grm-title" style="margin-bottom:0">GRM 공수 계산 <span style="font-size:15px;font-weight:600;color:var(--tx2)" id="grm-month-label"></span></div>
         <div style="display:flex;gap:4px">
           <button id="grm-view-person" class="grm-vbtn active" onclick="setGrmView('person')">작업자별</button>
           <button id="grm-view-proj" class="grm-vbtn" onclick="setGrmView('proj')">프로젝트별</button>
@@ -3135,24 +3135,24 @@ function renderOtYear(wrap, label){
   });
   const sorted = [...people].sort((a,b)=>yearTotal[b.id]-yearTotal[a.id]);
 
-  let html = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:700px">
+  let html = `<div style="overflow-x:auto"><table style="width:auto;min-width:0;max-width:100%;border-collapse:collapse">
     <thead><tr style="border-bottom:2px solid var(--bd)">
-      <th style="text-align:left;padding:8px 10px;font-size:13px;color:var(--tx3);font-weight:600;min-width:80px">팀원</th>
-      ${months.map((mm,i)=>`<th style="text-align:center;padding:8px 6px;font-size:13px;color:var(--tx3);font-weight:600">${M2b[i]}</th>`).join('')}
-      <th style="text-align:right;padding:8px 10px;font-size:13px;color:var(--acc);font-weight:700">연간합계</th>
+      <th style="text-align:left;padding:8px 14px 8px 10px;font-size:13px;color:var(--tx3);font-weight:600;white-space:nowrap">팀원</th>
+      ${months.map((mm,i)=>`<th style="text-align:center;padding:8px 8px;font-size:13px;color:var(--tx3);font-weight:600;white-space:nowrap">${M2b[i]}</th>`).join('')}
+      <th style="text-align:left;padding:8px 10px;font-size:13px;color:var(--acc);font-weight:700;white-space:nowrap">연간합계</th>
     </tr></thead><tbody>`;
 
   sorted.forEach((p,ri) => {
     const rank = ri+1;
     const rankBadge = rank===1&&yearTotal[p.id]>0?'1 ':rank===2&&yearTotal[p.id]>0?'2 ':rank===3&&yearTotal[p.id]>0?'3 ':'';
     html += `<tr style="border-bottom:1px solid var(--bd)">
-      <td style="padding:9px 10px;font-size:15px;font-weight:600;color:var(--tx)"><span style="display:inline-flex;align-items:center;gap:6px">${rankBadge}${avChip(p.id,p.name)}${p.name}</span></td>
+      <td style="padding:9px 14px 9px 10px;font-size:15px;font-weight:600;color:var(--tx);white-space:nowrap"><span style="display:inline-flex;align-items:center;gap:6px">${rankBadge}${avChip(p.id,p.name)}${p.name}</span></td>
       ${months.map(mm=>{
         const ym=`${CY}-${mm}`;
         const h=Math.round((otData[ym]?.[p.id]||0)*10)/10;
-        return `<td style="padding:9px 6px;text-align:center;font-size:14px;font-family:'Pretendard',sans-serif;color:${h>0?'var(--acc)':'var(--tx3)'}">${h>0?h:'-'}</td>`;
+        return `<td style="padding:9px 8px;text-align:center;font-size:14px;font-family:'Pretendard',sans-serif;color:${h>0?'var(--acc)':'var(--tx3)'}">${h>0?h:'-'}</td>`;
       }).join('')}
-      <td style="padding:9px 10px;text-align:right;font-size:15px;font-weight:700;font-family:'Pretendard',sans-serif;color:${yearTotal[p.id]>0?'var(--acc)':'var(--tx3)'}">${yearTotal[p.id]>0?yearTotal[p.id]:'-'}</td>
+      <td style="padding:9px 10px;text-align:left;font-size:15px;font-weight:700;font-family:'Pretendard',sans-serif;color:${yearTotal[p.id]>0?'var(--acc)':'var(--tx3)'};white-space:nowrap">${yearTotal[p.id]>0?yearTotal[p.id]:'-'}</td>
     </tr>`;
   });
 
@@ -3163,9 +3163,9 @@ function renderOtYear(wrap, label){
   });
   const grandTotal = Math.round(monthTotals.reduce((s,v)=>s+v,0)*10)/10;
   html += `<tr style="border-top:2px solid var(--bd);background:var(--sf2)">
-    <td style="padding:10px;font-size:15px;font-weight:700;color:var(--tx2)">합계</td>
-    ${monthTotals.map(t=>`<td style="padding:10px 6px;text-align:center;font-size:14px;font-weight:700;font-family:'Pretendard',sans-serif;color:${t>0?'var(--acc)':'var(--tx3)'}">${t>0?t:'-'}</td>`).join('')}
-    <td style="padding:10px;text-align:right;font-size:15px;font-weight:700;font-family:'Pretendard',sans-serif;color:var(--acc)">${grandTotal}h</td>
+    <td style="padding:10px 14px 10px 10px;font-size:15px;font-weight:700;color:var(--tx2);white-space:nowrap">합계</td>
+    ${monthTotals.map(t=>`<td style="padding:10px 8px;text-align:center;font-size:14px;font-weight:700;font-family:'Pretendard',sans-serif;color:${t>0?'var(--acc)':'var(--tx3)'}">${t>0?t:'-'}</td>`).join('')}
+    <td style="padding:10px;text-align:left;font-size:15px;font-weight:700;font-family:'Pretendard',sans-serif;color:var(--acc);white-space:nowrap">${grandTotal}h</td>
   </tr>`;
   html += '</tbody></table></div>';
   wrap.innerHTML = html;
@@ -4342,12 +4342,6 @@ function renderLeaveList(){
     const avHtml=img
       ?`<img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`
       :`<span style="font-size:15px;font-weight:700">${s.name.charAt(0)}</span>`;
-    const barW=totalDays>0?Math.round(s.total/totalDays*100):0;
-    const typeBreakdown=Object.entries(s.byType).map(([type,d])=>{
-      const lt=LEAVE_TYPES[type]||LEAVE_TYPES.off;
-      return `<span style="color:${lt.color};font-size:15px;font-weight:600">${lt.icon} ${d}일</span>`;
-    }).join('<span style="color:var(--bd2);margin:0 3px">·</span>');
-
     html+=`<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:var(--sur);border:1px solid var(--bd)">
       <span style="font-size:15px;min-width:24px;text-align:center">${medal}</span>
       <div style="width:26px;height:26px;border-radius:50%;background:${ac}22;color:${ac};display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-size:15px;font-weight:700">${avHtml}</div>
@@ -4356,12 +4350,6 @@ function renderLeaveList(){
         <div style="font-size:15px;color:var(--tx3)">${s.role}</div>
       </div>
       <div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:var(--tx);min-width:36px;text-align:left">${s.total}<span style="font-size:15px;font-weight:400;color:var(--tx3)">일</span></div>
-      <div style="flex:1">
-        <div style="background:var(--sf2);border-radius:4px;height:6px;overflow:hidden">
-          <div style="height:100%;width:${barW}%;background:${ac};border-radius:4px;transition:width .4s"></div>
-        </div>
-        <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${typeBreakdown}</div>
-      </div>
     </div>`;
   });
 
@@ -6386,11 +6374,6 @@ function renderLeaveListYear(){
       const avHtml=img
         ?`<img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`
         :`<span style="font-size:15px;font-weight:700">${s.name.charAt(0)}</span>`;
-      const barW=yTotalDays>0?Math.round(s.total/yTotalDays*100):0;
-      const typeBreakdown=Object.entries(s.byType).map(([type,d])=>{
-        const lt=LEAVE_TYPES[type]||LEAVE_TYPES.off;
-        return `<span style="color:${lt.color};font-size:15px;font-weight:600">${lt.icon} ${d}일</span>`;
-      }).join('<span style="color:var(--bd2);margin:0 3px">·</span>');
       return `<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:var(--sur);border:1px solid var(--bd)">
         <span style="font-size:15px;min-width:24px;text-align:center">${ri+1}</span>
         <div style="width:26px;height:26px;border-radius:50%;background:${ac}22;color:${ac};display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">${avHtml}</div>
@@ -6399,12 +6382,6 @@ function renderLeaveListYear(){
           <div style="font-size:15px;color:var(--tx3)">${s.role}</div>
         </div>
         <div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:var(--tx);min-width:36px;text-align:left">${s.total}<span style="font-size:13px;color:var(--tx3)">일</span></div>
-        <div style="flex:1">
-          <div style="background:var(--sf2);border-radius:4px;height:6px;overflow:hidden">
-            <div style="height:100%;width:${barW}%;background:${ac};border-radius:4px;transition:width .4s"></div>
-          </div>
-          <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${typeBreakdown}</div>
-        </div>
       </div>`;
     }).join('')}
     </div>
