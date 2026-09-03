@@ -799,7 +799,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0903-5</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0903-6</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -856,7 +856,7 @@ td.cell.leave{border-right-color:transparent}
       
       <div class="grm-title">GRM 공수 계산 <span style="font-size:15px;font-weight:600;color:var(--tx2)" id="grm-month-label"></span></div>
       <div class="grm-sub" style="margin-bottom:10px">현재 표시 월의 영업일 기준으로 공수를 계산합니다.</div>
-      <div style="display:flex;gap:4px;margin-bottom:14px">
+      <div style="display:flex;gap:4px;margin-bottom:26px">
         <button id="grm-view-person" class="grm-vbtn active" onclick="setGrmView('person')">작업자별</button>
         <button id="grm-view-proj" class="grm-vbtn" onclick="setGrmView('proj')">프로젝트별</button>
       </div>
@@ -3588,14 +3588,14 @@ function renderStatsMonth(schedCount, workDays, leaveDays, leaveCount, rows, M2b
   });
   const topProjs=Object.entries(pc).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([id,d])=>{const p=getProj(id);return {p,d};});
   return `
-    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-      <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
-        <div style="font-size:28px;font-weight:700;color:var(--tx3)">${workDays}</div>
-        <div style="font-size:13px;color:var(--tx3);margin-top:4px">총 영업일</div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+      <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:7px 12px;display:flex;align-items:baseline;gap:7px;white-space:nowrap">
+        <span style="font-size:18px;font-weight:700;color:var(--tx)">${workDays}</span>
+        <span style="font-size:13px;color:var(--tx3)">총 영업일</span>
       </div>
-      <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
-        <div style="font-size:28px;font-weight:700;color:var(--acc)">${schedCount}</div>
-        <div style="font-size:13px;color:var(--tx3);margin-top:4px">등록 일정</div>
+      <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:7px 12px;display:flex;align-items:baseline;gap:7px;white-space:nowrap">
+        <span style="font-size:18px;font-weight:700;color:var(--acc)">${schedCount}</span>
+        <span style="font-size:13px;color:var(--tx3)">등록 일정</span>
       </div>
     </div>
     ${topProjs.length?`<div style="background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;margin-bottom:20px">
@@ -3659,14 +3659,14 @@ function renderStatsYear(people, M2b){
   const yearTopProjs=Object.entries(yearPc).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([id,d])=>{const p=getProj(id);return {p,d};});
 
   return `
-    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-      <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
-        <div style="font-size:28px;font-weight:700;color:var(--tx3)">${yearWorkDays}</div>
-        <div style="font-size:13px;color:var(--tx3);margin-top:4px">총 영업일</div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+      <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:7px 12px;display:flex;align-items:baseline;gap:7px;white-space:nowrap">
+        <span style="font-size:18px;font-weight:700;color:var(--tx)">${yearWorkDays}</span>
+        <span style="font-size:13px;color:var(--tx3)">총 영업일</span>
       </div>
-      <div style="flex:1;min-width:140px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;text-align:center">
-        <div style="font-size:28px;font-weight:700;color:var(--acc)">${yearSchedCount}</div>
-        <div style="font-size:13px;color:var(--tx3);margin-top:4px">총 등록 일정</div>
+      <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:7px 12px;display:flex;align-items:baseline;gap:7px;white-space:nowrap">
+        <span style="font-size:18px;font-weight:700;color:var(--acc)">${yearSchedCount}</span>
+        <span style="font-size:13px;color:var(--tx3)">총 등록 일정</span>
       </div>
     </div>
     ${yearTopProjs.length?`<div style="background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px 18px;margin-bottom:20px">
