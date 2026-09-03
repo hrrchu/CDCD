@@ -400,6 +400,9 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .grm-wrap{padding:20px 22px 28px}
 .grm-title{font-size:18px;font-weight:700;color:var(--tx);margin-bottom:4px;display:flex;align-items:center;gap:8px}
 .grm-sub{font-size:13px;color:var(--tx3);margin-bottom:14px}
+.grm-vbtn{font-size:14px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bd2);background:var(--sf2);color:var(--tx2);cursor:pointer;transition:.15s;font-family:'Pretendard',sans-serif}
+.grm-vbtn:hover{background:var(--bd);color:var(--tx)}
+.grm-vbtn.active{background:var(--acc);color:#fff;border-color:var(--acc)}
 .grm-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:700px){.grm-grid{grid-template-columns:1fr}}
 .grm-card{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:16px;box-shadow:var(--sh)}
@@ -436,7 +439,7 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 
 /* ── LEAVE LIST ── */
 .lv-section{margin-bottom:16px}
-.lv-section-hd{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 8px;font-size:15px;font-weight:700;color:var(--tx2);border-bottom:2px solid var(--bd)}
+.lv-section-hd{display:flex;align-items:center;gap:10px;padding:6px 2px 8px;font-size:15px;font-weight:700;color:var(--tx2);border-bottom:2px solid var(--bd)}
 .lv-section-cnt{font-size:15px;font-weight:500;color:var(--tx3);font-family:'Pretendard',sans-serif}
 .lv-table{display:flex;flex-direction:column;gap:1px;margin-top:4px}
 .lv-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .1s}
@@ -444,8 +447,8 @@ a[href]{pointer-events:auto!important;cursor:pointer!important}
 .lv-row-name{font-size:14px;font-weight:600;color:var(--tx);min-width:72px;white-space:nowrap}
 .lv-row-role{font-size:13px;color:var(--tx3);font-weight:400;margin-left:5px}
 .lv-type-badge{padding:2px 8px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;flex-shrink:0}
-.lv-row-date{font-family:'Pretendard',sans-serif;font-size:13px;color:var(--tx3);flex:1;white-space:nowrap}
-.lv-row-days{font-family:'Pretendard',sans-serif;font-size:13px;font-weight:600;color:var(--tx2);min-width:28px;text-align:right;white-space:nowrap}
+.lv-row-date{font-family:'Pretendard',sans-serif;font-size:13px;color:var(--tx3);white-space:nowrap}
+.lv-row-days{font-family:'Pretendard',sans-serif;font-size:13px;font-weight:600;color:var(--tx2);min-width:28px;text-align:left;white-space:nowrap}
 .lv-row-note{font-size:13px;color:var(--tx2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
 .lv-row-edit{font-size:15px;color:var(--acc);opacity:0;transition:opacity .1s;white-space:nowrap;flex-shrink:0}
 .lv-row:hover .lv-row-edit{opacity:1}
@@ -702,6 +705,7 @@ td.cell.leave{border-right-color:transparent}
 :root[data-theme="dark"] .btn-p{color:#171717}
 :root[data-theme="dark"] .status-btn.active{color:#171717}
 :root[data-theme="dark"] .tb-btn.active{color:#171717}
+:root[data-theme="dark"] .grm-vbtn.active{color:#171717}
 :root[data-theme="dark"] .idea-new-submit{color:#171717}
 :root[data-theme="dark"] .month-chip.selected{background:#ededed;color:#171717;border-color:#ededed}
 :root[data-theme="dark"] .legend-item.on{background:#ededed;color:#171717;border-color:#ededed}
@@ -792,7 +796,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0903-2</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0903-3</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -850,10 +854,8 @@ td.cell.leave{border-right-color:transparent}
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
         <div class="grm-title">GRM 공수 계산 <span style="font-size:15px;font-weight:600;color:var(--tx2)" id="grm-month-label"></span></div>
         <div style="display:flex;gap:4px">
-          <button id="grm-view-person" onclick="setGrmView('person')"
-            style="font-size:14px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer;transition:.15s">작업자별</button>
-          <button id="grm-view-proj" onclick="setGrmView('proj')"
-            style="font-size:14px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bd2);background:var(--sf2);color:var(--tx2);cursor:pointer;transition:.15s">프로젝트별</button>
+          <button id="grm-view-person" class="grm-vbtn active" onclick="setGrmView('person')">작업자별</button>
+          <button id="grm-view-proj" class="grm-vbtn" onclick="setGrmView('proj')">프로젝트별</button>
         </div>
       </div>
       <div class="grm-sub">현재 표시 월의 영업일 기준으로 공수를 계산합니다.</div>
@@ -4353,13 +4355,13 @@ function renderLeaveList(){
         <div style="font-size:15px;font-weight:700;color:var(--tx)">${s.name}</div>
         <div style="font-size:15px;color:var(--tx3)">${s.role}</div>
       </div>
+      <div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:var(--tx);min-width:36px;text-align:left">${s.total}<span style="font-size:15px;font-weight:400;color:var(--tx3)">일</span></div>
       <div style="flex:1">
         <div style="background:var(--sf2);border-radius:4px;height:6px;overflow:hidden">
           <div style="height:100%;width:${barW}%;background:${ac};border-radius:4px;transition:width .4s"></div>
         </div>
         <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${typeBreakdown}</div>
       </div>
-      <div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:var(--tx);min-width:36px;text-align:right">${s.total}<span style="font-size:15px;font-weight:400;color:var(--tx3)">일</span></div>
     </div>`;
   });
 
@@ -6004,8 +6006,9 @@ function setGrmView(v){
   _grmView = v;
   const btnP = document.getElementById('grm-view-person');
   const btnJ = document.getElementById('grm-view-proj');
-  if(btnP){ btnP.style.background=v==='person'?'var(--acc)':'#fafafa'; btnP.style.color=v==='person'?'#fff':'var(--tx2)'; btnP.style.borderColor=v==='person'?'var(--acc)':'var(--bd2)'; }
-  if(btnJ){ btnJ.style.background=v==='proj'?'var(--acc)':'#fafafa'; btnJ.style.color=v==='proj'?'#fff':'var(--tx2)'; btnJ.style.borderColor=v==='proj'?'var(--acc)':'var(--bd2)'; }
+  // 색은 .grm-vbtn CSS가 담당 (인라인 생 hex는 다크모드에서 안 보임)
+  if(btnP) btnP.classList.toggle('active', v==='person');
+  if(btnJ) btnJ.classList.toggle('active', v==='proj');
   renderGRM();
 }
 function renderGRM(){
@@ -6395,13 +6398,13 @@ function renderLeaveListYear(){
           <div style="font-size:15px;font-weight:700;color:var(--tx)">${s.name}</div>
           <div style="font-size:15px;color:var(--tx3)">${s.role}</div>
         </div>
+        <div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:var(--tx);min-width:36px;text-align:left">${s.total}<span style="font-size:13px;color:var(--tx3)">일</span></div>
         <div style="flex:1">
           <div style="background:var(--sf2);border-radius:4px;height:6px;overflow:hidden">
             <div style="height:100%;width:${barW}%;background:${ac};border-radius:4px;transition:width .4s"></div>
           </div>
           <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${typeBreakdown}</div>
         </div>
-        <div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:var(--tx);min-width:36px;text-align:right">${s.total}<span style="font-size:13px;color:var(--tx3)">일</span></div>
       </div>`;
     }).join('')}
     </div>
@@ -6410,7 +6413,7 @@ function renderLeaveListYear(){
   byMonth.forEach(({m, items})=>{
     const monthDays = items.reduce((s,{lv})=>s+countWeekdays(lv.start,lv.end),0);
     html += `<div style="margin-bottom:16px">
-      <div style="font-size:15px;font-weight:700;color:var(--tx2);padding:6px 0;border-bottom:1px solid var(--bd);margin-bottom:8px;display:flex;justify-content:space-between">
+      <div style="font-size:15px;font-weight:700;color:var(--tx2);padding:6px 0;border-bottom:1px solid var(--bd);margin-bottom:8px;display:flex;gap:10px">
         <span>${MN[m]}</span><span style="font-family:'Pretendard',sans-serif;color:var(--tx3)">${monthDays}일</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:4px">`;
@@ -6421,7 +6424,7 @@ function renderLeaveListYear(){
         <span>${lt.icon}</span>
         <span style="font-weight:600;color:var(--tx)">${person.name}</span>
         <span style="font-family:'Pretendard',sans-serif;color:var(--tx3)">${lv.start}${lv.start!==lv.end?' ~ '+lv.end:''}</span>
-        <span style="margin-left:auto;font-family:'Pretendard',sans-serif;font-weight:700;color:var(--tx2)">${d}일</span>
+        <span style="font-family:'Pretendard',sans-serif;font-weight:700;color:var(--tx2)">${d}일</span>
       </div>`;
     });
     html += `</div></div>`;
