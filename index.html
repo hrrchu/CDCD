@@ -799,7 +799,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0903-9</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0911-1</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
@@ -5515,6 +5515,11 @@ function openModal(taskId,start,end,editIdx){
   document.querySelectorAll('[contenteditable] a, [contenteditable=false] a').forEach(a=>{ a.style.pointerEvents='auto'; a.style.cursor='pointer'; });
   const task=tasks.find(t=>t.id===taskId);
   const person=getAllPeople().find(p=>p.id===task?.personId);
+  // 관리자는 기존 일정의 담당자도 변경 가능 (복수 체크 시 그 인원들로 이동/복제)
+  if(_isAdmin && editIdx!=null){
+    renderPersonCheckboxes(getPeople(), [task?.personId]);
+    document.getElementById('cm-person-row').style.display='';
+  }
   const r=editIdx!=null?(ranges[taskId]||[])[editIdx]:null;
   document.getElementById('cm-title').textContent=person?.name||'일정';
   document.getElementById('cm-sub').textContent=person?.role||'';
@@ -5613,7 +5618,7 @@ function cmMsToggle(el, key){
     if(lbl) lbl.style.color='var(--tx2)';
   }
 }
-function saveCmMs(taskId, dateStr){
+function saveCmMs(taskId, dateStr, clearOnly){
   if(!milestones[taskId]) milestones[taskId]={};
   const spinStart = document.getElementById('cm-start')?.value || dateStr;
   const spinEnd   = document.getElementById('cm-end')?.value   || dateStr;
@@ -5628,6 +5633,7 @@ function saveCmMs(taskId, dateStr){
     }
   });
   // 새로 저장
+  if(clearOnly) return;
   MS_TYPES.forEach(t=>{
     const chk = document.getElementById('cm-ms-chk-'+t.key);
     const span = document.getElementById('cm-ms-date-'+t.key);
@@ -5690,6 +5696,26 @@ function saveComment(){
     return;
   }
   if(!ranges[taskId]) ranges[taskId]=[];
+
+  // 담당자 변경: 체크된 담당자 행으로 이동(복수면 복제)
+  if(editIdx!=null && document.getElementById('cm-person-row').style.display!=='none'){
+    const newTids = getCheckedPersonIds().map(pid=>tasks.find(t=>t.personId===pid)?.id).filter(Boolean);
+    if(!newTids.length){ showToast('담당자를 한 명 이상 선택해주세요','error'); return; }
+    if(!(newTids.length===1 && newTids[0]===taskId)){
+      if(!newTids.includes(taskId)) saveCmMs(taskId, start, true); // 원래 행 마일스톤 정리
+      ranges[taskId].splice(editIdx,1);
+      newTids.forEach(tid=>{
+        (ranges[tid] = ranges[tid]||[]).push({...entry});
+        saveCmMs(tid, start);
+        const pn = getAllPeople().find(p=>p.id===tasks.find(t=>t.id===tid)?.personId)?.name;
+        addLog('담당자변경', pn, getProj(selProjId)?.name||'', start, end);
+      });
+      closeCmod();renderTable();renderStats();fbPush();
+      showToast('담당자 변경됨');
+      return;
+    }
+  }
+
   if(editIdx!=null) ranges[taskId][editIdx]=entry;
   else{ranges[taskId].push(entry);}
 
