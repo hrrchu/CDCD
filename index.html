@@ -169,6 +169,7 @@ th.cd.holiday{position:relative}
 .hd-name{display:block;font-size:15px;color:#e53e3e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:36px;margin:0 auto;line-height:1.2}
 td.cell.holiday-cell{background:#fbfbfb}
 td.cell.holiday-cell.empty{cursor:not-allowed!important}
+td.cell.holiday-cell div:has(>.bf){filter:opacity(.35)} /* 연휴 칸 바 흐리게 — 인라인 opacity/brightness와 곱해짐 */
 tbody tr{border-bottom:1px solid var(--bd)}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--sf2)}
@@ -799,7 +800,7 @@ td.cell.leave{border-right-color:transparent}
 
   <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 14px">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;overflow:hidden">
-      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0911-1</span></div>
+      <div class="nav-logo" style="flex-shrink:0"><b>NHN</b><span> marketing design</span><span style="font-size:11px;opacity:.45;margin-left:6px;font-weight:400">v0915-1</span></div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%" id="schedule-btn-row">
       <div class="mnav">
